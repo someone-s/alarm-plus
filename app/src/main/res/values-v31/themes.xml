@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.AlarmPlus" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/icon_launcher_monochrome</item>
+        <item name="android:windowSplashScreenBackground">@android:color/transparent</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+    </style>
+</resources>
