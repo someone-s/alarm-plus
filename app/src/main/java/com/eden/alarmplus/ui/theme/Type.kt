@@ -1,34 +1,22 @@
 package com.eden.alarmplus.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+private val defaultTypography = Typography()
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+    displayLarge = defaultTypography.displayLarge.copy(fontFamily = mPlusRounded1c),
+    displayMedium = defaultTypography.displayMedium.copy(fontFamily = mPlusRounded1c),
+    displaySmall = defaultTypography.displaySmall.copy(fontFamily = mPlusRounded1c),
+    headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = mPlusRounded1c),
+    headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = mPlusRounded1c),
+    headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = mPlusRounded1c),
+    titleLarge = defaultTypography.titleLarge.copy(fontFamily = mPlusRounded1c),
+    titleMedium = defaultTypography.titleMedium.copy(fontFamily = mPlusRounded1c),
+    titleSmall = defaultTypography.titleSmall.copy(fontFamily = mPlusRounded1c),
+    bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = mPlusRounded1c),
+    bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = mPlusRounded1c),
+    bodySmall = defaultTypography.bodySmall.copy(fontFamily = mPlusRounded1c),
+    labelLarge = defaultTypography.labelLarge.copy(fontFamily = mPlusRounded1c),
+    labelMedium = defaultTypography.labelMedium.copy(fontFamily = mPlusRounded1c),
+    labelSmall = defaultTypography.labelSmall.copy(fontFamily = mPlusRounded1c),
 )

@@ -4,4 +4,15 @@
     <string name="main_ui_maincontent_about">About</string>
     <string name="main_ui_about_aboutscreen_sourcecode_title">Source Code</string>
     <string name="main_ui_about_aboutscreen_sourcecode_body">Source code for the app is available on GitHub</string>
+    <string name="main_ui_alarms_alarmscreen_title">Alarms</string>
+    <string name="main_ui_alarms_addbutton_text">Add</string>
+    <string name="main_ui_alarms_editsheet_action">Edit</string>
+    <string name="main_ui_alarms_edit_group_grouptitle_action">Edit</string>
+    <string name="main_ui_alarms_edit_group_alarmitem_feature_vibrate">Vibrate</string>
+    <string name="main_ui_alarms_edit_group_alarmitem_feature_audible">Audible</string>
+    <string name="main_ui_alarms_edit_group_alarmitem_feature_silent">Silent</string>
+    <string name="main_ui_alarms_edit_group_addbutton_action">Add</string>
+    <string name="main_ui_alarms_edit_group_addbutton_text">Add alarm</string>
+    <string name="main_ui_alarms_edit_alarm_backbutton_action">Back</string>
+    <string name="main_ui_alarms_edit_alarm_alarmtime_action">Edit</string>
 </resources>
