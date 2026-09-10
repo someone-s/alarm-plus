@@ -1,11 +1,13 @@
 package com.eden.alarmplus.main.ui.alarms.edit.group
 
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
@@ -14,8 +16,10 @@ import com.eden.alarmplus.R
 @Composable
 fun AddButton(
     shapes: ListItemShapes,
+    onClick: () -> Unit,
 ) {
     SegmentedListItem(
+        modifier = Modifier.clickable { onClick() },
         shapes = shapes,
         content = {
             Text(

@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.data.GroupData
-import com.eden.alarmplus.data.GroupStatus
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -46,7 +45,7 @@ fun GroupItem(
         content = {
             Column {
                 Text(
-                    text = group.name ?: "",
+                    text = group.info.name ?: "",
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.titleLarge,
                 )
@@ -68,10 +67,7 @@ fun GroupItem(
         },
         trailingContent = {
             Switch(
-                checked = when (group.status) {
-                    GroupStatus.DISABLED -> false
-                    GroupStatus.ENABLED -> true
-                },
+                checked = group.info.active,
                 onCheckedChange = {},
             )
         },

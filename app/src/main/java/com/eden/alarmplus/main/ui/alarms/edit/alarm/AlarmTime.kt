@@ -1,6 +1,7 @@
 package com.eden.alarmplus.main.ui.alarms.edit.alarm
 
 import android.text.format.DateFormat
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +36,7 @@ import java.time.format.FormatStyle
 @Composable
 fun AlarmTime(
     alarm: AlarmData,
+    onClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val timeFormatter = remember(DateFormat.is24HourFormat(context)) {
@@ -53,6 +55,7 @@ fun AlarmTime(
             fontWeight = FontWeight.SemiBold,
             style = MaterialTheme.typography.displaySmall,
             maxLines = 1,
+            modifier = Modifier.clickable(onClick = onClick),
         )
         Spacer(modifier = Modifier.width(12.dp))
         IconButton(
@@ -64,7 +67,7 @@ fun AlarmTime(
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             shape = RectangleShape,
-            onClick = {}
+            onClick = onClick,
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit),

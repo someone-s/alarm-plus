@@ -11,13 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.data.AlarmData
-import com.eden.alarmplus.data.GroupData
+import com.eden.alarmplus.data.GroupInfo
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun GroupSection(
-    group: GroupData,
+    info: GroupInfo,
+    alarms: List<AlarmData>,
     onAlarmSelected: (AlarmData) -> Unit,
+    onAlarmToggled: (AlarmData) -> Unit,
+    onAddAlarm: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -27,21 +30,26 @@ fun GroupSection(
     ) {
         Spacer(modifier = Modifier.height(24.dp))
         GroupTitle(
-            title = group.name ?: "Unnamed",
+            title = info.name ?: "Unnamed",
         )
         Spacer(modifier = Modifier.height(24.dp))
-        group.alarms.forEachIndexed { index, alarm ->
+        alarms.forEachIndexed { index, alarm ->
             AlarmItem(
                 shape = ListItemDefaults.segmentedShapes(
                     index,
-                    group.alarms.size + 1,
+                    alarms.size + 1,
                 ),
                 alarm = alarm,
-                onClick = { onAlarmSelected(alarm) }
+                onClick = { onAlarmSelected(alarm) },
+                onToggle = { active ->
+                    val updatedAlarm = alarm.shallowCopy(active)
+                    onAlarmToggled(updatedAlarm)
+                }
             )
         }
         AddButton(
             shapes = ListItemDefaults.segmentedShapes(1, 2),
+            onClick = { onAddAlarm() }
         )
     }
 }

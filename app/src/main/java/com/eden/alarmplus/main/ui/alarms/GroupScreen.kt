@@ -40,10 +40,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.AlarmData
-import com.eden.alarmplus.data.AlarmStatus
 import com.eden.alarmplus.data.GroupData
-import com.eden.alarmplus.data.GroupStatus
+import com.eden.alarmplus.data.GroupInfo
 import com.eden.alarmplus.data.emptyGroupData
+import com.eden.alarmplus.main.ui.alarms.edit.EditMode
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
 import com.eden.alarmplus.main.ui.alarms.overview.GroupItem
@@ -56,129 +56,67 @@ object AlarmsRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupScreen() {
+fun GroupScreen(
+    initialSheetVisible: Boolean = false,
+    initialEditMode: EditMode = EditMode.LIST,
+    initialShowDiscardDialog: Boolean = false,
+) {
 
-    val groups = listOf(
-        GroupData(
-            name = "Morning alarms",
-            status = GroupStatus.ENABLED,
-            alarms = listOf(
-                AlarmData(
-                    time = LocalTime.of(8, 30),
-                    status = AlarmStatus.IN_PROGRESS,
-                    features = emptyList(),
+    val groups = remember {
+        mutableListOf(
+            GroupData(
+                info = GroupInfo(
+                    name = "Morning alarms",
+                    active = true,
                 ),
-                AlarmData(
-                    time = LocalTime.of(9, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
+                alarms = listOf(
+                    AlarmData(
+                        time = LocalTime.of(8, 30),
+                        active = true,
+                        features = emptyList(),
+                    ),
+                    AlarmData(
+                        time = LocalTime.of(9, 30),
+                        active = true,
+                        features = emptyList(),
+                    ),
+                    AlarmData(
+                        time = LocalTime.of(9, 30),
+                        active = false,
+                        features = emptyList(),
+                    ),
+                )
+            ),
+            GroupData(
+                info = GroupInfo(
+                    name = "Lunch alerts",
+                    active = false,
                 ),
-                AlarmData(
-                    time = LocalTime.of(9, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-            )
-        ),
-        GroupData(
-            name = "Lunch alerts",
-            status = GroupStatus.DISABLED,
-            alarms = listOf(
-                AlarmData(
-                    time = LocalTime.of(12, 30),
-                    status = AlarmStatus.IN_PROGRESS,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(12, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-            )
-        ),
-        GroupData(
-            name = "Morning alarms",
-            status = GroupStatus.ENABLED,
-            alarms = listOf(
-                AlarmData(
-                    time = LocalTime.of(8, 30),
-                    status = AlarmStatus.IN_PROGRESS,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(9, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(9, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-            )
-        ),
-        GroupData(
-            name = "Lunch alerts",
-            status = GroupStatus.DISABLED,
-            alarms = listOf(
-                AlarmData(
-                    time = LocalTime.of(12, 30),
-                    status = AlarmStatus.IN_PROGRESS,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(12, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-            )
-        ),
-        GroupData(
-            name = "Morning alarms",
-            status = GroupStatus.ENABLED,
-            alarms = listOf(
-                AlarmData(
-                    time = LocalTime.of(8, 30),
-                    status = AlarmStatus.IN_PROGRESS,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(9, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(9, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-            )
-        ),
-        GroupData(
-            name = "Lunch alerts",
-            status = GroupStatus.DISABLED,
-            alarms = listOf(
-                AlarmData(
-                    time = LocalTime.of(12, 30),
-                    status = AlarmStatus.IN_PROGRESS,
-                    features = emptyList(),
-                ),
-                AlarmData(
-                    time = LocalTime.of(12, 30),
-                    status = AlarmStatus.PENDING,
-                    features = emptyList(),
-                ),
-            )
-        ),
-    )
+                alarms = listOf(
+                    AlarmData(
+                        time = LocalTime.of(12, 30),
+                        active = true,
+                        features = emptyList(),
+                    ),
+                    AlarmData(
+                        time = LocalTime.of(12, 30),
+                        active = true,
+                        features = emptyList(),
+                    ),
+                )
+            ),
+        )
+    }
 
-    var showEditSheet by remember { mutableStateOf(false) }
-    val editSheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+    var showEditSheet by remember { mutableStateOf(initialSheetVisible) }
+    val editSheetState = rememberBottomSheetState(initialValue = if (initialSheetVisible) SheetValue.Expanded else SheetValue.Hidden)
     var selectedGroup by remember { mutableStateOf(emptyGroupData) }
 
     Scaffold(
         floatingActionButton = {
-            AddButton()
+            AddButton(
+                onClick = {}
+            )
         },
         // inset is already handled by parent Scaffold
         contentWindowInsets = WindowInsets(),
@@ -239,7 +177,10 @@ fun GroupScreen() {
                 EditSheet(
                     sheetState = editSheetState,
                     group = selectedGroup,
-                    onDismiss = { showEditSheet = false }
+                    onUpdate = { },
+                    onCancel = { showEditSheet = false },
+                    initialEditMode = initialEditMode,
+                    initialShowDiscardDialog = initialShowDiscardDialog,
                 )
         }
     )
@@ -259,7 +200,13 @@ fun GroupScreenPreview() {
             }
         ) { innerPadding ->
             NavHost(navController, startDestination = AlarmsRoute, Modifier.padding(innerPadding)) {
-                composable<AlarmsRoute> { GroupScreen() }
+                composable<AlarmsRoute> {
+                    GroupScreen(
+                        initialSheetVisible = true,
+                        initialEditMode = EditMode.ITEM,
+                        initialShowDiscardDialog = true,
+                    )
+                }
             }
         }
     }

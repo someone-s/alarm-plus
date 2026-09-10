@@ -9,10 +9,11 @@ import com.eden.alarmplus.R
 
 
 @Composable
-fun AddButton() {
+fun AddButton(
+    onClick: () -> Unit,
+) {
     FloatingActionButton(
-        onClick = {
-        },
+        onClick = onClick,
     ) {
         Icon(
             painter = painterResource(R.drawable.add),
