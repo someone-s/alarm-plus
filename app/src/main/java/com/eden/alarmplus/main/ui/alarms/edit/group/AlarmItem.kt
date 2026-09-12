@@ -13,6 +13,8 @@ import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxDefaults
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -45,7 +47,13 @@ fun AlarmItem(
         DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
     }
 
-    val dismissBoxState = rememberSwipeToDismissBoxState()
+    val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
+    val dismissBoxState = remember(alarm) {
+        SwipeToDismissBoxState(
+            initialValue = SwipeToDismissBoxValue.Settled,
+            positionalThreshold = positionalThreshold,
+        )
+    }
 
     SwipeToDismissBox(
         state = dismissBoxState,
