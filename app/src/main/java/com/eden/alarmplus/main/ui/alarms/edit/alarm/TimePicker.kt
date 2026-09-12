@@ -17,7 +17,7 @@ import com.eden.alarmplus.data.alarm.AlarmData
 import java.time.LocalTime
 
 @Composable
-fun AlarmTimePicker(
+fun TimePicker(
     alarm: AlarmData,
     onSelect: (LocalTime) -> Unit,
     onDismiss: () -> Unit,

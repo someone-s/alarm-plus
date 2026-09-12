@@ -35,7 +35,9 @@ fun EditSheet(
         var storedInfo by remember { mutableStateOf(group.info) }
         val storedAlarms = remember { group.alarms.toMutableList() }
 
-        val alarmSectionState = rememberAlarmSectionState()
+        val alarmSectionState = rememberAlarmSectionState(
+            initialShowDiscardDialog = initialShowDiscardDialog,
+        )
         fun applySelectedToStore() {
             val index = storedAlarms.indexOfFirst { it.info.uuid == alarmSectionState.value.info.uuid }
             if (index == -1)
@@ -45,7 +47,6 @@ fun EditSheet(
         }
 
         var editMode by remember { mutableStateOf(initialEditMode) }
-        var showAlarmDiscardDialog by remember { mutableStateOf(initialShowDiscardDialog) }
         val editBackHandlerState = rememberEditBackHandlerState()
 
         AnimatedContent(
@@ -79,30 +80,11 @@ fun EditSheet(
                             editMode = EditMode.LIST
                         },
                         onCancel = {
-                            if (alarmSectionState.modified)
-                                showAlarmDiscardDialog = true
-                            else
-                                editMode = EditMode.LIST
+                            editMode = EditMode.LIST
                         },
                     )
             }
         }
-
-        if (showAlarmDiscardDialog)
-            AlarmDiscardDialog(
-                onSubmit = {
-                    showAlarmDiscardDialog = false
-                    applySelectedToStore()
-                    editMode = EditMode.LIST
-                },
-                onDismiss = {
-                    showAlarmDiscardDialog = false
-                },
-                onCancel = {
-                    showAlarmDiscardDialog = false
-                    editMode = EditMode.LIST
-                }
-            )
 
         EditBackHandler(
             state = editBackHandlerState,
@@ -116,7 +98,7 @@ fun EditSheet(
             onComplete = {
                 if (alarmSectionState.modified) {
                     editMode = EditMode.ITEM
-                    showAlarmDiscardDialog = true
+                    alarmSectionState.showDiscardDialog = true
                 }
                 else
                     editMode = EditMode.LIST

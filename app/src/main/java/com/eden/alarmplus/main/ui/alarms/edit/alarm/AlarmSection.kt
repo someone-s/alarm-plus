@@ -25,13 +25,22 @@ import com.eden.alarmplus.data.audio.AudioData
 
 
 @Composable
-fun rememberAlarmSectionState(): AlarmSectionState {
-    return remember { AlarmSectionState() }
+fun rememberAlarmSectionState(
+    initialShowDiscardDialog: Boolean = false,
+): AlarmSectionState {
+    return remember {
+        AlarmSectionState(
+            initialShowDiscardDialog = initialShowDiscardDialog,
+        )
+    }
 }
 @Stable
-class AlarmSectionState {
+class AlarmSectionState(
+    initialShowDiscardDialog: Boolean = false,
+) {
     var value by mutableStateOf(emptyAlarmData)
     var modified by mutableStateOf(false)
+    var showDiscardDialog by mutableStateOf(initialShowDiscardDialog)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -112,12 +121,17 @@ fun AlarmSection(
         NavigateGroup(
             hasChanges = state.modified,
             onSubmit = onSubmit,
-            onCancel = onCancel,
+            onCancel = {
+                if (state.modified)
+                    state.showDiscardDialog = true
+                else
+                    onCancel()
+            },
         )
     }
 
     if (showTimePicker)
-        AlarmTimePicker(
+        TimePicker(
             alarm = state.value,
             onSelect = { time ->
                 state.value = state.value.shallowCopy(time)
@@ -127,6 +141,21 @@ fun AlarmSection(
             onDismiss = {
                 showTimePicker = false
             },
+        )
+
+    if (state.showDiscardDialog)
+        DiscardDialog(
+            onSubmit = {
+                state.showDiscardDialog = false
+                onSubmit()
+            },
+            onDismiss = {
+                state.showDiscardDialog = false
+            },
+            onCancel = {
+                state.showDiscardDialog = false
+                onCancel()
+            }
         )
 }
 

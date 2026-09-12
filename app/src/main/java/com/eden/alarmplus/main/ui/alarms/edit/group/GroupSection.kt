@@ -36,12 +36,13 @@ fun GroupSection(
             .sortedBy { it.info.time }
             .forEachIndexed { index, alarm ->
                 AlarmItem(
-                    shape = ListItemDefaults.segmentedShapes(
+                    shapes = ListItemDefaults.segmentedShapes(
                         index,
                         alarms.size + 1,
                     ),
                     alarm = alarm,
-                    onClick = { onAlarmSelected(alarm) },
+                    onSelect = onAlarmSelected,
+                    onDelete = {}
                 )
             }
         AddButton(
