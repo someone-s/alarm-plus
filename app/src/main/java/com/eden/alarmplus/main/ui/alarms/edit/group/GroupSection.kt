@@ -33,20 +33,22 @@ fun GroupSection(
             title = info.name ?: "Unnamed",
         )
         Spacer(modifier = Modifier.height(24.dp))
-        alarms.forEachIndexed { index, alarm ->
-            AlarmItem(
-                shape = ListItemDefaults.segmentedShapes(
-                    index,
-                    alarms.size + 1,
-                ),
-                alarm = alarm,
-                onClick = { onAlarmSelected(alarm) },
-                onToggle = { active ->
-                    val updatedAlarm = alarm.shallowCopy(active)
-                    onAlarmToggled(updatedAlarm)
-                }
-            )
-        }
+        alarms
+            .sortedBy { it.time }
+            .forEachIndexed { index, alarm ->
+                AlarmItem(
+                    shape = ListItemDefaults.segmentedShapes(
+                        index,
+                        alarms.size + 1,
+                    ),
+                    alarm = alarm,
+                    onClick = { onAlarmSelected(alarm) },
+                    onToggle = { active ->
+                        val updatedAlarm = alarm.shallowCopy(active)
+                        onAlarmToggled(updatedAlarm)
+                    }
+                )
+            }
         AddButton(
             shapes = ListItemDefaults.segmentedShapes(1, 2),
             onClick = { onAddAlarm() }
