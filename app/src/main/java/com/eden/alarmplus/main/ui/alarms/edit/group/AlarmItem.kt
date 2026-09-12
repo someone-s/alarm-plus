@@ -21,6 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarm.AlarmData
+import com.eden.alarmplus.data.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarm.feature.VibrateFeature
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -52,18 +54,22 @@ fun AlarmItem(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.height(IntrinsicSize.Min)
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.mobile_vibrate),
-                    contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_vibrate),
-                )
-                Icon(
-                    painter = painterResource(R.drawable.volume_up),
-                    contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_audible),
-                )
-                Icon(
-                    painter = painterResource(R.drawable.volume_off),
-                    contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_silent),
-                )
+
+                if (alarm.getFeature<AudioFeature>() != null)
+                    Icon(
+                        painter = painterResource(R.drawable.volume_up),
+                        contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_audible),
+                    )
+                else if (alarm.getFeature<VibrateFeature>() != null)
+                    Icon(
+                        painter = painterResource(R.drawable.mobile_vibrate),
+                        contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_vibrate),
+                    )
+                else
+                    Icon(
+                        painter = painterResource(R.drawable.volume_off),
+                        contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_silent),
+                    )
                 VerticalDivider()
                 Icon(
                     painter = painterResource(R.drawable.chevron_forward),
