@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.AlarmData
+import com.eden.alarmplus.data.alarm.AlarmData
 import com.eden.alarmplus.ui.theme.PolygonShape
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -51,7 +51,7 @@ fun AlarmTime(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = timeFormatter.format(alarm.time),
+            text = timeFormatter.format(alarm.info.time),
             fontWeight = FontWeight.SemiBold,
             style = MaterialTheme.typography.displaySmall,
             maxLines = 1,

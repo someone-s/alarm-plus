@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.eden.alarmplus.data.GroupData
+import com.eden.alarmplus.data.group.GroupData
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -27,10 +27,10 @@ fun GroupItem(
 ) {
     val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 
-    val firstTime = group.alarms.firstOrNull()?.time
+    val firstTime = group.alarms.firstOrNull()?.info?.time
     val remainingTimes =
         if (group.alarms.size >= 2)
-            group.alarms.subList(1, group.alarms.size).map { it.time }
+            group.alarms.subList(1, group.alarms.size).map { it.info.time }
         else
             emptyList()
 

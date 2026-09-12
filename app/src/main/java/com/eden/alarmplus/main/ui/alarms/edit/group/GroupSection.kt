@@ -10,8 +10,8 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eden.alarmplus.data.AlarmData
-import com.eden.alarmplus.data.GroupInfo
+import com.eden.alarmplus.data.alarm.AlarmData
+import com.eden.alarmplus.data.group.GroupInfo
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -19,7 +19,6 @@ fun GroupSection(
     info: GroupInfo,
     alarms: List<AlarmData>,
     onAlarmSelected: (AlarmData) -> Unit,
-    onAlarmToggled: (AlarmData) -> Unit,
     onAddAlarm: () -> Unit,
 ) {
     Column(
@@ -34,7 +33,7 @@ fun GroupSection(
         )
         Spacer(modifier = Modifier.height(24.dp))
         alarms
-            .sortedBy { it.time }
+            .sortedBy { it.info.time }
             .forEachIndexed { index, alarm ->
                 AlarmItem(
                     shape = ListItemDefaults.segmentedShapes(
@@ -43,10 +42,6 @@ fun GroupSection(
                     ),
                     alarm = alarm,
                     onClick = { onAlarmSelected(alarm) },
-                    onToggle = { active ->
-                        val updatedAlarm = alarm.shallowCopy(active)
-                        onAlarmToggled(updatedAlarm)
-                    }
                 )
             }
         AddButton(

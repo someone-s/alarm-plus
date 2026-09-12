@@ -9,7 +9,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -21,7 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.AlarmData
+import com.eden.alarmplus.data.alarm.AlarmData
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -30,7 +29,6 @@ fun AlarmItem(
     shape: ListItemShapes,
     alarm: AlarmData,
     onClick: () -> Unit,
-    onToggle: (Boolean) -> Unit,
 ) {
 
     val context = LocalContext.current
@@ -43,7 +41,7 @@ fun AlarmItem(
         shapes = shape,
         content = {
             Text(
-                text = timeFormatter.format(alarm.time),
+                text = timeFormatter.format(alarm.info.time),
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
             )
@@ -67,9 +65,9 @@ fun AlarmItem(
                     contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_silent),
                 )
                 VerticalDivider()
-                Switch(
-                    checked = alarm.active,
-                    onCheckedChange = onToggle,
+                Icon(
+                    painter = painterResource(R.drawable.chevron_forward),
+                    contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_silent),
                 )
             }
         }

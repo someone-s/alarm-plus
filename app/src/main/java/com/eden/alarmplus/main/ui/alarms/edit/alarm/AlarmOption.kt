@@ -1,24 +1,46 @@
 package com.eden.alarmplus.main.ui.alarms.edit.alarm
 
-import androidx.compose.material3.ListItemDefaults
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+open class Option(
+    val name: String,
+    val onInteract: () -> Unit,
+)
+
+class ExpandOption(
+    name: String,
+    val value: String,
+    onInteract: () -> Unit,
+): Option(
+    name = name,
+    onInteract = onInteract,
+)
+
+class SwitchOption(
+    name: String,
+    val value: Boolean,
+    onInteract: () -> Unit,
+): Option(
+    name = name,
+    onInteract = onInteract,
+)
 
 @Composable
 fun AlarmOption(
+    shapes: ListItemShapes,
     option: Option,
-    index: Int,
-    options: List<Option>
 ) {
     when (option) {
         is ExpandOption ->
             SegmentedListItem(
-                shapes = ListItemDefaults.segmentedShapes(
-                    index,
-                    options.size,
-                ),
+                modifier = Modifier.clickable { option.onInteract() },
+                shapes = shapes,
                 content = {
                     Text(
                         text = option.name,
@@ -35,10 +57,7 @@ fun AlarmOption(
 
         is SwitchOption ->
             SegmentedListItem(
-                shapes = ListItemDefaults.segmentedShapes(
-                    index,
-                    options.size,
-                ),
+                shapes = shapes,
                 content = {
                     Text(
                         text = option.name,
@@ -49,7 +68,7 @@ fun AlarmOption(
                 trailingContent = {
                     Switch(
                         checked = option.value,
-                        onCheckedChange = null,
+                        onCheckedChange = { option.onInteract() },
                     )
                 },
             )

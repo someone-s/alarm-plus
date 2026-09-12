@@ -39,10 +39,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.AlarmData
-import com.eden.alarmplus.data.GroupData
-import com.eden.alarmplus.data.GroupInfo
-import com.eden.alarmplus.data.emptyGroupData
+import com.eden.alarmplus.data.alarm.AlarmData
+import com.eden.alarmplus.data.alarm.AlarmInfo
+import com.eden.alarmplus.data.group.GroupData
+import com.eden.alarmplus.data.group.GroupInfo
+import com.eden.alarmplus.data.group.emptyGroupData
 import com.eden.alarmplus.main.ui.alarms.edit.EditMode
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
@@ -71,18 +72,21 @@ fun GroupScreen(
                 ),
                 alarms = listOf(
                     AlarmData(
-                        time = LocalTime.of(8, 30),
-                        active = true,
+                        info = AlarmInfo(
+                            time = LocalTime.of(8, 30),
+                        ),
                         features = emptyList(),
                     ),
                     AlarmData(
-                        time = LocalTime.of(9, 30),
-                        active = true,
+                        info = AlarmInfo(
+                            time = LocalTime.of(9, 30),
+                        ),
                         features = emptyList(),
                     ),
                     AlarmData(
-                        time = LocalTime.of(9, 30),
-                        active = false,
+                        info = AlarmInfo(
+                            time = LocalTime.of(10, 30),
+                        ),
                         features = emptyList(),
                     ),
                 )
@@ -94,13 +98,15 @@ fun GroupScreen(
                 ),
                 alarms = listOf(
                     AlarmData(
-                        time = LocalTime.of(12, 30),
-                        active = true,
+                        info = AlarmInfo(
+                            time = LocalTime.of(12, 30),
+                        ),
                         features = emptyList(),
                     ),
                     AlarmData(
-                        time = LocalTime.of(12, 30),
-                        active = true,
+                        info = AlarmInfo(
+                            time = LocalTime.of(13, 30),
+                        ),
                         features = emptyList(),
                     ),
                 )

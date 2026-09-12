@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -14,19 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eden.alarmplus.data.emptyAlarmData
+import com.eden.alarmplus.data.alarm.emptyAlarmData
+import com.eden.alarmplus.data.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarm.feature.VibrateFeature
 
-interface Option
-
-data class ExpandOption(
-    val name: String,
-    val value: String,
-): Option
-
-data class SwitchOption(
-    val name: String,
-    val value: Boolean,
-): Option
 
 @Composable
 fun rememberAlarmSectionState(): AlarmSectionState {
@@ -48,12 +40,21 @@ fun AlarmSection(
 
     val options = listOf(
         ExpandOption(
-            name = "A",
-            value = "Val",
+            name = "Sound",
+            value = state.value.getFeature<AudioFeature>()?.data?.name ?: "Unset",
+            onInteract = {
+            },
         ),
         SwitchOption(
-            name = "B",
-            value = false,
+            name = "Vibrate",
+            value = state.value.getFeature<VibrateFeature>() != null,
+            onInteract = {
+                if (state.value.getFeature<VibrateFeature>() != null)
+                    state.value = state.value.shallowCopyRemoveFeature<VibrateFeature>()
+                else
+                    state.value = state.value.shallowCopyAddFeature(VibrateFeature())
+                state.modified = true
+            },
         ),
     )
 
@@ -72,12 +73,19 @@ fun AlarmSection(
         )
         Spacer(modifier = Modifier.height(24.dp))
         options.forEachIndexed { index, option ->
-            AlarmOption(option, index, options)
+            AlarmOption(
+                shapes = ListItemDefaults.segmentedShapes(
+                    index,
+                    options.size,
+                ),
+                option = option,
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
         NavigateGroup(
+            hasChanges = state.modified,
             onSubmit = onSubmit,
-            onCancel = onCancel
+            onCancel = onCancel,
         )
     }
 

@@ -7,14 +7,17 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
 @Composable
-fun NavigateGroup(onSubmit: () -> Unit, onCancel: () -> Unit) {
+fun NavigateGroup(
+    hasChanges: Boolean,
+    onSubmit: () -> Unit,
+    onCancel: () -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -28,15 +31,10 @@ fun NavigateGroup(onSubmit: () -> Unit, onCancel: () -> Unit) {
                 contentDescription = stringResource(R.string.main_ui_alarms_edit_alarm_navigategroup_backaction)
             )
         }
-        Row {
-            TextButton(
-                onClick = onCancel,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_navigategroup_discardaction)) },
-            )
-            FilledTonalButton(
-                onClick = onSubmit,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_navigategroup_submitaction)) },
-            )
-        }
+        FilledTonalButton(
+            enabled = hasChanges,
+            onClick = onSubmit,
+            content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_navigategroup_submitaction)) },
+        )
     }
 }

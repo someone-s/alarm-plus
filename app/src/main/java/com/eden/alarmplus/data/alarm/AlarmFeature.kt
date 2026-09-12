@@ -1,4 +1,4 @@
-package com.eden.alarmplus.data
+package com.eden.alarmplus.data.alarm
 
 import kotlinx.serialization.Polymorphic
 

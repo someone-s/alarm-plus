@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.AlarmData
+import com.eden.alarmplus.data.alarm.AlarmData
 import java.time.LocalTime
 
 @Composable
@@ -25,8 +25,8 @@ fun AlarmTimePicker(
     val context = LocalContext.current
 
     val timePickerState = rememberTimePickerState(
-        initialHour = alarm.time.hour,
-        initialMinute = alarm.time.minute,
+        initialHour = alarm.info.time.hour,
+        initialMinute = alarm.info.time.minute,
         is24Hour = DateFormat.is24HourFormat(context),
     )
 

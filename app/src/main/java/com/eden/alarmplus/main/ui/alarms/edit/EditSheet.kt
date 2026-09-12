@@ -9,8 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.eden.alarmplus.data.AlarmData
-import com.eden.alarmplus.data.GroupData
+import com.eden.alarmplus.data.alarm.AlarmData
+import com.eden.alarmplus.data.alarm.AlarmInfo
+import com.eden.alarmplus.data.group.GroupData
 import com.eden.alarmplus.main.ui.alarms.edit.alarm.AlarmSection
 import com.eden.alarmplus.main.ui.alarms.edit.alarm.rememberAlarmSectionState
 import com.eden.alarmplus.main.ui.alarms.edit.group.GroupSection
@@ -36,7 +37,7 @@ fun EditSheet(
 
         val alarmSectionState = rememberAlarmSectionState()
         fun applySelectedToStore() {
-            val index = storedAlarms.indexOfFirst { it.uuid == alarmSectionState.value.uuid }
+            val index = storedAlarms.indexOfFirst { it.info.uuid == alarmSectionState.value.info.uuid }
             if (index == -1)
                 storedAlarms.add(alarmSectionState.value)
             else
@@ -59,13 +60,11 @@ fun EditSheet(
                         alarmSectionState.modified = false
                         editMode = EditMode.ITEM
                     },
-                    onAlarmToggled = { toggledAlarm ->
-                        storedAlarms[storedAlarms.indexOfFirst { it.uuid == toggledAlarm.uuid }] = toggledAlarm
-                    },
                     onAddAlarm = {
                         alarmSectionState.value = AlarmData(
-                            time = LocalTime.now(),
-                            active = true,
+                            info = AlarmInfo(
+                                time = LocalTime.now(),
+                            ),
                             features = emptyList(),
                         )
                         alarmSectionState.modified = true
