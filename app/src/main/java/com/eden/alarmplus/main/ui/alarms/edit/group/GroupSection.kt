@@ -18,8 +18,9 @@ import com.eden.alarmplus.data.group.GroupInfo
 fun GroupSection(
     info: GroupInfo,
     alarms: List<AlarmData>,
-    onAlarmSelected: (AlarmData) -> Unit,
-    onAddAlarm: () -> Unit,
+    onSelect: (AlarmData) -> Unit,
+    onDelete: (AlarmData) -> Unit,
+    onAdd: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -41,13 +42,13 @@ fun GroupSection(
                         alarms.size + 1,
                     ),
                     alarm = alarm,
-                    onSelect = onAlarmSelected,
-                    onDelete = {}
+                    onSelect = onSelect,
+                    onDelete = onDelete,
                 )
             }
         AddButton(
             shapes = ListItemDefaults.segmentedShapes(1, 2),
-            onClick = { onAddAlarm() }
+            onClick = { onAdd() }
         )
     }
 }

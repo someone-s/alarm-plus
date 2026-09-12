@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import com.eden.alarmplus.data.alarm.AlarmData
 import com.eden.alarmplus.data.alarm.AlarmInfo
 import com.eden.alarmplus.data.group.GroupData
@@ -33,7 +34,7 @@ fun EditSheet(
         sheetState = sheetState,
     ) {
         var storedInfo by remember { mutableStateOf(group.info) }
-        val storedAlarms = remember { group.alarms.toMutableList() }
+        val storedAlarms = remember { group.alarms.toMutableStateList() }
 
         val alarmSectionState = rememberAlarmSectionState(
             initialShowDiscardDialog = initialShowDiscardDialog,
@@ -56,12 +57,15 @@ fun EditSheet(
                 EditMode.LIST -> GroupSection(
                     info = storedInfo,
                     alarms = storedAlarms,
-                    onAlarmSelected = { targetAlarm ->
+                    onSelect = { targetAlarm ->
                         alarmSectionState.value = targetAlarm
                         alarmSectionState.modified = false
                         editMode = EditMode.ITEM
                     },
-                    onAddAlarm = {
+                    onDelete = { targetAlarm ->
+                        storedAlarms.remove(targetAlarm)
+                    },
+                    onAdd = {
                         alarmSectionState.value = AlarmData(
                             info = AlarmInfo(
                                 time = LocalTime.now(),
