@@ -1,5 +1,7 @@
 package com.eden.alarmplus.main.ui.alarms.edit.alarm
 
+import android.media.RingtoneManager
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +16,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.data.alarm.emptyAlarmData
 import com.eden.alarmplus.data.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarm.feature.VibrateFeature
+import com.eden.alarmplus.data.audio.AudioData
 
 
 @Composable
@@ -37,12 +41,35 @@ fun AlarmSection(
     onSubmit: () -> Unit,
     onCancel: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val ringtonePickerLauncher = rememberLauncherForActivityResult(
+        contract = RingtonePickerContract(),
+        onResult = { result ->
+            state.value = state.value.shallowCopyReplaceFeature(
+                AudioFeature(
+                    data =
+                        if (result != null)
+                            AudioData(
+                                name = RingtoneManager
+                                    .getRingtone(context, result)
+                                    .getTitle(context),
+                                uri = result,
+                            )
+                        else
+                            null
+                )
+            )
+            state.modified = true
+        }
+    )
 
     val options = listOf(
         ExpandOption(
             name = "Sound",
             value = state.value.getFeature<AudioFeature>()?.data?.name ?: "Unset",
             onInteract = {
+                ringtonePickerLauncher.launch(state.value.getFeature<AudioFeature>()?.data?.uri)
             },
         ),
         SwitchOption(

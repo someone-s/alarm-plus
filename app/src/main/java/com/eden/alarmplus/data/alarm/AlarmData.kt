@@ -21,6 +21,11 @@ data class AlarmData(
         features = this.features.filter { it !is T }
     )
 
+    inline fun <reified T: AlarmFeature> shallowCopyReplaceFeature(feature: T) = AlarmData(
+        info = this.info,
+        features = this.features.filter { it !is T } + feature
+    )
+
     inline fun <reified T: AlarmFeature> getFeature(): T? {
         return features.firstOrNull { it is T } as? T
     }

@@ -8,6 +8,6 @@ import com.eden.alarmplus.data.audio.AudioData
 @Serializable
 @SerialName("audio-feature")
 data class AudioFeature(
-    val data: AudioData
+    val data: AudioData?
 ): AlarmFeature {
 }
