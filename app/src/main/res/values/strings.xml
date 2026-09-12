@@ -19,4 +19,8 @@
     <string name="main_ui_alarms_edit_alarm_alarmtimepicker_applyaction">Apply</string>
     <string name="main_ui_alarms_edit_alarm_alarmtimepicker_cancelaction">Cancel</string>
     <string name="main_ui_alarms_edit_alarm_navigategroup_discardaction">Discard</string>
+    <string name="main_ui_alarms_edit_alarmdiscarddialog_title">Discard changes?</string>
+    <string name="main_ui_alarms_edit_alarmdiscarddialog_body">Changes to this specific alarm will be reverted.</string>
+    <string name="main_ui_alarms_edit_alarmdiscarddialog_discardaction">Discard</string>
+    <string name="main_ui_alarms_edit_alarmdiscarddialog_saveaction">Apply</string>
 </resources>

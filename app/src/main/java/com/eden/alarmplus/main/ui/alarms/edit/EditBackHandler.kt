@@ -2,6 +2,7 @@ package com.eden.alarmplus.main.ui.alarms.edit
 
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -9,37 +10,45 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CancellationException
 
 @Composable
+fun rememberEditBackHandlerState(): EditBackHandlerState {
+    return remember { EditBackHandlerState() }
+}
+
+@Stable
+ class EditBackHandlerState {
+    internal var backInProgress by mutableStateOf(false)
+}
+
+@Composable
 fun EditBackHandler(
-    editMode: EditMode,
-    setEditMode: (EditMode) -> Unit,
+    state: EditBackHandlerState,
+    canBegin: Boolean,
+    onProgress: (thresholdReached: Boolean) -> Unit,
+    onComplete: () -> Unit,
+    onCancel: () -> Unit,
+    threshold: Float = 0.3f,
 ) {
-    var backInProgress by remember { mutableStateOf(false) }
     PredictiveBackHandler(
-        enabled = editMode == EditMode.ITEM || backInProgress,
+        enabled = canBegin || state.backInProgress,
     ) { progress ->
 
-        backInProgress = true
+        state.backInProgress = true
 
         try {
             progress.collect { backEvent ->
                 // On gesture in-progress
-                setEditMode(
-                    if (backEvent.progress > 0.3f)
-                        EditMode.LIST
-                    else
-                        EditMode.ITEM
-                )
+                onProgress(backEvent.progress > threshold)
             }
 
             // On gesture complete
-            setEditMode(EditMode.LIST)
-            backInProgress = false
+            onComplete()
+            state.backInProgress = false
 
         } catch (_: CancellationException) {
 
             // On gesture canceled
-            setEditMode(EditMode.ITEM)
-            backInProgress = false
+            onCancel()
+            state.backInProgress = false
         }
     }
 }
