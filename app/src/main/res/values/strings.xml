@@ -34,4 +34,7 @@
     <string name="main_ui_alarms_edit_group_deletedialog_body">This group will be deleted from the app.</string>
     <string name="main_ui_alarms_edit_group_deletedialog_cancelaction">Cancel</string>
     <string name="main_ui_alarms_edit_group_deletedialog_deleteaction">Delete</string>
+    <string name="main_ui_alarms_edit_group_titleinput_cancelaction">Cancel</string>
+    <string name="main_ui_alarms_edit_group_titleinput_submitaction">Submit</string>
+    <string name="main_ui_alarms_edit_group_titleinput_title">Group name</string>
 </resources>

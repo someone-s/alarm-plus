@@ -84,7 +84,11 @@ fun GroupSection(
     ) {
         Spacer(modifier = Modifier.height(24.dp))
         GroupTitle(
-            title = state.info.name ?: "Unnamed",
+            title = state.info.name,
+            setTitle = { newName ->
+                state.info = state.info.shallowCopy(newName)
+                state.modified = true
+            }
         )
         Spacer(modifier = Modifier.height(24.dp))
         state.alarms.values

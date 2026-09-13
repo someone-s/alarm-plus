@@ -1,5 +1,6 @@
 package com.eden.alarmplus.main.ui.alarms.edit.group
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +15,10 @@ import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +33,11 @@ import com.eden.alarmplus.ui.theme.PolygonShape
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun GroupTitle(
-    title: String,
+    title: String?,
+    setTitle: (String?) -> Unit,
 ) {
     val clip = remember { PolygonShape(MaterialShapes.Cookie6Sided) }
+    var showTitleInput by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -39,9 +45,12 @@ fun GroupTitle(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = title,
+            text = title ?: "Unnamed",
             fontWeight = FontWeight.SemiBold,
             style = MaterialTheme.typography.displaySmall,
+            modifier = Modifier.clickable {
+                showTitleInput = true
+            },
         )
         Spacer(modifier = Modifier.width(12.dp))
         IconButton(
@@ -53,7 +62,9 @@ fun GroupTitle(
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             shape = RectangleShape,
-            onClick = {}
+            onClick = {
+                showTitleInput = true
+            },
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit),
@@ -61,4 +72,16 @@ fun GroupTitle(
             )
         }
     }
+
+    if (showTitleInput)
+        TitleInput(
+            title = title,
+            onSubmit = { newTitle ->
+                setTitle(newTitle)
+                showTitleInput = false
+            },
+            onDismiss = {
+                showTitleInput = false
+            },
+        )
 }
