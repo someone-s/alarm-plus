@@ -62,7 +62,7 @@ class GroupSectionState(
     val group: GroupData
         get() = GroupData(
             info = this.info,
-            alarms = this.alarms.values.toList(),
+            alarms = this.alarms.values.sortedBy { alarm -> alarm.info.time }.toList(),
         )
 }
 

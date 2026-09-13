@@ -136,7 +136,8 @@ fun EditSheet(
                         EditMode.ITEM
                 },
                 onComplete = {
-                    groupSectionState.addOrUpdateAlarm(alarmSectionState.value)
+                    if (alarmSectionState.modified)
+                        groupSectionState.addOrUpdateAlarm(alarmSectionState.value)
                     editMode = EditMode.LIST
                 },
                 onCancel = {

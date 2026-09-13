@@ -2,8 +2,10 @@ package com.eden.alarmplus.main.ui.alarms.overview
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
@@ -13,8 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.data.group.GroupData
 import java.time.format.DateTimeFormatter
@@ -28,11 +28,6 @@ fun GroupItem(
     val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 
     val firstTime = group.alarms.firstOrNull()?.info?.time
-    val remainingTimes =
-        if (group.alarms.size >= 2)
-            group.alarms.subList(1, group.alarms.size).map { it.info.time }
-        else
-            emptyList()
 
     SegmentedListItem(
         modifier = Modifier.clickable { onSelectGroup(group) },
@@ -55,14 +50,19 @@ fun GroupItem(
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.displayMedium,
                 )
-                Text(
-                    text = remainingTimes.joinToString(", ") { timeFormatter.format(it) },
-                    fontWeight = FontWeight.Normal,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Justify,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                )
+                Row {
+                    group.alarms
+                        .map { it.info.time }
+                        .forEach { remainingTime ->
+                            Text(
+                                text = timeFormatter.format(remainingTime),
+                                fontWeight = FontWeight.Normal,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                }
             }
         },
         trailingContent = {
