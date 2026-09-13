@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.eden.alarmplus.data.alarm.AlarmData
 import com.eden.alarmplus.data.alarm.emptyAlarmData
 import com.eden.alarmplus.data.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarm.feature.VibrateFeature
@@ -25,30 +26,31 @@ import com.eden.alarmplus.data.audio.AudioData
 
 
 @Composable
-fun rememberAlarmSectionState(
-    initialShowDiscardDialog: Boolean = false,
-): AlarmSectionState {
-    return remember {
-        AlarmSectionState(
-            initialShowDiscardDialog = initialShowDiscardDialog,
-        )
-    }
+fun rememberAlarmSectionState(): AlarmSectionState {
+    return remember { AlarmSectionState() }
 }
 @Stable
-class AlarmSectionState(
-    initialShowDiscardDialog: Boolean = false,
-) {
+class AlarmSectionState {
     var value by mutableStateOf(emptyAlarmData)
     var modified by mutableStateOf(false)
-    var showDiscardDialog by mutableStateOf(initialShowDiscardDialog)
+
+    fun setAlarmDraft(alarm: AlarmData) {
+        value = alarm
+        modified = true
+    }
+
+    fun setAlarmCurrent(alarm: AlarmData) {
+        value = alarm
+        modified = false
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AlarmSection(
     state: AlarmSectionState,
-    onSubmit: () -> Unit,
-    onCancel: () -> Unit,
+    onBack: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -95,6 +97,7 @@ fun AlarmSection(
     )
 
     var showTimePicker by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -102,7 +105,7 @@ fun AlarmSection(
             .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-
+        Spacer(modifier = Modifier.height(24.dp))
         AlarmTime(
             alarm = state.value,
             onClick = { showTimePicker = true }
@@ -119,13 +122,9 @@ fun AlarmSection(
         }
         Spacer(modifier = Modifier.height(16.dp))
         NavigateGroup(
-            hasChanges = state.modified,
-            onSubmit = onSubmit,
-            onCancel = {
-                if (state.modified)
-                    state.showDiscardDialog = true
-                else
-                    onCancel()
+            onBack = onBack,
+            onDelete = {
+                showDeleteDialog = true
             },
         )
     }
@@ -143,19 +142,15 @@ fun AlarmSection(
             },
         )
 
-    if (state.showDiscardDialog)
-        DiscardDialog(
-            onSubmit = {
-                state.showDiscardDialog = false
-                onSubmit()
+    if (showDeleteDialog)
+        DeleteDialog(
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete()
             },
             onDismiss = {
-                state.showDiscardDialog = false
+                showDeleteDialog = false
             },
-            onCancel = {
-                state.showDiscardDialog = false
-                onCancel()
-            }
         )
 }
 

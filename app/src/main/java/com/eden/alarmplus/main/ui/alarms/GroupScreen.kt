@@ -19,14 +19,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -43,10 +39,9 @@ import com.eden.alarmplus.data.alarm.AlarmData
 import com.eden.alarmplus.data.alarm.AlarmInfo
 import com.eden.alarmplus.data.group.GroupData
 import com.eden.alarmplus.data.group.GroupInfo
-import com.eden.alarmplus.data.group.emptyGroupData
-import com.eden.alarmplus.main.ui.alarms.edit.EditMode
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
+import com.eden.alarmplus.main.ui.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.main.ui.alarms.overview.GroupItem
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import kotlinx.serialization.Serializable
@@ -57,14 +52,10 @@ object AlarmsRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupScreen(
-    initialSheetVisible: Boolean = false,
-    initialEditMode: EditMode = EditMode.LIST,
-    initialShowDiscardDialog: Boolean = false,
-) {
+fun GroupScreen() {
 
     val groups = remember {
-        mutableListOf(
+        listOf(
             GroupData(
                 info = GroupInfo(
                     name = "Morning alarms",
@@ -112,16 +103,17 @@ fun GroupScreen(
                 )
             ),
         )
+            .map { Pair(it.info.uuid, it) }
+            .toMutableStateMap()
     }
 
-    var showEditSheet by remember { mutableStateOf(initialSheetVisible) }
-    val editSheetState = rememberBottomSheetState(initialValue = if (initialSheetVisible) SheetValue.Expanded else SheetValue.Hidden)
-    var selectedGroup by remember { mutableStateOf(emptyGroupData) }
+    val editSheetState = rememberEditSheetState()
 
     Scaffold(
         floatingActionButton = {
             AddButton(
-                onClick = {}
+                onClick = {
+                }
             )
         },
         // inset is already handled by parent Scaffold
@@ -165,12 +157,11 @@ fun GroupScreen(
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    items(groups) { group ->
+                    items(groups.values.toList()) { group ->
                         GroupItem(
                             group = group,
-                            onSelectGroup = {
-                                selectedGroup = it
-                                showEditSheet = true
+                            onSelectGroup = { selectedGroup ->
+                                editSheetState.editGroup(selectedGroup)
                             }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -179,15 +170,15 @@ fun GroupScreen(
                 }
             }
 
-            if (showEditSheet)
-                EditSheet(
-                    sheetState = editSheetState,
-                    group = selectedGroup,
-                    onUpdate = { },
-                    onCancel = { showEditSheet = false },
-                    initialEditMode = initialEditMode,
-                    initialShowDiscardDialog = initialShowDiscardDialog,
-                )
+            EditSheet(
+                state = editSheetState,
+                onApply = { targetGroup ->
+                    groups[targetGroup.info.uuid] = targetGroup
+                },
+                onDelete = { targetGroup ->
+                    groups.remove(targetGroup.info.uuid)
+                },
+            )
         }
     )
 }
@@ -207,11 +198,7 @@ fun GroupScreenPreview() {
         ) { innerPadding ->
             NavHost(navController, startDestination = AlarmsRoute, Modifier.padding(innerPadding)) {
                 composable<AlarmsRoute> {
-                    GroupScreen(
-                        initialSheetVisible = true,
-                        initialEditMode = EditMode.ITEM,
-                        initialShowDiscardDialog = true,
-                    )
+                    GroupScreen()
                 }
             }
         }

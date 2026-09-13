@@ -9,25 +9,24 @@ import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
 
 @Composable
-fun DiscardDialog(
-    onSubmit: () -> Unit,
+fun DeleteDialog(
+    onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    onCancel: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_alarmdiscarddialog_title)) },
-        text = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_alarmdiscarddialog_body)) },
+        title = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_deletedialog_title)) },
+        text = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_deletedialog_body)) },
         dismissButton = {
             TextButton(
-                onClick = onCancel,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_alarmdiscarddialog_discardaction)) },
+                onClick = onDismiss,
+                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_deletedialog_cancelaction)) },
             )
         },
         confirmButton = {
             FilledTonalButton(
-                onClick = onSubmit,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_alarmdiscarddialog_saveaction)) },
+                onClick = onConfirm,
+                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_deletedialog_deleteaction)) },
             )
         }
     )
