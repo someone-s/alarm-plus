@@ -117,6 +117,56 @@ fun GroupScreen() {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val revertGroupDeleteMessage = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeletemessage)
+    val revertGroupDeleteAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeleteaction)
+    fun showRevertGroupDeleteSnackbar(deleteGroup: GroupData) {
+        groups.remove(deleteGroup.info.uuid)
+        scope.launch {
+            val result = snackbarHostState
+                .showSnackbar(
+                    message = revertGroupDeleteMessage,
+                    actionLabel = revertGroupDeleteAction,
+                    duration = SnackbarDuration.Long,
+                    withDismissAction = true,
+                )
+            when (result) {
+                SnackbarResult.ActionPerformed -> {
+                    groups[deleteGroup.info.uuid] = deleteGroup
+                }
+
+                SnackbarResult.Dismissed -> {}
+            }
+        }
+    }
+
+    val revertGroupUpdateMessage = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdatemessage)
+    val revertGroupUpdateAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdateaction)
+    fun showRevertGroupUpdateSnackbar(editGroup: GroupData) {
+        val groupUuid = editGroup.info.uuid
+        val originalGroup = groups[groupUuid]
+        groups[groupUuid] = editGroup
+
+        scope.launch {
+            val result = snackbarHostState
+                .showSnackbar(
+                    message = revertGroupUpdateMessage,
+                    actionLabel = revertGroupUpdateAction,
+                    duration = SnackbarDuration.Long,
+                    withDismissAction = true,
+                )
+            when (result) {
+                SnackbarResult.ActionPerformed -> {
+                    if (originalGroup != null)
+                        groups[groupUuid] = originalGroup
+                    else
+                        groups.remove(groupUuid)
+                }
+
+                SnackbarResult.Dismissed -> {}
+            }
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             AddButton(
@@ -173,8 +223,18 @@ fun GroupScreen() {
                     items(groups.values.toList()) { group ->
                         GroupItem(
                             group = group,
-                            onSelectGroup = { selectedGroup ->
-                                editSheetState.showSheet(selectedGroup)
+                            onSelect = {
+                                editSheetState.showSheet(group)
+                            },
+                            onToggle = { active ->
+                                val groupUuid = group.info.uuid
+                                val targetGroup = groups[groupUuid] ?: return@GroupItem
+                                groups[groupUuid] = targetGroup.shallowCopy(
+                                    group.info.shallowCopy(active)
+                                )
+                            },
+                            onDelete = {
+                                showRevertGroupDeleteSnackbar(group)
                             }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -183,60 +243,15 @@ fun GroupScreen() {
                 }
             }
 
-            val revertGroupDeleteMessage =
-                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeletemessage)
-            val revertGroupDeleteAction =
-                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeleteaction)
-            val revertGroupUpdateMessage =
-                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdatemessage)
-            val revertGroupUpdateAction =
-                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdateaction)
             EditSheet(
                 state = editSheetState,
                 onDelete = {
-                    val deleteGroup = editSheetState.group
-                    groups.remove(deleteGroup.info.uuid)
-                    scope.launch {
-                        val result = snackbarHostState
-                            .showSnackbar(
-                                message = revertGroupDeleteMessage,
-                                actionLabel = revertGroupDeleteAction,
-                                duration = SnackbarDuration.Long,
-                                withDismissAction = true,
-                            )
-                        when (result) {
-                            SnackbarResult.ActionPerformed -> {
-                                groups[deleteGroup.info.uuid] = deleteGroup
-                            }
-                            SnackbarResult.Dismissed -> {}
-                        }
-                    }
+                    showRevertGroupDeleteSnackbar(editSheetState.group)
                 },
                 onBack = {
                     if (editSheetState.modified) {
                         val editGroup = editSheetState.group
-                        val groupUuid = editGroup.info.uuid
-                        val originalGroup = groups[groupUuid]
-                        groups[groupUuid] = editGroup
-
-                        scope.launch {
-                            val result = snackbarHostState
-                                .showSnackbar(
-                                    message = revertGroupUpdateMessage,
-                                    actionLabel = revertGroupUpdateAction,
-                                    duration = SnackbarDuration.Long,
-                                    withDismissAction = true,
-                                )
-                            when (result) {
-                                SnackbarResult.ActionPerformed -> {
-                                    if (originalGroup != null)
-                                        groups[groupUuid] = originalGroup
-                                    else
-                                        groups.remove(groupUuid)
-                                }
-                                SnackbarResult.Dismissed -> {}
-                            }
-                        }
+                        showRevertGroupUpdateSnackbar(editGroup)
                     }
                 }
             )

@@ -56,6 +56,7 @@ fun AlarmItem(
 
     SwipeToDismissBox(
         state = dismissBoxState,
+        onDismiss = { onDelete(alarm) },
         backgroundContent = {
             SegmentedListItem(
                 shapes = shapes,
@@ -78,7 +79,6 @@ fun AlarmItem(
                 }
             )
         },
-        onDismiss = { onDelete(alarm) },
         content = {
             SegmentedListItem(
                 onClick = { onSelect(alarm) },

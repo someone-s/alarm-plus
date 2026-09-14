@@ -41,4 +41,5 @@
     <string name="main_ui_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>
     <string name="main_ui_alarms_groupscreen_revertgroupupdatemessage">Revert changes to alarm group?</string>
     <string name="main_ui_alarms_groupscreen_revertgroupupdateaction">Revert</string>
+    <string name="main_ui_alarms_overview_groupitem_deleteaction">Delete</string>
 </resources>

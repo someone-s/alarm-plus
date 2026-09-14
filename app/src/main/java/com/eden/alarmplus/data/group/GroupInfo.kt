@@ -12,6 +12,12 @@ data class GroupInfo(
         name = name,
         active = this.active,
     )
+
+    fun shallowCopy(active: Boolean) = GroupInfo(
+        uuid = this.uuid,
+        name = this.name,
+        active = active,
+    )
 }
 
 val emptyGroupInfo = GroupInfo(
