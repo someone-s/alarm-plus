@@ -31,10 +31,27 @@ fun rememberEditSheetState(): EditSheetState {
 class EditSheetState {
     var showSheet by mutableStateOf(false)
     var group by mutableStateOf(emptyGroupData)
+    var modified by mutableStateOf(false)
 
-    fun editGroup(group: GroupData) {
+    fun showSheet(
+        group: GroupData,
+        initialModified: Boolean = false,
+    ) {
         this.group = group
         this.showSheet = true
+        this.modified = initialModified
+    }
+
+    fun modifyGroup(
+        group: GroupData,
+    ) {
+        this.group = group
+        this.modified = true
+    }
+
+    fun resetGroup() {
+        this.group = emptyGroupData
+        this.modified = false
     }
 }
 
@@ -42,9 +59,8 @@ class EditSheetState {
 @Composable
 fun EditSheet(
     state: EditSheetState,
-    onApply: (GroupData) -> Unit,
-    onDelete: (GroupData) -> Unit,
-    onBack: () -> Unit = {},
+    onDelete: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
@@ -52,27 +68,28 @@ fun EditSheet(
     val groupSectionState = rememberGroupSectionState(
         group = state.group,
     )
+    val alarmSectionState = rememberAlarmSectionState()
 
     fun hideSheet() {
         coroutineScope.launch {
             sheetState.hide()
             state.showSheet = false
-            state.group = emptyGroupData
+            state.resetGroup()
         }
     }
 
     if (state.showSheet)
         ModalBottomSheet(
             onDismissRequest = {
-                if (groupSectionState.getDiscardConfirmation()) {
-                    onBack()
-                    hideSheet()
-                }
+                if (alarmSectionState.modified)
+                    groupSectionState.addOrUpdateAlarm(alarmSectionState.value)
+                if (groupSectionState.modified)
+                    state.modifyGroup(groupSectionState.group)
+                onBack()
+                hideSheet()
             },
             sheetState = sheetState,
         ) {
-            val alarmSectionState = rememberAlarmSectionState()
-
             var editMode by remember { mutableStateOf(EditMode.LIST) }
             val editBackHandlerState = rememberEditBackHandlerState()
 
@@ -97,15 +114,15 @@ fun EditSheet(
                             alarmSectionState.setAlarmCurrent(targetAlarm)
                             editMode = EditMode.ITEM
                         },
-                        onApply = { group ->
-                            onApply(group)
-                            hideSheet()
-                        },
-                        onDelete = { group ->
-                            onDelete(group)
+                        onDelete = {
+                            if (groupSectionState.modified)
+                                state.modifyGroup(groupSectionState.group)
+                            onDelete()
                             hideSheet()
                         },
                         onBack = {
+                            if (groupSectionState.modified)
+                                state.modifyGroup(groupSectionState.group)
                             onBack()
                             hideSheet()
                         },

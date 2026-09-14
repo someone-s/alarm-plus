@@ -19,9 +19,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +49,7 @@ import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
 import com.eden.alarmplus.main.ui.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.main.ui.alarms.overview.GroupItem
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.time.LocalTime
 
@@ -108,12 +114,19 @@ fun GroupScreen() {
     }
 
     val editSheetState = rememberEditSheetState()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         floatingActionButton = {
             AddButton(
                 onClick = {
                 }
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
             )
         },
         // inset is already handled by parent Scaffold
@@ -161,7 +174,7 @@ fun GroupScreen() {
                         GroupItem(
                             group = group,
                             onSelectGroup = { selectedGroup ->
-                                editSheetState.editGroup(selectedGroup)
+                                editSheetState.showSheet(selectedGroup)
                             }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -170,14 +183,62 @@ fun GroupScreen() {
                 }
             }
 
+            val revertGroupDeleteMessage =
+                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeletemessage)
+            val revertGroupDeleteAction =
+                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeleteaction)
+            val revertGroupUpdateMessage =
+                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdatemessage)
+            val revertGroupUpdateAction =
+                stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdateaction)
             EditSheet(
                 state = editSheetState,
-                onApply = { targetGroup ->
-                    groups[targetGroup.info.uuid] = targetGroup
+                onDelete = {
+                    val deleteGroup = editSheetState.group
+                    groups.remove(deleteGroup.info.uuid)
+                    scope.launch {
+                        val result = snackbarHostState
+                            .showSnackbar(
+                                message = revertGroupDeleteMessage,
+                                actionLabel = revertGroupDeleteAction,
+                                duration = SnackbarDuration.Long,
+                                withDismissAction = true,
+                            )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                groups[deleteGroup.info.uuid] = deleteGroup
+                            }
+                            SnackbarResult.Dismissed -> {}
+                        }
+                    }
                 },
-                onDelete = { targetGroup ->
-                    groups.remove(targetGroup.info.uuid)
-                },
+                onBack = {
+                    if (editSheetState.modified) {
+                        val editGroup = editSheetState.group
+                        val groupUuid = editGroup.info.uuid
+                        val originalGroup = groups[groupUuid]
+                        groups[groupUuid] = editGroup
+
+                        scope.launch {
+                            val result = snackbarHostState
+                                .showSnackbar(
+                                    message = revertGroupUpdateMessage,
+                                    actionLabel = revertGroupUpdateAction,
+                                    duration = SnackbarDuration.Long,
+                                    withDismissAction = true,
+                                )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {
+                                    if (originalGroup != null)
+                                        groups[groupUuid] = originalGroup
+                                    else
+                                        groups.remove(groupUuid)
+                                }
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
+                    }
+                }
             )
         }
     )

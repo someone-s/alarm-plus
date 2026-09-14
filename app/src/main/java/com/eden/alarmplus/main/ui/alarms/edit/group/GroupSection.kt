@@ -37,7 +37,6 @@ class GroupSectionState(
     var info by mutableStateOf(initialGroup.info)
     val alarms = initialGroup.alarms.map { Pair(it.info.uuid, it) }.toMutableStateMap()
     var modified by mutableStateOf(false)
-    var showSaveDialog by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
 
     fun addOrUpdateAlarm(alarm: AlarmData) {
@@ -47,16 +46,7 @@ class GroupSectionState(
 
     fun removeIfExistAlarm(alarm: AlarmData) {
         val result = alarms.remove(alarm.info.uuid)
-        modified = result != null
-    }
-
-    fun getDiscardConfirmation(): Boolean {
-        if (modified) {
-            showSaveDialog = true
-            return false
-        }
-        else
-            return true
+        modified = modified || result != null
     }
 
     val group: GroupData
@@ -72,8 +62,7 @@ fun GroupSection(
     state: GroupSectionState,
     onAddAlarm: () -> Unit,
     onSelectAlarm: (AlarmData) -> Unit,
-    onApply: (GroupData) -> Unit,
-    onDelete: (GroupData) -> Unit,
+    onDelete: () -> Unit,
     onBack: () -> Unit,
 ) {
     Column(
@@ -112,9 +101,8 @@ fun GroupSection(
         )
         Spacer(modifier = Modifier.height(16.dp))
         NavigateGroup(
-            hasChanges = state.modified,
-            onApply = {
-                onApply(state.group)
+            onBack = {
+                onBack()
             },
             onDelete = {
                 state.showDeleteDialog = true
@@ -125,23 +113,11 @@ fun GroupSection(
     if (state.showDeleteDialog)
         DeleteDialog(
             onConfirm = {
-                onDelete(state.group)
+                onDelete()
                 state.showDeleteDialog = false
             },
             onDismiss = {
                 state.showDeleteDialog = false
-            },
-        )
-
-    if (state.showSaveDialog)
-        SaveDialog(
-            onConfirm = {
-                onApply(state.group)
-                state.showSaveDialog = false
-            },
-            onDismiss = {
-                onBack()
-                state.showSaveDialog = false
             },
         )
 }

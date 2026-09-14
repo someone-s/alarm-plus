@@ -37,4 +37,8 @@
     <string name="main_ui_alarms_edit_group_titleinput_cancelaction">Cancel</string>
     <string name="main_ui_alarms_edit_group_titleinput_submitaction">Submit</string>
     <string name="main_ui_alarms_edit_group_titleinput_title">Group name</string>
+    <string name="main_ui_alarms_groupscreen_revertgroupdeleteaction">Revert</string>
+    <string name="main_ui_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>
+    <string name="main_ui_alarms_groupscreen_revertgroupupdatemessage">Revert changes to alarm group?</string>
+    <string name="main_ui_alarms_groupscreen_revertgroupupdateaction">Revert</string>
 </resources>
