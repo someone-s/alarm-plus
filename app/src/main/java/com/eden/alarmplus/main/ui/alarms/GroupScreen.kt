@@ -44,6 +44,7 @@ import com.eden.alarmplus.data.alarm.AlarmData
 import com.eden.alarmplus.data.alarm.AlarmInfo
 import com.eden.alarmplus.data.group.GroupData
 import com.eden.alarmplus.data.group.GroupInfo
+import com.eden.alarmplus.data.group.emptyGroupData
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
 import com.eden.alarmplus.main.ui.alarms.edit.rememberEditSheetState
@@ -114,8 +115,9 @@ fun GroupScreen() {
     }
 
     val editSheetState = rememberEditSheetState()
-    val scope = rememberCoroutineScope()
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val revertGroupDeleteMessage = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeletemessage)
     val revertGroupDeleteAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeleteaction)
@@ -171,6 +173,10 @@ fun GroupScreen() {
         floatingActionButton = {
             AddButton(
                 onClick = {
+                    editSheetState.showSheet(
+                        group = emptyGroupData,
+                        initialModified = true,
+                    )
                 }
             )
         },
