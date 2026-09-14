@@ -1,4 +1,4 @@
-package com.eden.alarmplus.data.audio
+package com.eden.alarmplus.structure.audio
 
 import android.net.Uri
 import androidx.core.net.toUri

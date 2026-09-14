@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.alarm.AlarmData
+import com.eden.alarmplus.structure.alarm.AlarmData
 import com.eden.alarmplus.ui.theme.PolygonShape
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle

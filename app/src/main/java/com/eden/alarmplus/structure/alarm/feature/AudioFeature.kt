@@ -1,9 +1,9 @@
-package com.eden.alarmplus.data.alarm.feature
+package com.eden.alarmplus.structure.alarm.feature
 
-import com.eden.alarmplus.data.alarm.AlarmFeature
+import com.eden.alarmplus.structure.alarm.AlarmFeature
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import com.eden.alarmplus.data.audio.AudioData
+import com.eden.alarmplus.structure.audio.AudioData
 
 @Serializable
 @SerialName("audio-feature")

@@ -1,6 +1,6 @@
-package com.eden.alarmplus.data.group
+package com.eden.alarmplus.structure.group
 
-import com.eden.alarmplus.data.alarm.AlarmData
+import com.eden.alarmplus.structure.alarm.AlarmData
 
 data class GroupData(
     val info: GroupInfo,

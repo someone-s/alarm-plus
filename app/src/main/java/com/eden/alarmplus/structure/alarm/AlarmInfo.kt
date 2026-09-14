@@ -1,4 +1,4 @@
-package com.eden.alarmplus.data.alarm
+package com.eden.alarmplus.structure.alarm
 
 import java.time.LocalTime
 import kotlin.uuid.Uuid

@@ -40,11 +40,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.alarm.AlarmData
-import com.eden.alarmplus.data.alarm.AlarmInfo
-import com.eden.alarmplus.data.group.GroupData
-import com.eden.alarmplus.data.group.GroupInfo
-import com.eden.alarmplus.data.group.emptyGroupData
+import com.eden.alarmplus.structure.alarm.AlarmData
+import com.eden.alarmplus.structure.alarm.AlarmInfo
+import com.eden.alarmplus.structure.group.GroupData
+import com.eden.alarmplus.structure.group.GroupInfo
+import com.eden.alarmplus.structure.group.emptyGroupData
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
 import com.eden.alarmplus.main.ui.alarms.edit.rememberEditSheetState
