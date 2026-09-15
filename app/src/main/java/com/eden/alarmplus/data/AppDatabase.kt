@@ -8,7 +8,7 @@ import androidx.room3.RoomDatabase
         GroupEntity::class,
         AlarmEntity::class,
     ],
-    version = 0,
+    version = 1,
 )
 abstract class AppDatabase: RoomDatabase() {
     abstract fun appDao(): AppDao
