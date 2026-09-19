@@ -51,6 +51,7 @@ import com.eden.alarmplus.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.time.LocalTime
 
 @Serializable
 object AlarmsRoute
@@ -74,6 +75,7 @@ fun GroupAlarmScreen(
         scope.launch {
             viewModel.deleteGroupAlarm(deleteGroup.info.uuid)
 
+            snackbarHostState.currentSnackbarData?.dismiss()
             val result = snackbarHostState
                 .showSnackbar(
                     message = revertGroupDeleteMessage,
@@ -99,7 +101,8 @@ fun GroupAlarmScreen(
 
         scope.launch {
             viewModel.insertOrReplaceGroupAlarm(editGroup)
-
+            
+            snackbarHostState.currentSnackbarData?.dismiss()
             val result = snackbarHostState
                 .showSnackbar(
                     message = revertGroupUpdateMessage,
@@ -177,7 +180,7 @@ fun GroupAlarmScreen(
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    items(items = groupAlarmUiState.groupDataList) { group ->
+                    items(items = groupAlarmUiState.groupDataList.sortedBy { g -> if (g.alarms.isEmpty()) LocalTime.of(0, 0) else g.alarms.minOf { a -> a.info.time } }) { group ->
                         GroupItem(
                             group = group,
                             onSelect = {
