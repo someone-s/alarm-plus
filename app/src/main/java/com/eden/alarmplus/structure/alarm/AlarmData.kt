@@ -35,3 +35,8 @@ val emptyAlarmData = AlarmData(
     info = emptyAlarmInfo,
     features = emptyList(),
 )
+
+fun getUniqueAlarmData() = AlarmData(
+    info = getUniqueAlarmInfo(),
+    features = emptyList(),
+)

@@ -25,9 +25,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -36,83 +37,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
-import com.eden.alarmplus.structure.alarm.AlarmData
-import com.eden.alarmplus.structure.alarm.AlarmInfo
 import com.eden.alarmplus.structure.group.GroupData
-import com.eden.alarmplus.structure.group.GroupInfo
-import com.eden.alarmplus.structure.group.emptyGroupData
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
 import com.eden.alarmplus.main.ui.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.main.ui.alarms.overview.GroupItem
+import com.eden.alarmplus.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.time.LocalTime
 
 @Serializable
 object AlarmsRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupScreen() {
+fun GroupAlarmScreen(
+    viewModel: GroupAlarmViewModel = viewModel(factory = GroupAlarmViewModelProvider.Factory)
+) {
 
-    val groups = remember {
-        listOf(
-            GroupData(
-                info = GroupInfo(
-                    name = "Morning alarms",
-                    active = true,
-                ),
-                alarms = listOf(
-                    AlarmData(
-                        info = AlarmInfo(
-                            time = LocalTime.of(8, 30),
-                        ),
-                        features = emptyList(),
-                    ),
-                    AlarmData(
-                        info = AlarmInfo(
-                            time = LocalTime.of(9, 30),
-                        ),
-                        features = emptyList(),
-                    ),
-                    AlarmData(
-                        info = AlarmInfo(
-                            time = LocalTime.of(10, 30),
-                        ),
-                        features = emptyList(),
-                    ),
-                )
-            ),
-            GroupData(
-                info = GroupInfo(
-                    name = "Lunch alerts",
-                    active = false,
-                ),
-                alarms = listOf(
-                    AlarmData(
-                        info = AlarmInfo(
-                            time = LocalTime.of(12, 30),
-                        ),
-                        features = emptyList(),
-                    ),
-                    AlarmData(
-                        info = AlarmInfo(
-                            time = LocalTime.of(13, 30),
-                        ),
-                        features = emptyList(),
-                    ),
-                )
-            ),
-        )
-            .map { Pair(it.info.uuid, it) }
-            .toMutableStateMap()
-    }
+    val groupAlarmUiState by viewModel.groupUiState.collectAsState()
 
     val editSheetState = rememberEditSheetState()
 
@@ -122,8 +71,9 @@ fun GroupScreen() {
     val revertGroupDeleteMessage = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeletemessage)
     val revertGroupDeleteAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeleteaction)
     fun showRevertGroupDeleteSnackbar(deleteGroup: GroupData) {
-        groups.remove(deleteGroup.info.uuid)
         scope.launch {
+            viewModel.deleteGroupAlarm(deleteGroup.info.uuid)
+
             val result = snackbarHostState
                 .showSnackbar(
                     message = revertGroupDeleteMessage,
@@ -133,7 +83,7 @@ fun GroupScreen() {
                 )
             when (result) {
                 SnackbarResult.ActionPerformed -> {
-                    groups[deleteGroup.info.uuid] = deleteGroup
+                    viewModel.insertOrReplaceGroupAlarm(deleteGroup)
                 }
 
                 SnackbarResult.Dismissed -> {}
@@ -145,10 +95,11 @@ fun GroupScreen() {
     val revertGroupUpdateAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdateaction)
     fun showRevertGroupUpdateSnackbar(editGroup: GroupData) {
         val groupUuid = editGroup.info.uuid
-        val originalGroup = groups[groupUuid]
-        groups[groupUuid] = editGroup
+        val originalGroup = groupAlarmUiState.groupDataList.firstOrNull { it.info.uuid == groupUuid }
 
         scope.launch {
+            viewModel.insertOrReplaceGroupAlarm(editGroup)
+
             val result = snackbarHostState
                 .showSnackbar(
                     message = revertGroupUpdateMessage,
@@ -159,9 +110,9 @@ fun GroupScreen() {
             when (result) {
                 SnackbarResult.ActionPerformed -> {
                     if (originalGroup != null)
-                        groups[groupUuid] = originalGroup
+                        viewModel.insertOrReplaceGroupAlarm(originalGroup)
                     else
-                        groups.remove(groupUuid)
+                        viewModel.deleteGroupAlarm(groupUuid)
                 }
 
                 SnackbarResult.Dismissed -> {}
@@ -174,7 +125,7 @@ fun GroupScreen() {
             AddButton(
                 onClick = {
                     editSheetState.showSheet(
-                        group = emptyGroupData,
+                        group = getUniqueGroupData(),
                         initialModified = true,
                     )
                 }
@@ -226,7 +177,7 @@ fun GroupScreen() {
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    items(groups.values.toList()) { group ->
+                    items(items = groupAlarmUiState.groupDataList) { group ->
                         GroupItem(
                             group = group,
                             onSelect = {
@@ -234,10 +185,9 @@ fun GroupScreen() {
                             },
                             onToggle = { active ->
                                 val groupUuid = group.info.uuid
-                                val targetGroup = groups[groupUuid] ?: return@GroupItem
-                                groups[groupUuid] = targetGroup.shallowCopy(
-                                    group.info.shallowCopy(active)
-                                )
+                                scope.launch {
+                                    viewModel.toggleGroupAlarm(groupUuid, active)
+                                }
                             },
                             onDelete = {
                                 showRevertGroupDeleteSnackbar(group)
@@ -268,7 +218,7 @@ fun GroupScreen() {
 
 @PreviewScreenSizes
 @Composable
-fun GroupScreenPreview() {
+fun GroupAlarmScreenPreview() {
 
     val navController = rememberNavController()
 
@@ -280,7 +230,7 @@ fun GroupScreenPreview() {
         ) { innerPadding ->
             NavHost(navController, startDestination = AlarmsRoute, Modifier.padding(innerPadding)) {
                 composable<AlarmsRoute> {
-                    GroupScreen()
+                    GroupAlarmScreen()
                 }
             }
         }

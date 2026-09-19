@@ -24,3 +24,8 @@ val emptyGroupInfo = GroupInfo(
     name = null,
     active = false,
 )
+
+fun getUniqueGroupInfo() = GroupInfo(
+    name = null,
+    active = false,
+)

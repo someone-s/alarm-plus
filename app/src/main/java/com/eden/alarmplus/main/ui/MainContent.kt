@@ -24,7 +24,7 @@ import com.eden.alarmplus.R
 import com.eden.alarmplus.main.ui.about.AboutRoute
 import com.eden.alarmplus.main.ui.about.AboutScreen
 import com.eden.alarmplus.main.ui.alarms.AlarmsRoute
-import com.eden.alarmplus.main.ui.alarms.GroupScreen
+import com.eden.alarmplus.main.ui.alarms.GroupAlarmScreen
 
 
 data class TopLevelRoute<T : Any>(
@@ -95,7 +95,7 @@ fun MainContent() {
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = AlarmsRoute, Modifier.padding(innerPadding)) {
-            composable<AlarmsRoute> { GroupScreen() }
+            composable<AlarmsRoute> { GroupAlarmScreen() }
             composable<AboutRoute> { AboutScreen() }
         }
 

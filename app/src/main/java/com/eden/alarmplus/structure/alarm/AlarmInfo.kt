@@ -16,3 +16,7 @@ data class AlarmInfo(
 val emptyAlarmInfo = AlarmInfo(
     time = LocalTime.of(0, 0),
 )
+
+fun getUniqueAlarmInfo() = AlarmInfo(
+    time = LocalTime.of(0, 0),
+)

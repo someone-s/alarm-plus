@@ -16,3 +16,8 @@ val emptyGroupData = GroupData(
     info = emptyGroupInfo,
     alarms = emptyList(),
 )
+
+fun getUniqueGroupData() = GroupData(
+    info = getUniqueGroupInfo(),
+    alarms = emptyList(),
+)
