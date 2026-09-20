@@ -2,6 +2,7 @@ package com.eden.alarmplus.data.repository
 
 import com.eden.alarmplus.structure.group.GroupData
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalTime
 import kotlin.uuid.Uuid
 
 interface GroupAlarmsRepository {
@@ -13,7 +14,7 @@ interface GroupAlarmsRepository {
 
     suspend fun insertOrReplace(group: GroupData)
 
-    fun getGroupAlarmStream(groupUuid: Uuid): Flow<GroupData>
+    suspend fun getNextAlarmTimeAfter(time: LocalTime): LocalTime
 
     fun getAllGroupAlarmsStream(): Flow<List<GroupData>>
 }

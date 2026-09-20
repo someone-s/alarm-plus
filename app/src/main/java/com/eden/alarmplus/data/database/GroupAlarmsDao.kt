@@ -33,18 +33,35 @@ interface GroupAlarmsDao {
     @Delete
     suspend fun delete(group: GroupEntity)
 
-    @Transaction
+    /**
+     * @param timestamp in whole minutes
+     * @return next alarm's timestamp in whole minutes
+     */
     @Query(
         """
-            SELECT * 
-            FROM groups 
-            WHERE
-                group_upper_uuid = :groupUpperUuid
-                AND
-                group_lower_uuid = :groupLowerUuid
+            WITH 
+                after_timestamp_cte AS (
+                    SELECT timestamp 
+                    FROM alarms
+                    WHERE timestamp > :timestamp
+                    ORDER BY timestamp ASC
+                    LIMIT 1
+                ),
+                first_timestamp_cte AS (
+                    SELECT timestamp
+                    FROM alarms
+                    ORDER BY timestamp ASC
+                    LIMIT 1
+                )
+            SELECT timestamp FROM after_timestamp_cte
+            UNION
+            SELECT timestamp FROM first_timestamp_cte
+            ORDER BY timestamp DESC
+            LIMIT 1
+            
         """
     )
-    fun get(groupUpperUuid: Long, groupLowerUuid: Long): Flow<GroupWithAlarms>
+    suspend fun getTimestampAfter(timestamp: Int): Int
 
     @Transaction
     @Query(

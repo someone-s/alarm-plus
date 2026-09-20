@@ -39,18 +39,10 @@ class OfflineGroupAlarmsRepository(private val groupAlarmsDao: GroupAlarmsDao): 
         insert(group)
     }
 
-    override fun getGroupAlarmStream(groupUuid: Uuid): Flow<GroupData> {
-        val longs = groupUuid.toUuidLongs()
-        return groupAlarmDao.get(
-            groupUpperUuid = longs.upperUuid,
-            groupLowerUuid = longs.lowerUuid
-        )
-            .map { groupWithAlarms ->
-                GroupData(
-                    info = groupWithAlarms.group.toGroupInfo(),
-                    alarms = groupWithAlarms.alarms.map { alarm -> alarm.toAlarmData() },
-                )
-            }
+    override suspend fun getNextAlarmTimeAfter(time: LocalTime): LocalTime {
+        val fromTimestamp = time.hour * 60 + time.minute
+        val nextTimestamp = groupAlarmsDao.getTimestampAfter(fromTimestamp)
+        return LocalTime.of(nextTimestamp / 60, nextTimestamp % 60)
     }
 
     override fun getAllGroupAlarmsStream(): Flow<List<GroupData>> {
