@@ -30,6 +30,9 @@ data class AlarmEntity(
     val alarmUuid: UuidLongs,
     @Embedded(prefix = "group_")
     val groupUuid: UuidLongs,
+    /**
+     * In whole minutes
+     */
     @ColumnInfo(name = "timestamp")
     val timestamp: Int,
     @ColumnInfo(name = "features")
