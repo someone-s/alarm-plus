@@ -1,12 +1,12 @@
 package com.eden.alarmplus.data.container
 
 import android.content.Context
-import com.eden.alarmplus.data.database.GroupAlarmDatabase
-import com.eden.alarmplus.data.repository.GroupAlarmRepository
-import com.eden.alarmplus.data.repository.OfflineGroupAlarmRepository
+import com.eden.alarmplus.data.database.GroupAlarmsDatabase
+import com.eden.alarmplus.data.repository.GroupAlarmsRepository
+import com.eden.alarmplus.data.repository.OfflineGroupAlarmsRepository
 
 class AppDataContainer(private val context: Context): AppContainer {
-    override val groupAlarmRepository: GroupAlarmRepository by lazy {
-        OfflineGroupAlarmRepository(GroupAlarmDatabase.getDatabase(context).groupAlarmDao())
+    override val groupAlarmsRepository: GroupAlarmsRepository by lazy {
+        OfflineGroupAlarmsRepository(GroupAlarmsDatabase.getDatabase(context).groupAlarmsDao())
     }
 }

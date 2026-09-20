@@ -2,7 +2,7 @@ package com.eden.alarmplus.main.ui.alarms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eden.alarmplus.data.repository.GroupAlarmRepository
+import com.eden.alarmplus.data.repository.GroupAlarmsRepository
 import com.eden.alarmplus.structure.group.GroupData
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlin.uuid.Uuid
 
-class GroupAlarmViewModel(private val groupAlarmRepository: GroupAlarmRepository): ViewModel() {
-    val groupAlarmUiState: StateFlow<GroupAlarmUiState> =
-        groupAlarmRepository.getAllGroupAlarmsStream()
+class GroupAlarmViewModel(private val groupAlarmsRepository: GroupAlarmsRepository): ViewModel() {
+    val groupAlarmsUiState: StateFlow<GroupAlarmUiState> =
+        groupAlarmsRepository.getAllGroupAlarmsStream()
             .map { GroupAlarmUiState(it) }
             .stateIn(
                 scope = viewModelScope,
@@ -21,15 +21,15 @@ class GroupAlarmViewModel(private val groupAlarmRepository: GroupAlarmRepository
             )
 
     suspend fun insertOrReplaceGroupAlarm(group: GroupData) {
-        groupAlarmRepository.insertOrReplace(group)
+        groupAlarmsRepository.insertOrReplace(group)
     }
 
     suspend fun deleteGroupAlarm(groupUuid: Uuid) {
-        groupAlarmRepository.delete(groupUuid)
+        groupAlarmsRepository.delete(groupUuid)
     }
 
     suspend fun toggleGroupAlarm(groupUuid: Uuid, active: Boolean) {
-        groupAlarmRepository.toggle(groupUuid, active)
+        groupAlarmsRepository.toggle(groupUuid, active)
     }
 
 

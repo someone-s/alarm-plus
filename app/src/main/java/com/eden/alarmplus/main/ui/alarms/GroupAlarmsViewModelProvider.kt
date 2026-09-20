@@ -9,7 +9,7 @@ import com.eden.alarmplus.main.MainApplication
 object GroupAlarmViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            GroupAlarmViewModel(mainApplication().container.groupAlarmRepository)
+            GroupAlarmViewModel(mainApplication().container.groupAlarmsRepository)
         }
     }
 }

@@ -4,7 +4,7 @@ import com.eden.alarmplus.structure.group.GroupData
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
 
-interface GroupAlarmRepository {
+interface GroupAlarmsRepository {
     suspend fun insert(group: GroupData)
 
     suspend fun toggle(groupUuid: Uuid, active: Boolean)

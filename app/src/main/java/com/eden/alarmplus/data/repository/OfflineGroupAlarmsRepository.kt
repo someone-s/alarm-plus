@@ -1,7 +1,7 @@
 package com.eden.alarmplus.data.repository
 
 import com.eden.alarmplus.data.database.AlarmEntity
-import com.eden.alarmplus.data.database.GroupAlarmDao
+import com.eden.alarmplus.data.database.GroupAlarmsDao
 import com.eden.alarmplus.data.database.GroupEntity
 import com.eden.alarmplus.data.database.UuidLongs
 import com.eden.alarmplus.structure.alarm.AlarmData
@@ -16,18 +16,18 @@ import java.time.LocalTime
 import kotlin.collections.map
 import kotlin.uuid.Uuid
 
-class OfflineGroupAlarmRepository(private val groupAlarmDao: GroupAlarmDao): GroupAlarmRepository {
+class OfflineGroupAlarmsRepository(private val groupAlarmsDao: GroupAlarmsDao): GroupAlarmsRepository {
     override suspend fun insert(group: GroupData) {
-        groupAlarmDao.insert(group.info.toGroupEntity(), group.alarms.map { it.toAlarmEntity(group.info.uuid) })
+        groupAlarmsDao.insert(group.info.toGroupEntity(), group.alarms.map { it.toAlarmEntity(group.info.uuid) })
     }
 
     override suspend fun toggle(groupUuid: Uuid, active: Boolean) {
         val longs = groupUuid.toUuidLongs()
-        groupAlarmDao.toggle(longs.upperUuid, longs.lowerUuid, active)
+        groupAlarmsDao.toggle(longs.upperUuid, longs.lowerUuid, active)
     }
 
     override suspend fun delete(groupUuid: Uuid) {
-        groupAlarmDao.delete(GroupEntity(
+        groupAlarmsDao.delete(GroupEntity(
             uuid = groupUuid.toUuidLongs(),
             name = null,
             active = false,
@@ -54,7 +54,7 @@ class OfflineGroupAlarmRepository(private val groupAlarmDao: GroupAlarmDao): Gro
     }
 
     override fun getAllGroupAlarmsStream(): Flow<List<GroupData>> {
-        return groupAlarmDao.getAll()
+        return groupAlarmsDao.getAll()
             .map { groupsWithAlarms ->
                 groupsWithAlarms.map { groupWithAlarms ->
                     GroupData(

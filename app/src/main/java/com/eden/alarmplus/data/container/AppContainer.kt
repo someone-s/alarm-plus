@@ -1,7 +1,7 @@
 package com.eden.alarmplus.data.container
 
-import com.eden.alarmplus.data.repository.GroupAlarmRepository
+import com.eden.alarmplus.data.repository.GroupAlarmsRepository
 
 interface AppContainer {
-    val groupAlarmRepository: GroupAlarmRepository
+    val groupAlarmsRepository: GroupAlarmsRepository
 }

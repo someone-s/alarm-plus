@@ -9,7 +9,7 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface GroupAlarmDao {
+interface GroupAlarmsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(group: GroupEntity, alarms: List<AlarmEntity>)
 
