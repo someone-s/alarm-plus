@@ -62,7 +62,7 @@ fun GroupAlarmScreen(
     viewModel: GroupAlarmViewModel = viewModel(factory = GroupAlarmViewModelProvider.Factory)
 ) {
 
-    val groupAlarmUiState by viewModel.groupUiState.collectAsState()
+    val groupAlarmUiState by viewModel.groupAlarmUiState.collectAsState()
 
     val editSheetState = rememberEditSheetState()
 

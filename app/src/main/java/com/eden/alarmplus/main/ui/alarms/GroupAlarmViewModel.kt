@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlin.uuid.Uuid
 
 class GroupAlarmViewModel(private val groupAlarmRepository: GroupAlarmRepository): ViewModel() {
-    val groupUiState: StateFlow<GroupAlarmUiState> =
+    val groupAlarmUiState: StateFlow<GroupAlarmUiState> =
         groupAlarmRepository.getAllGroupAlarmsStream()
             .map { GroupAlarmUiState(it) }
             .stateIn(
