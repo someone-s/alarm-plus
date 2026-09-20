@@ -11,9 +11,8 @@ import androidx.room3.PrimaryKey
     tableName = "alarms",
     indices = [
         Index(
-            "alarm_upper_uuid", "alarm_lower_uuid",
             "group_upper_uuid", "group_lower_uuid",
-            unique = true,
+            unique = false,
         ),
     ],
     foreignKeys = [

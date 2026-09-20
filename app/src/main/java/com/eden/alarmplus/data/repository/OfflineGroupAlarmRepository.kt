@@ -1,6 +1,5 @@
 package com.eden.alarmplus.data.repository
 
-import android.util.Log
 import com.eden.alarmplus.data.database.AlarmEntity
 import com.eden.alarmplus.data.database.GroupAlarmDao
 import com.eden.alarmplus.data.database.GroupEntity
@@ -19,9 +18,7 @@ import kotlin.uuid.Uuid
 
 class OfflineGroupAlarmRepository(private val groupAlarmDao: GroupAlarmDao): GroupAlarmRepository {
     override suspend fun insert(group: GroupData) {
-        groupAlarmDao.insert(group.info.toGroupEntity(), group.alarms.map {
-            Log.i("AAAAAA", "${it.info.uuid}")
-            it.toAlarmEntity(group.info.uuid) })
+        groupAlarmDao.insert(group.info.toGroupEntity(), group.alarms.map { it.toAlarmEntity(group.info.uuid) })
     }
 
     override suspend fun toggle(groupUuid: Uuid, active: Boolean) {
