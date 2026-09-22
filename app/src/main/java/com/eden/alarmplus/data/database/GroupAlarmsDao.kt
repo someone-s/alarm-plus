@@ -1,7 +1,6 @@
 package com.eden.alarmplus.data.database
 
 import androidx.room3.Dao
-import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
@@ -10,9 +9,29 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GroupAlarmsDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(group: GroupEntity, alarms: List<AlarmEntity>)
+    /**
+     * Combined transaction to prevent race conditions.
+     * [Transaction] annotation added to ensure underlying action are run together or rolled back together.
+     * @param group to add
+     * @param alarms belonging to the group
+     */
+    @Transaction
+    suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>) {
+        delete(group.uuid.upperUuid, group.uuid.lowerUuid)
+        internalInsert(group, alarms, StateEntity(group.uuid))
+    }
 
+    /**
+     * Do not use under any circumstance.
+     * [Transaction] is already inherit-ly implemented with [Insert]
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun internalInsert(group: GroupEntity, alarms: List<AlarmEntity>, state: StateEntity)
+
+    /**
+     * [Transaction] annotation added to reiterate this is a write operation.
+     */
+    @Transaction
     @Query(
         """
             UPDATE groups
@@ -28,41 +47,24 @@ interface GroupAlarmsDao {
 
     /**
      * Room only compares by primary key;
-     * GroupEntity(s) with matching Uuid are deleted
+     * GroupEntity(s) with matching Uuid are deleted.
+     * [Transaction] annotation added to reiterate this is a write operation.
      */
-    @Delete
-    suspend fun delete(group: GroupEntity)
-
-    /**
-     * @param timestamp in whole minutes
-     * @return next alarm's timestamp in whole minutes
-     */
+    @Transaction
     @Query(
         """
-            WITH 
-                after_timestamp_cte AS (
-                    SELECT timestamp 
-                    FROM alarms
-                    WHERE timestamp > :timestamp
-                    ORDER BY timestamp ASC
-                    LIMIT 1
-                ),
-                first_timestamp_cte AS (
-                    SELECT timestamp
-                    FROM alarms
-                    ORDER BY timestamp ASC
-                    LIMIT 1
-                )
-            SELECT timestamp FROM after_timestamp_cte
-            UNION
-            SELECT timestamp FROM first_timestamp_cte
-            ORDER BY timestamp DESC
-            LIMIT 1
-            
+            DELETE FROM groups
+            WHERE
+                group_upper_uuid = :groupUpperUuid
+                AND
+                group_lower_uuid = :groupLowerUuid
         """
     )
-    suspend fun getTimestampAfter(timestamp: Int): Int
+    suspend fun delete(groupUpperUuid: Long, groupLowerUuid: Long)
 
+    /**
+     * [Transaction] annotation required as using relations.
+     */
     @Transaction
     @Query(
         """

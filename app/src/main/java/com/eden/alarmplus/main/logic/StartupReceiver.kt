@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 
 class StartupReceiver: BroadcastReceiver() {
-    override fun onReceive(p0: Context?, p1: Intent?) {
-
+    override fun onReceive(context: Context, intent: Intent) {
+        assert(intent.action == Intent.ACTION_LOCKED_BOOT_COMPLETED)
     }
 }

@@ -5,24 +5,28 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.eden.alarmplus.data.repository.StateRepository
 import com.eden.alarmplus.main.MainActivity
-import com.eden.alarmplus.main.MainApplication
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class WakeScheduler(private val context: Context) {
+class WakeScheduler(
+    private val context: Context,
+    private val stateRepository: StateRepository
+) {
 
-    suspend fun scheduleWake(fromDateTime: LocalDateTime = LocalDateTime.now()) {
+    suspend fun tryScheduleWake(fromDateTime: LocalDateTime = LocalDateTime.now()): Boolean {
 
-        val nextDateTime = getNextDateTime(fromDateTime)
-        setWakeAlarm(fromDateTime, nextDateTime)
+        val nextDateTime = getNextDateTime(fromDateTime) ?: return false
+        setWakeAlarm(nextDateTime)
+
+        return true
     }
 
-    private suspend fun getNextDateTime(fromDateTime: LocalDateTime): LocalDateTime {
-        val mainApplication = context.applicationContext as MainApplication
+    private suspend fun getNextDateTime(fromDateTime: LocalDateTime): LocalDateTime? {
 
         val fromTime = fromDateTime.toLocalTime()
-        val nextTime = mainApplication.container.groupAlarmsRepository.getNextAlarmTimeAfter(fromTime)
+        val nextTime = stateRepository.findNextActiveAlarmTimeAfter(fromTime) ?: return null
 
         val nextDate = if (nextTime.isAfter(fromTime))
             fromDateTime.toLocalDate()
@@ -34,7 +38,7 @@ class WakeScheduler(private val context: Context) {
         return nextDateTime
     }
 
-    private fun setWakeAlarm(fromDateTime: LocalDateTime, toDateTime: LocalDateTime) {
+    private fun setWakeAlarm(dateTime: LocalDateTime) {
         val alarmManager = context.getSystemService(AlarmManager::class.java)
             ?: throw NoAlarmManagerException()
 
@@ -54,13 +58,12 @@ class WakeScheduler(private val context: Context) {
             context,
             0,
             Intent(context, WakeReceiver::class.java).apply {
-                putExtra(WakeReceiver.EXTRA_FROM_DATE_TIME, fromDateTime.toString())
-                putExtra(WakeReceiver.EXTRA_TO_DATE_TIME, toDateTime.toString())
+                putExtra(WakeReceiver.EXTRA_TO_DATE_TIME, dateTime.toString())
             },
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT,
         )
 
-        val zonedToDateTime = toDateTime.atZone(ZoneId.systemDefault())
+        val zonedToDateTime = dateTime.atZone(ZoneId.systemDefault())
         val triggerTime = zonedToDateTime.toInstant().toEpochMilli()
 
         val alarmClockInfo = AlarmManager.AlarmClockInfo(

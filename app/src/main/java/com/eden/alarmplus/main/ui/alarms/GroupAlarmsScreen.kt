@@ -25,7 +25,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,7 +32,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +42,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
-import com.eden.alarmplus.main.logic.StateProcessor
 import com.eden.alarmplus.structure.group.GroupData
 import com.eden.alarmplus.main.ui.alarms.overview.AddButton
 import com.eden.alarmplus.main.ui.alarms.edit.EditSheet
@@ -52,11 +49,8 @@ import com.eden.alarmplus.main.ui.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.main.ui.alarms.overview.GroupItem
 import com.eden.alarmplus.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 @Serializable
 object AlarmsRoute
@@ -68,17 +62,6 @@ fun GroupAlarmScreen(
 ) {
 
     val groupAlarmUiState by viewModel.groupAlarmsUiState.collectAsState()
-
-    val context = LocalContext.current
-    LaunchedEffect(context, viewModel) {
-        /**
-         * [cancellable] not required as [kotlinx.coroutines.flow.SharedFlow] is inheritly cancellable
-         * when [LaunchedEffect] exit composition, the whole block is canceled
-         */
-        viewModel.groupAlarmsChange.collect {
-            StateProcessor(context).initializeState(LocalDateTime.now())
-        }
-    }
 
     val editSheetState = rememberEditSheetState()
 
@@ -196,7 +179,7 @@ fun GroupAlarmScreen(
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    items(items = groupAlarmUiState.groupDataList.sortedBy { g -> if (g.alarms.isEmpty()) LocalTime.of(0, 0) else g.alarms.minOf { a -> a.info.time } }) { group ->
+                    items(items = groupAlarmUiState.groupDataList) { group ->
                         GroupItem(
                             group = group,
                             onSelect = {

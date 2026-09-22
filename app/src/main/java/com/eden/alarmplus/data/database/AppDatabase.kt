@@ -9,19 +9,21 @@ import androidx.room3.RoomDatabase
     entities = [
         GroupEntity::class,
         AlarmEntity::class,
+        StateEntity::class,
     ],
     version = 1,
 )
-abstract class GroupAlarmsDatabase: RoomDatabase() {
+abstract class AppDatabase: RoomDatabase() {
     abstract fun groupAlarmsDao(): GroupAlarmsDao
+    abstract fun stateDao(): StateDao
 
     companion object {
         @Volatile
-        private var Instance: GroupAlarmsDatabase? = null
+        private var Instance: AppDatabase? = null
 
-        fun getDatabase(context: Context): GroupAlarmsDatabase {
+        fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, GroupAlarmsDatabase::class.java, "groupalarm_database")
+                Room.databaseBuilder(context, AppDatabase::class.java, "app-database")
                     .build()
                     .also { Instance = it }
             }
