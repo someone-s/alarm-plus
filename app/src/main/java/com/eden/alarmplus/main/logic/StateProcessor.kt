@@ -117,7 +117,7 @@ class StateProcessor(
      */
     private suspend fun constructState(handle: Lock.Handle, dateTime: LocalDateTime) {
         val time = dateTime.toLocalTime()
-        for (group in stateRepository.getAllGroupAlarms()) {
+        for (group in stateRepository.getAllGroups()) {
 
             val inDuration: Boolean
 
@@ -161,7 +161,25 @@ class StateProcessor(
      * @throws InvalidatedStateException when handle is found to be out of date
      */
     private suspend fun processCurrent(handle: Lock.Handle, dateTime: LocalDateTime) {
+        if (!handle.isValid()) throw InvalidatedStateException()
 
+        val time = dateTime.toLocalTime()
+        val alarmsAtTime = stateRepository.getAlarmsAtTime(time)
+
+        for (alarmAtTime in alarmsAtTime) {
+
+            if (!handle.isValid()) throw InvalidatedStateException()
+
+            // Show alarm
+
+            // set group state to idle if last alarm in group
+            if (alarmAtTime.isLastInGroup)
+                stateRepository.updateState(
+                    StateData.Idle(
+                        alarmAtTime.groupUuid,
+                    )
+                )
+        }
     }
 
     /**

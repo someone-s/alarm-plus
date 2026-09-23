@@ -12,7 +12,7 @@ import kotlin.uuid.Uuid
 
 class GroupAlarmViewModel(private val groupAlarmsRepository: GroupAlarmsRepository): ViewModel() {
     val groupAlarmsUiState: StateFlow<GroupAlarmUiState> =
-        groupAlarmsRepository.getAllGroupAlarmsStream()
+        groupAlarmsRepository.getAllGroupsStream()
             .map { GroupAlarmUiState(it) }
             .stateIn(
                 scope = viewModelScope,

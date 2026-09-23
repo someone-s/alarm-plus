@@ -1,6 +1,6 @@
 package com.eden.alarmplus.data.repository
 
-import com.eden.alarmplus.data.database.GroupAlarmsDao
+import com.eden.alarmplus.data.database.GroupsWithAlarmsDao
 import com.eden.alarmplus.structure.group.GroupData
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +11,7 @@ import kotlin.collections.map
 import kotlin.uuid.Uuid
 
 class OfflineGroupAlarmsRepository(
-    private val groupAlarmsDao: GroupAlarmsDao,
+    private val groupsWithAlarmsDao: GroupsWithAlarmsDao,
     private val notificationListener: NotificationListener,
 ): GroupAlarmsRepository {
 
@@ -21,7 +21,7 @@ class OfflineGroupAlarmsRepository(
 
     override suspend fun insertOrReplace(group: GroupData) {
         withContext(NonCancellable) {
-            groupAlarmsDao.insertOrReplace(group.info.toGroupEntity(), group.alarms.map { it.toAlarmEntity(group.info.uuid) })
+            groupsWithAlarmsDao.insertOrReplace(group.info.toGroupEntity(), group.alarms.map { it.toAlarmEntity(group.info.uuid) })
             super.insertOrReplace(group)
         }
     }
@@ -29,7 +29,7 @@ class OfflineGroupAlarmsRepository(
     override suspend fun toggle(groupUuid: Uuid, active: Boolean) {
         withContext(NonCancellable) {
             val longs = groupUuid.toUuidLongs()
-            groupAlarmsDao.toggle(longs.upperUuid, longs.lowerUuid, active)
+            groupsWithAlarmsDao.toggle(longs.upperUuid, longs.lowerUuid, active)
             super.toggle(groupUuid, active)
         }
     }
@@ -37,7 +37,7 @@ class OfflineGroupAlarmsRepository(
     override suspend fun delete(groupUuid: Uuid) {
         withContext(NonCancellable) {
             val longs = groupUuid.toUuidLongs()
-            groupAlarmsDao.delete(longs.upperUuid, longs.lowerUuid)
+            groupsWithAlarmsDao.delete(longs.upperUuid, longs.lowerUuid)
             super.delete(groupUuid)
         }
     }
@@ -46,8 +46,8 @@ class OfflineGroupAlarmsRepository(
         notificationListener.onNotification(notification)
     }
 
-    override fun getAllGroupAlarmsStream(): Flow<List<GroupData>> {
-        return groupAlarmsDao.getAll()
+    override fun getAllGroupsStream(): Flow<List<GroupData>> {
+        return groupsWithAlarmsDao.getAll()
             .map { groupsWithAlarms ->
                 groupsWithAlarms
                     .map { groupWithAlarms ->

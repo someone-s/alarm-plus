@@ -14,7 +14,7 @@ import androidx.room3.RoomDatabase
     version = 1,
 )
 abstract class AppDatabase: RoomDatabase() {
-    abstract fun groupAlarmsDao(): GroupAlarmsDao
+    abstract fun groupsWithAlarmsDao(): GroupsWithAlarmsDao
     abstract fun stateDao(): StateDao
 
     companion object {

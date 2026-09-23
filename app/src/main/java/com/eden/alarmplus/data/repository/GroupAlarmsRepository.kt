@@ -45,5 +45,5 @@ interface GroupAlarmsRepository {
         data class Delete(val groupUuid: Uuid): ChangeNotification()
     }
 
-    fun getAllGroupAlarmsStream(): Flow<List<GroupData>>
+    fun getAllGroupsStream(): Flow<List<GroupData>>
 }

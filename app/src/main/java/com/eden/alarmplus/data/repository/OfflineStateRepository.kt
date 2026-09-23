@@ -14,8 +14,8 @@ class OfflineStateRepository(private val stateDao: StateDao): StateRepository {
         return LocalTime.of(nextTimestamp / 60, nextTimestamp % 60)
     }
 
-    override suspend fun getAllGroupAlarms(): List<GroupData> {
-        return stateDao.getAllGroupAlarms()
+    override suspend fun getAllGroups(): List<GroupData> {
+        return stateDao.getAllGroupsWithAlarms()
             .map { groupWithAlarms ->
                 GroupData(
                     info = groupWithAlarms.group.toGroupInfo(),
@@ -25,6 +25,18 @@ class OfflineStateRepository(private val stateDao: StateDao): StateRepository {
             .sortedBy { groupData ->
                 if (groupData.alarms.isEmpty()) LocalTime.of(0, 0)
                 else groupData.alarms.minOf { a -> a.info.time }
+            }
+    }
+
+    override suspend fun getAlarmsAtTime(time: LocalTime): List<StateRepository.AlarmsAtTime> {
+        val timestamp = time.hour * 60 + time.minute
+        return stateDao.getAlarmsWithGroupsAtTimestamp(timestamp)
+            .map { alarmAtTimestamp ->
+                StateRepository.AlarmsAtTime(
+                    alarm = alarmAtTimestamp.alarm.toAlarmData(),
+                    groupUuid = alarmAtTimestamp.alarm.groupUuid.toUuid(),
+                    isLastInGroup = alarmAtTimestamp.isLastInGroup,
+                )
             }
     }
 

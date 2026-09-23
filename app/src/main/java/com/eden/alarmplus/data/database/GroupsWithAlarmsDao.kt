@@ -8,7 +8,7 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface GroupAlarmsDao {
+interface GroupsWithAlarmsDao {
     /**
      * Combined transaction to prevent race conditions.
      * [Transaction] annotation added to ensure underlying action are run together or rolled back together.
