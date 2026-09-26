@@ -1,7 +1,7 @@
 package com.eden.alarmplus.data
 
 import android.content.Context
-import com.eden.alarmplus.data.alarms.database.AppDatabase
+import com.eden.alarmplus.data.alarms.database.AlarmsDatabase
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.repository.OfflineGroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.repository.OfflineStateRepository
@@ -15,7 +15,7 @@ class AppDataContainer(
 
     override val groupAlarmsRepository: GroupAlarmsRepository by lazy {
         OfflineGroupAlarmsRepository(
-            groupsWithAlarmsDao = AppDatabase.getDatabase(context).groupsWithAlarmsDao(),
+            groupsWithAlarmsDao = AlarmsDatabase.getDatabase(context).groupsWithAlarmsDao(),
             notificationListener = notificationListener,
         )
     }
@@ -38,6 +38,6 @@ class AppDataContainer(
     }
 
     override val stateRepository: StateRepository by lazy {
-        OfflineStateRepository(AppDatabase.getDatabase(context).stateDao())
+        OfflineStateRepository(AlarmsDatabase.getDatabase(context).stateDao())
     }
 }
