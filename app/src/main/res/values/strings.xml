@@ -24,10 +24,6 @@
     <string name="main_ui_alarms_edit_alarm_deletedialog_cancelaction">Cancel</string>
     <string name="main_ui_alarms_edit_alarm_deletedialog_deleteaction">Delete</string>
     <string name="main_ui_alarms_edit_group_alarmitem_deleteaction">Delete</string>
-    <string name="main_ui_alarms_edit_group_discarddialog_title">Discard changes?</string>
-    <string name="main_ui_alarms_edit_group_discarddialog_body">Changes to the group will be reverted.</string>
-    <string name="main_ui_alarms_edit_group_discarddialog_discardaction">Discard</string>
-    <string name="main_ui_alarms_edit_group_discarddialog_saveaction">Apply</string>
     <string name="main_ui_alarms_edit_group_navigategroup_deleteaction">Delete</string>
     <string name="main_ui_alarms_edit_group_navigategroup_applyaction">Apply</string>
     <string name="main_ui_alarms_edit_group_deletedialog_title">Delete group?</string>

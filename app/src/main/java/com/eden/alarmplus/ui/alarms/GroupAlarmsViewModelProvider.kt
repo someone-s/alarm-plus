@@ -5,7 +5,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eden.alarmplus.MainApplication
-import com.eden.alarmplus.ui.alarms.mainApplication
 
 object GroupAlarmViewModelProvider {
     val Factory = viewModelFactory {
