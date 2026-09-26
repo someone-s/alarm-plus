@@ -3,6 +3,8 @@ package com.eden.alarmplus.data.alarms.repository
 import com.eden.alarmplus.data.alarms.database.StateDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.common.repository.toUuid
+import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
 import kotlin.uuid.Uuid
 

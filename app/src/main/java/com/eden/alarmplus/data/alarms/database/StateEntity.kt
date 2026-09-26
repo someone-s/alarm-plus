@@ -5,6 +5,7 @@ import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.PrimaryKey
+import com.eden.alarmplus.data.common.database.UuidLongs
 
 @Entity(
     tableName = "states",

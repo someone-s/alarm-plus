@@ -3,31 +3,16 @@ package com.eden.alarmplus.data.alarms.repository
 import com.eden.alarmplus.data.alarms.database.AlarmEntity
 import com.eden.alarmplus.data.alarms.database.GroupEntity
 import com.eden.alarmplus.data.alarms.database.StateEntity
-import com.eden.alarmplus.data.alarms.database.UuidLongs
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
 import com.eden.alarmplus.data.alarms.structure.formatter
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.common.repository.toUuid
+import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
 import kotlin.uuid.Uuid
-
-fun UuidLongs.toUuid() = Uuid.fromLongs(this.upperUuid, this.lowerUuid)
-
-fun Uuid.toUuidLongs(): UuidLongs {
-    val upperUuid: Long
-    val lowerUuid: Long
-    this.toLongs { mostSignificantBits, leastSignificantBits ->
-        upperUuid = mostSignificantBits
-        lowerUuid = leastSignificantBits
-    }
-
-    return UuidLongs(
-        upperUuid = upperUuid,
-        lowerUuid = lowerUuid,
-    )
-}
 
 fun GroupInfo.toGroupEntity() = GroupEntity(
     uuid = this.uuid.toUuidLongs(),

@@ -1,4 +1,4 @@
-package com.eden.alarmplus.data.alarms.database
+package com.eden.alarmplus.data.common.database
 
 import androidx.room3.ColumnInfo
 
