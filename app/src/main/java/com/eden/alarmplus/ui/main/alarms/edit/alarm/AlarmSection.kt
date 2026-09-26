@@ -18,11 +18,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.eden.alarmplus.structure.alarm.AlarmData
-import com.eden.alarmplus.structure.alarm.emptyAlarmData
-import com.eden.alarmplus.structure.alarm.feature.AudioFeature
-import com.eden.alarmplus.structure.alarm.feature.VibrateFeature
-import com.eden.alarmplus.structure.audio.AudioData
+import com.eden.alarmplus.data.structure.alarm.AlarmData
+import com.eden.alarmplus.data.structure.alarm.emptyAlarmData
+import com.eden.alarmplus.data.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.structure.alarm.feature.VibrateFeature
+import com.eden.alarmplus.data.structure.audio.AudioData
 
 
 @Composable

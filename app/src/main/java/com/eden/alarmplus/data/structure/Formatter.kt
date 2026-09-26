@@ -1,8 +1,8 @@
-package com.eden.alarmplus.structure
+package com.eden.alarmplus.data.structure
 
-import com.eden.alarmplus.structure.alarm.AlarmFeature
-import com.eden.alarmplus.structure.alarm.feature.AudioFeature
-import com.eden.alarmplus.structure.alarm.feature.VibrateFeature
+import com.eden.alarmplus.data.structure.alarm.AlarmFeature
+import com.eden.alarmplus.data.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.structure.alarm.feature.VibrateFeature
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic

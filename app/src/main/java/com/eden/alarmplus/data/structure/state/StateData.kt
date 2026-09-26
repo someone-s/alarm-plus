@@ -1,4 +1,4 @@
-package com.eden.alarmplus.structure.state
+package com.eden.alarmplus.data.structure.state
 
 import kotlin.uuid.Uuid
 

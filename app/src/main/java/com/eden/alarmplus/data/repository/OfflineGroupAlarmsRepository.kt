@@ -1,7 +1,7 @@
 package com.eden.alarmplus.data.repository
 
 import com.eden.alarmplus.data.database.GroupsWithAlarmsDao
-import com.eden.alarmplus.structure.group.GroupData
+import com.eden.alarmplus.data.structure.group.GroupData
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -1,4 +1,4 @@
-package com.eden.alarmplus.structure.alarm
+package com.eden.alarmplus.data.structure.alarm
 
 import java.time.LocalTime
 

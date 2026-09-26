@@ -4,12 +4,12 @@ import com.eden.alarmplus.data.database.AlarmEntity
 import com.eden.alarmplus.data.database.GroupEntity
 import com.eden.alarmplus.data.database.StateEntity
 import com.eden.alarmplus.data.database.UuidLongs
-import com.eden.alarmplus.structure.alarm.AlarmData
-import com.eden.alarmplus.structure.alarm.AlarmFeature
-import com.eden.alarmplus.structure.alarm.AlarmInfo
-import com.eden.alarmplus.structure.formatter
-import com.eden.alarmplus.structure.group.GroupInfo
-import com.eden.alarmplus.structure.state.StateData
+import com.eden.alarmplus.data.structure.alarm.AlarmData
+import com.eden.alarmplus.data.structure.alarm.AlarmFeature
+import com.eden.alarmplus.data.structure.alarm.AlarmInfo
+import com.eden.alarmplus.data.structure.formatter
+import com.eden.alarmplus.data.structure.group.GroupInfo
+import com.eden.alarmplus.data.structure.state.StateData
 import java.time.LocalTime
 import kotlin.uuid.Uuid
 

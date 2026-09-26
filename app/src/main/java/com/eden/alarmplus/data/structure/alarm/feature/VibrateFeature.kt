@@ -1,6 +1,6 @@
-package com.eden.alarmplus.structure.alarm.feature
+package com.eden.alarmplus.data.structure.alarm.feature
 
-import com.eden.alarmplus.structure.alarm.AlarmFeature
+import com.eden.alarmplus.data.structure.alarm.AlarmFeature
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

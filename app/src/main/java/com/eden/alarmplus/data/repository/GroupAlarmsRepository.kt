@@ -1,7 +1,7 @@
 package com.eden.alarmplus.data.repository
 
 import androidx.annotation.CallSuper
-import com.eden.alarmplus.structure.group.GroupData
+import com.eden.alarmplus.data.structure.group.GroupData
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
 

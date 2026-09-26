@@ -3,7 +3,7 @@ package com.eden.alarmplus.logic
 import android.util.Log
 import com.eden.alarmplus.data.repository.StateRepository
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
-import com.eden.alarmplus.structure.state.StateData
+import com.eden.alarmplus.data.structure.state.StateData
 import java.time.LocalDateTime
 
 class StateProcessor(

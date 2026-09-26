@@ -1,8 +1,8 @@
 package com.eden.alarmplus.data.repository
 
 import com.eden.alarmplus.data.database.StateDao
-import com.eden.alarmplus.structure.group.GroupData
-import com.eden.alarmplus.structure.state.StateData
+import com.eden.alarmplus.data.structure.group.GroupData
+import com.eden.alarmplus.data.structure.state.StateData
 import java.time.LocalTime
 import kotlin.uuid.Uuid
 
