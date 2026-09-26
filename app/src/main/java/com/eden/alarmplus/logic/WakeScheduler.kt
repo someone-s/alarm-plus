@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.eden.alarmplus.data.repository.StateRepository
-import com.eden.alarmplus.MainActivity
+import com.eden.alarmplus.ui.main.MainActivity
 import java.time.LocalDateTime
 import java.time.ZoneId
 

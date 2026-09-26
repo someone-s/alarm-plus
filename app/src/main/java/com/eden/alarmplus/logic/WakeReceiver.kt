@@ -3,7 +3,7 @@ package com.eden.alarmplus.logic
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.eden.alarmplus.MainApplication
+import com.eden.alarmplus.AlarmPlusApplication
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,8 +18,8 @@ class WakeReceiver: BroadcastReceiver() {
         const val EXTRA_TO_DATE_TIME = "extra-to-date-time"
     }
     override fun onReceive(context: Context, intent: Intent) {
-        val mainApplication = context.applicationContext as MainApplication
-        val stateProcessor = mainApplication.container.stateProcessor
+        val alarmPlusApplication = context.applicationContext as AlarmPlusApplication
+        val stateProcessor = alarmPlusApplication.container.stateProcessor
 
         val toDateTime = LocalDateTime.parse(intent.getStringExtra(EXTRA_TO_DATE_TIME))
 
