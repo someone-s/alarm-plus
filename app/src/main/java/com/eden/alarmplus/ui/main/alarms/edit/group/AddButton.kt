@@ -23,7 +23,7 @@ fun AddButton(
         shapes = shapes,
         content = {
             Text(
-                text = stringResource(R.string.main_ui_alarms_edit_group_addbutton_text),
+                text = stringResource(R.string.ui_main_alarms_edit_group_addbutton_text),
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
             )
@@ -31,7 +31,7 @@ fun AddButton(
         trailingContent = {
             Icon(
                 painter = painterResource(R.drawable.add),
-                contentDescription = stringResource(R.string.main_ui_alarms_edit_group_addbutton_action),
+                contentDescription = stringResource(R.string.ui_main_alarms_edit_group_addbutton_action),
             )
         }
     )

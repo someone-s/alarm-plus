@@ -41,13 +41,13 @@ fun TimePicker(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                 ),
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_alarmtimepicker_applyaction)) },
+                content = { Text(text = stringResource(R.string.ui_main_alarms_edit_alarm_alarmtimepicker_applyaction)) },
             )
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_alarmtimepicker_cancelaction)) },
+                content = { Text(text = stringResource(R.string.ui_main_alarms_edit_alarm_alarmtimepicker_cancelaction)) },
             )
         }
     )

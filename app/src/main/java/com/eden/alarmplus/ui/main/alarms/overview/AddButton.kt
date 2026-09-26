@@ -17,7 +17,7 @@ fun AddButton(
     ) {
         Icon(
             painter = painterResource(R.drawable.add),
-            contentDescription = stringResource(R.string.main_ui_alarms_addbutton_text),
+            contentDescription = stringResource(R.string.ui_main_alarms_addbutton_text),
         )
     }
 }

@@ -25,13 +25,13 @@ fun TitleInput(
         text = {
             OutlinedTextField(
                 state = textFieldState,
-                label = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_titleinput_title)) }
+                label = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_titleinput_title)) }
             )
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_titleinput_cancelaction)) },
+                content = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_titleinput_cancelaction)) },
             )
         },
         confirmButton = {
@@ -40,7 +40,7 @@ fun TitleInput(
                     val newTitle = textFieldState.text
                     onSubmit(if (newTitle.isEmpty()) null else newTitle.toString())
                 },
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_titleinput_submitaction)) },
+                content = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_titleinput_submitaction)) },
             )
         }
     )

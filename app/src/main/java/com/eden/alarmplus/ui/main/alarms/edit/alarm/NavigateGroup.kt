@@ -23,14 +23,14 @@ fun NavigateGroup(
     ) {
         OutlinedButton(
             onClick = onDelete,
-            content = { Text(text = stringResource(R.string.main_ui_alarms_edit_alarm_navigategroup_deleteaction)) },
+            content = { Text(text = stringResource(R.string.ui_main_alarms_edit_alarm_navigategroup_deleteaction)) },
         )
         FilledIconButton(
             onClick = onBack,
             content = {
                 Icon(
                     painter = painterResource(R.drawable.arrow_back),
-                    contentDescription = stringResource(R.string.main_ui_alarms_edit_alarm_navigategroup_backaction),
+                    contentDescription = stringResource(R.string.ui_main_alarms_edit_alarm_navigategroup_backaction),
                 )
             },
         )

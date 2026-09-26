@@ -68,8 +68,8 @@ fun GroupAlarmScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    val revertGroupDeleteMessage = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeletemessage)
-    val revertGroupDeleteAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupdeleteaction)
+    val revertGroupDeleteMessage = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupdeletemessage)
+    val revertGroupDeleteAction = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupdeleteaction)
     fun showRevertGroupDeleteSnackbar(deleteGroup: GroupData) {
         scope.launch {
             viewModel.deleteGroupAlarm(deleteGroup.info.uuid)
@@ -92,8 +92,8 @@ fun GroupAlarmScreen(
         }
     }
 
-    val revertGroupUpdateMessage = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdatemessage)
-    val revertGroupUpdateAction = stringResource(R.string.main_ui_alarms_groupscreen_revertgroupupdateaction)
+    val revertGroupUpdateMessage = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupupdatemessage)
+    val revertGroupUpdateAction = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupupdateaction)
     fun showRevertGroupUpdateSnackbar(editGroup: GroupData) {
         val groupUuid = editGroup.info.uuid
         val originalGroup = groupAlarmUiState.groupDataList.firstOrNull { it.info.uuid == groupUuid }
@@ -159,7 +159,7 @@ fun GroupAlarmScreen(
                     )
                     Spacer(Modifier.width(16.dp))
                     Text(
-                        text = stringResource(R.string.main_ui_alarms_alarmscreen_title),
+                        text = stringResource(R.string.ui_main_alarms_alarmscreen_title),
                         fontWeight = FontWeight.SemiBold,
                         style = MaterialTheme.typography.displayMedium,
                         color = MaterialTheme.colorScheme.onBackground

@@ -67,7 +67,7 @@ fun AlarmItem(
                 content = {
                     Icon(
                         painter = painterResource(R.drawable.delete),
-                        contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_deleteaction),
+                        contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_deleteaction),
                         modifier = Modifier
                             .fillMaxSize()
                             .wrapContentSize(when (dismissBoxState.dismissDirection) {
@@ -100,22 +100,22 @@ fun AlarmItem(
                         if (alarm.getFeature<AudioFeature>() != null)
                             Icon(
                                 painter = painterResource(R.drawable.volume_up),
-                                contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_audible),
+                                contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_audible),
                             )
                         else if (alarm.getFeature<VibrateFeature>() != null)
                             Icon(
                                 painter = painterResource(R.drawable.mobile_vibrate),
-                                contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_vibrate),
+                                contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_vibrate),
                             )
                         else
                             Icon(
                                 painter = painterResource(R.drawable.volume_off),
-                                contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_silent),
+                                contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_silent),
                             )
                         VerticalDivider()
                         Icon(
                             painter = painterResource(R.drawable.chevron_forward),
-                            contentDescription = stringResource(R.string.main_ui_alarms_edit_group_alarmitem_feature_silent),
+                            contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_silent),
                         )
                     }
                 }

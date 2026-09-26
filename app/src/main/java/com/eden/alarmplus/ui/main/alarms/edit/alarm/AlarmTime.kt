@@ -71,7 +71,7 @@ fun AlarmTime(
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit),
-                contentDescription = stringResource(R.string.main_ui_alarms_edit_alarm_alarmtime_action),
+                contentDescription = stringResource(R.string.ui_main_alarms_edit_alarm_alarmtime_action),
             )
         }
     }

@@ -15,18 +15,18 @@ fun DeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_deletedialog_title)) },
-        text = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_deletedialog_body)) },
+        title = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_deletedialog_title)) },
+        text = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_deletedialog_body)) },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_deletedialog_cancelaction)) },
+                content = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_deletedialog_cancelaction)) },
             )
         },
         confirmButton = {
             FilledTonalButton(
                 onClick = onConfirm,
-                content = { Text(text = stringResource(R.string.main_ui_alarms_edit_group_deletedialog_deleteaction)) },
+                content = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_deletedialog_deleteaction)) },
             )
         }
     )

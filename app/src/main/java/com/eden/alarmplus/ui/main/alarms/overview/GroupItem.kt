@@ -65,7 +65,7 @@ fun GroupItem(
                 content = {
                     Icon(
                         painter = painterResource(R.drawable.delete),
-                        contentDescription = stringResource(R.string.main_ui_alarms_overview_groupitem_deleteaction),
+                        contentDescription = stringResource(R.string.ui_main_alarms_overview_groupitem_deleteaction),
                         modifier = Modifier
                             .fillMaxSize()
                             .wrapContentSize(when (dismissBoxState.dismissDirection) {

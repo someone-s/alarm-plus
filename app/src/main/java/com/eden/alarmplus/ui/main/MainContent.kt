@@ -39,13 +39,13 @@ data class TopLevelRoute<T : Any>(
 fun MainContent() {
     val topLevelRoutes = listOf(
         TopLevelRoute(
-            stringResource(R.string.main_ui_maincontent_alarms),
+            stringResource(R.string.ui_main_maincontent_alarms),
             AlarmsRoute,
             painterResource(R.drawable.alarm_filled),
             painterResource(R.drawable.alarm)
         ),
         TopLevelRoute(
-            stringResource(R.string.main_ui_maincontent_about),
+            stringResource(R.string.ui_main_maincontent_about),
             AboutRoute,
             painterResource(R.drawable.info_filled),
             painterResource(R.drawable.info)
