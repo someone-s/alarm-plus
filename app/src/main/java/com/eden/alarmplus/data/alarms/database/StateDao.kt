@@ -98,12 +98,17 @@ interface StateDao {
                 END
                 AS is_last_in_group
             FROM alarms
-            LEFT JOIN groups ON 
-                groups.group_upper_uuid = alarms.group_upper_uuid
-                AND
-                groups.group_lower_uuid = alarms.group_lower_uuid
             WHERE 
-                groups.active
+                EXISTS (
+                    SELECT *
+                    FROM groups
+                    WHERE
+                        groups.group_upper_uuid = alarms.group_upper_uuid
+                        AND
+                        groups.group_lower_uuid = alarms.group_lower_uuid
+                        AND
+                        groups.active
+                )
                 AND
                 alarms.timestamp = :timestamp
         """
