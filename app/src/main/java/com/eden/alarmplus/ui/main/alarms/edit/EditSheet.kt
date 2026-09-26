@@ -12,10 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.eden.alarmplus.data.structure.alarm.AlarmData
-import com.eden.alarmplus.data.structure.alarm.AlarmInfo
-import com.eden.alarmplus.data.structure.group.GroupData
-import com.eden.alarmplus.data.structure.group.emptyGroupData
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
+import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.emptyGroupData
 import com.eden.alarmplus.ui.main.alarms.edit.alarm.AlarmSection
 import com.eden.alarmplus.ui.main.alarms.edit.alarm.rememberAlarmSectionState
 import com.eden.alarmplus.ui.main.alarms.edit.group.GroupSection

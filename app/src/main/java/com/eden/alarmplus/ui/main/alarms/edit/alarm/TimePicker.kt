@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import java.time.LocalTime
 
 @Composable

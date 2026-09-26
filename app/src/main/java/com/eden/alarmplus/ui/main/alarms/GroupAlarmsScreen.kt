@@ -42,12 +42,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.ui.main.alarms.overview.GroupItem
-import com.eden.alarmplus.data.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable

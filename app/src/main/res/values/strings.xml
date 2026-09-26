@@ -35,9 +35,11 @@
     <string name="ui_main_alarms_edit_group_titleinput_title">Group name</string>
     <string name="manifest_permission_receivebootcomplete_purpose">Re-schedule alarms after device boot</string>
     <string name="manifest_permission_exactalarm_purpose">Used to schedule user-defined alarms</string>
+    <string name="manifest_permission_postnotifications_purpose">Push notifications when alarm goes off</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeleteaction">Revert</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>
     <string name="ui_main_alarms_groupscreen_revertgroupupdatemessage">Revert changes to alarm group?</string>
     <string name="ui_main_alarms_groupscreen_revertgroupupdateaction">Revert</string>
     <string name="ui_main_alarms_overview_groupitem_deleteaction">Delete</string>
+    <string name="notifications_alarmchannel_description">Notify when alarm is ringing.</string>
 </resources>

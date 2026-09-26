@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 

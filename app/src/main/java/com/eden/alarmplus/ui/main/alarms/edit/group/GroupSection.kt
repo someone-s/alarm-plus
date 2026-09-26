@@ -16,8 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eden.alarmplus.data.structure.alarm.AlarmData
-import com.eden.alarmplus.data.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.group.GroupData
 
 
 @Composable

@@ -19,7 +19,7 @@ class WakeReceiver: BroadcastReceiver() {
     }
     override fun onReceive(context: Context, intent: Intent) {
         val alarmPlusApplication = context.applicationContext as AlarmPlusApplication
-        val stateProcessor = alarmPlusApplication.container.stateProcessor
+        val stateProcessor = alarmPlusApplication.stateProcessor
 
         val toDateTime = LocalDateTime.parse(intent.getStringExtra(EXTRA_TO_DATE_TIME))
 

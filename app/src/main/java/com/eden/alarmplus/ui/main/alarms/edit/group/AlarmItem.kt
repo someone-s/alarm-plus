@@ -27,9 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.structure.alarm.AlarmData
-import com.eden.alarmplus.data.structure.alarm.feature.AudioFeature
-import com.eden.alarmplus.data.structure.alarm.feature.VibrateFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 

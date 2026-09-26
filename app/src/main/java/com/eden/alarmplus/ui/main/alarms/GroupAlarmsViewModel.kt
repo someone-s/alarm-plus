@@ -2,8 +2,8 @@ package com.eden.alarmplus.ui.main.alarms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eden.alarmplus.data.repository.GroupAlarmsRepository
-import com.eden.alarmplus.data.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
+import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
