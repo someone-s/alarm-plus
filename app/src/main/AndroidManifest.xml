@@ -15,7 +15,7 @@
         android:maxSdkVersion="32"/>
 
     <application
-        android:name=".main.MainApplication"
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,7 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AlarmPlus">
         <activity
-            android:name=".main.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AlarmPlus"
             android:windowSoftInputMode="adjustResize">
@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
         <receiver
-            android:name=".main.logic.StartupReceiver"
+            android:name=".logic.StartupReceiver"
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true">
@@ -44,7 +44,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".main.logic.ZoneReceiver"
+            android:name=".logic.ZoneReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -52,7 +52,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".main.logic.WakeReceiver"
+            android:name=".logic.WakeReceiver"
             android:enabled="true"
             android:exported="false" />
         <meta-data

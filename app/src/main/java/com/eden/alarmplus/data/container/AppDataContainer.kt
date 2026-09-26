@@ -6,8 +6,8 @@ import com.eden.alarmplus.data.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.repository.OfflineGroupAlarmsRepository
 import com.eden.alarmplus.data.repository.OfflineStateRepository
 import com.eden.alarmplus.data.repository.StateRepository
-import com.eden.alarmplus.main.logic.StateProcessor
-import com.eden.alarmplus.main.logic.WakeScheduler
+import com.eden.alarmplus.logic.StateProcessor
+import com.eden.alarmplus.logic.WakeScheduler
 import java.time.LocalDateTime
 
 class AppDataContainer(private val context: Context) : AppContainer {
