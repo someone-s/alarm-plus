@@ -17,10 +17,16 @@ class WakeScheduler(
 
     suspend fun tryScheduleWake(fromDateTime: LocalDateTime = LocalDateTime.now()): Boolean {
 
-        val nextDateTime = getNextDateTime(fromDateTime) ?: return false
-        setWakeAlarm(nextDateTime)
+        val nextDateTime = getNextDateTime(fromDateTime)
 
-        return true
+        if (nextDateTime != null) {
+            setWakeAlarm(nextDateTime)
+            return true
+        }
+        else {
+            clearWakeAlarm()
+            return false
+        }
     }
 
     private suspend fun getNextDateTime(fromDateTime: LocalDateTime): LocalDateTime? {
@@ -38,7 +44,25 @@ class WakeScheduler(
         return nextDateTime
     }
 
+    private fun createReceiverIntent(dateTime: LocalDateTime?) = PendingIntent.getBroadcast(
+        context,
+        0,
+        Intent(context, WakeReceiver::class.java).apply {
+            if (dateTime != null)
+                putExtra(WakeReceiver.EXTRA_TO_DATE_TIME, dateTime.toString())
+        },
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT,
+    )
+
+    private fun clearWakeAlarm() {
+        val alarmManager = context.getSystemService(AlarmManager::class.java)
+            ?: throw NoAlarmManagerException()
+
+        alarmManager.cancel(createReceiverIntent(null))
+    }
+
     private fun setWakeAlarm(dateTime: LocalDateTime) {
+
         val alarmManager = context.getSystemService(AlarmManager::class.java)
             ?: throw NoAlarmManagerException()
 
@@ -51,16 +75,7 @@ class WakeScheduler(
             context,
             0,
             Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-
-        val receiverIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            Intent(context, WakeReceiver::class.java).apply {
-                putExtra(WakeReceiver.EXTRA_TO_DATE_TIME, dateTime.toString())
-            },
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
         )
 
         val zonedToDateTime = dateTime.atZone(ZoneId.systemDefault())
@@ -76,7 +91,7 @@ class WakeScheduler(
         // previously set alarm will be overwritten
         alarmManager.setAlarmClock(
             alarmClockInfo,
-            receiverIntent,
+            createReceiverIntent(dateTime),
         )
     }
 

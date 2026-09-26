@@ -36,10 +36,19 @@
     <string name="manifest_permission_receivebootcomplete_purpose">Re-schedule alarms after device boot</string>
     <string name="manifest_permission_exactalarm_purpose">Used to schedule user-defined alarms</string>
     <string name="manifest_permission_postnotifications_purpose">Push notifications when alarm goes off</string>
+    <string name="manifest_permission_usefullscreenintent_purpose">Display full screen notification when alarm goes off</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeleteaction">Revert</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>
     <string name="ui_main_alarms_groupscreen_revertgroupupdatemessage">Revert changes to alarm group?</string>
     <string name="ui_main_alarms_groupscreen_revertgroupupdateaction">Revert</string>
     <string name="ui_main_alarms_overview_groupitem_deleteaction">Delete</string>
     <string name="notifications_alarmchannel_description">Notify when alarm is ringing.</string>
+    <string name="notifications_dismissaction_title">Dismiss</string>
+    <string name="notifications_snoozeaction_title">Snooze</string>
+    <string name="a" translatable="false"/>
+    <string name="notifications_alarmchannel_name">Alarms</string>
+    <string name="ui_main_notification_permissiondialog_ignoreaction">Ignore</string>
+    <string name="ui_main_notification_permissiondialog_grantaction">Grant</string>
+    <string name="ui_main_notification_permissiondialog_title">Notifications</string>
+    <string name="ui_main_notification_permissiondialog_body">%1$s uses notifications to display alarms. The app will not function without notification permissions.</string>
 </resources>

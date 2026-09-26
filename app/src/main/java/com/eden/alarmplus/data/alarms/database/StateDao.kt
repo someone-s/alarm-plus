@@ -101,13 +101,13 @@ interface StateDao {
             WHERE 
                 EXISTS (
                     SELECT *
-                    FROM groups
+                    FROM `groups`
                     WHERE
-                        groups.group_upper_uuid = alarms.group_upper_uuid
+                        `groups`.group_upper_uuid = alarms.group_upper_uuid
                         AND
-                        groups.group_lower_uuid = alarms.group_lower_uuid
+                        `groups`.group_lower_uuid = alarms.group_lower_uuid
                         AND
-                        groups.active
+                        `groups`.active
                 )
                 AND
                 alarms.timestamp = :timestamp

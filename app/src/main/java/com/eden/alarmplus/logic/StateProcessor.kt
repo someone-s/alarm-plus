@@ -4,11 +4,13 @@ import android.util.Log
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
+import com.eden.alarmplus.notifications.NotificationSender
 import java.time.LocalDateTime
 
 class StateProcessor(
     private val stateRepository: StateRepository,
-    private val wakeScheduler: WakeScheduler
+    private val wakeScheduler: WakeScheduler,
+    private val notificationSender: NotificationSender,
 ) {
 
     companion object {
@@ -73,8 +75,6 @@ class StateProcessor(
 
         try {
             constructState(handle, dateTime)
-
-            processCurrent(handle, dateTime)
 
             scheduleWake(handle, dateTime)
         }
@@ -171,6 +171,11 @@ class StateProcessor(
             if (!handle.isValid()) throw InvalidatedStateException()
 
             // Show alarm
+            notificationSender.sendAlarmNotification(
+                groupUuid = alarmAtTime.groupUuid,
+                alarm = alarmAtTime.alarm,
+                isLastInGroup = alarmAtTime.isLastInGroup,
+            )
 
             // set group state to idle if last alarm in group
             if (alarmAtTime.isLastInGroup)

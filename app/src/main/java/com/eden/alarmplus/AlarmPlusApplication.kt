@@ -5,6 +5,7 @@ import com.eden.alarmplus.data.AppContainer
 import com.eden.alarmplus.data.AppDataContainer
 import com.eden.alarmplus.logic.StateProcessor
 import com.eden.alarmplus.logic.WakeScheduler
+import com.eden.alarmplus.notifications.ChannelContainer
 import com.eden.alarmplus.notifications.NotificationSender
 import java.time.LocalDateTime
 import kotlin.uuid.Uuid
@@ -23,7 +24,11 @@ class AlarmPlusApplication: Application() {
     }
 
     private val notificationSender: NotificationSender by lazy {
-        NotificationSender(this)
+        NotificationSender(this, container.pendingIntentRepository, channelContainer)
+    }
+
+    val channelContainer: ChannelContainer by lazy {
+        ChannelContainer(this)
     }
 
     override fun onCreate() {

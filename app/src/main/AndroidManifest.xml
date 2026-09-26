@@ -13,6 +13,13 @@
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:purposeString="@string/manifest_permission_exactalarm_purpose"
         android:maxSdkVersion="32"/>
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        android:purposeString="@string/manifest_permission_postnotifications_purpose"/>
+    <uses-permission
+        android:name="android.permission.USE_FULL_SCREEN_INTENT"
+        android:purposeString="@string/manifest_permission_usefullscreenintent_purpose"
+        tools:ignore="FullScreenIntentPolicy" />
 
     <application
         android:name=".AlarmPlusApplication"
@@ -34,25 +41,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.notification.NotificationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AlarmPlus"/>
         <receiver
-            android:name=".logic.StartupReceiver"
+            android:name=".logic.InitializationReceiver"
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true">
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".logic.ZoneReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
                 <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
             </intent-filter>
         </receiver>
         <receiver
             android:name=".logic.WakeReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name=".notifications.NotificationReceiver"
             android:enabled="true"
             android:exported="false" />
         <meta-data
