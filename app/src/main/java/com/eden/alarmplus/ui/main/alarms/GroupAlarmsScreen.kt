@@ -48,6 +48,7 @@ import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.ui.common.FormatViewModel
 import com.eden.alarmplus.ui.common.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.MockFormatViewModelProvider
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
@@ -260,7 +261,10 @@ fun GroupAlarmScreenPreview() {
                 Modifier.padding(innerPadding)
             ) {
                 composable<AlarmsRoute> {
-                    GroupAlarmScreen(viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory))
+                    GroupAlarmScreen(
+                        viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory),
+                        formatViewModel = viewModel(factory = MockFormatViewModelProvider.Factory),
+                    )
                 }
             }
         }

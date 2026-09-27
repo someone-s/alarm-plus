@@ -1,7 +1,5 @@
 package com.eden.alarmplus.ui.common
 
-import android.content.Context
-import android.text.format.DateFormat
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,24 +8,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 
-class FormatViewModel(context: Context, timeFormatRepository: TimeFormatRepository): ViewModel() {
+class FormatViewModel(initialFormat: CurrentFormatUiState, timeFormatRepository: TimeFormatRepository): ViewModel() {
 
-    val currentFormatUiState: StateFlow<CurrentTimeFormatUiState> =
+    val currentFormatUiState: StateFlow<CurrentFormatUiState> =
         timeFormatRepository.currentTimeFormat()
             .map {
-                CurrentTimeFormatUiState(it)
+                CurrentFormatUiState(it)
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS, 600_000L),
-                initialValue = CurrentTimeFormatUiState(
-                    DateTimeFormatter.ofPattern(
-                        (DateFormat.getTimeFormat(context) as SimpleDateFormat).toPattern()
-                    )
-                ),
+                initialValue = initialFormat,
             )
 
     companion object {
@@ -36,6 +29,6 @@ class FormatViewModel(context: Context, timeFormatRepository: TimeFormatReposito
 }
 
 @Immutable
-data class CurrentTimeFormatUiState(
+data class CurrentFormatUiState(
     val timeFormatter: DateTimeFormatter
 )
