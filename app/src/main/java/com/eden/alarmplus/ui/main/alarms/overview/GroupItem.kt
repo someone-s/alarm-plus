@@ -130,6 +130,11 @@ fun GroupItem(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
+                else if (group.info.active)
+                    ListItemDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
                 else
                     ListItemDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
