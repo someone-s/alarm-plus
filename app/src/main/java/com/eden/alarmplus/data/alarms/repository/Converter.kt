@@ -56,18 +56,18 @@ fun AlarmEntity.toAlarmData(): AlarmData {
 
 fun StateData.toStateEntity() = StateEntity(
     groupUuid = this.groupUuid.toUuidLongs(),
-    value = when(this) {
-        is StateData.Active -> StateEntity.ACTIVE_VALUE
-        is StateData.Dismissed -> StateEntity.DISMISSED_VALUE
-        is StateData.Idle -> StateEntity.IDLE_VALUE
-        is StateData.Undefined -> StateEntity.UNDEFINED_VALUE
+    value = when(this.type) {
+        StateData.Type.ACTIVE -> StateEntity.ACTIVE_VALUE
+        StateData.Type.DISMISSED -> StateEntity.DISMISSED_VALUE
+        StateData.Type.IDLE -> StateEntity.IDLE_VALUE
+        StateData.Type.UNDEFINED -> StateEntity.UNDEFINED_VALUE
     }
 )
 
 fun StateEntity.toStateData() = when(this.value) {
-    StateEntity.ACTIVE_VALUE -> StateData.Active(this.groupUuid.toUuid())
-    StateEntity.DISMISSED_VALUE -> StateData.Dismissed(this.groupUuid.toUuid())
-    StateEntity.IDLE_VALUE -> StateData.Idle(this.groupUuid.toUuid())
-    StateEntity.UNDEFINED_VALUE -> StateData.Undefined(this.groupUuid.toUuid())
+    StateEntity.ACTIVE_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.ACTIVE)
+    StateEntity.DISMISSED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.DISMISSED)
+    StateEntity.IDLE_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.IDLE)
+    StateEntity.UNDEFINED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.UNDEFINED)
     else -> throw IllegalArgumentException("StateEntity.value is ${this.value}, not recognized.")
 }

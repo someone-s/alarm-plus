@@ -1,7 +1,31 @@
 package com.eden.alarmplus.util.time
 
 import androidx.compose.runtime.Stable
+import java.time.Duration
 import java.time.LocalTime
+
+@Stable
+fun isTimeRightBeforeAndNotInSpan(
+    timeSpan: List<LocalTime>,
+    time: LocalTime,
+    acceptedDuration: Duration
+): Boolean {
+    if (timeSpan.isEmpty())
+        return false
+
+    if (isTimeWithinTimeSpan(timeSpan, time))
+        return false
+
+    val wrappedDuration = Duration.between(time, timeSpan.first()).let {
+        if (it.isNegative) it.plusDays(1)
+        else it
+    }
+
+    if (wrappedDuration.isZero)
+        return false
+
+    return wrappedDuration <= acceptedDuration
+}
 
 @Stable
 fun isTimeWithinTimeSpan(

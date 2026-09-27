@@ -16,8 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.ui.common.FormatViewModel
+import com.eden.alarmplus.ui.common.FormatViewModelProvider
 
 
 @Composable
@@ -64,6 +67,7 @@ fun GroupSection(
     onSelectAlarm: (AlarmData) -> Unit,
     onDelete: () -> Unit,
     onBack: () -> Unit,
+    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
     Column(
         modifier = Modifier
@@ -93,6 +97,7 @@ fun GroupSection(
                     onDelete = { targetAlarm ->
                         state.removeIfExistAlarm(targetAlarm)
                     },
+                    formatViewModel = formatViewModel,
                 )
             }
         AddButton(

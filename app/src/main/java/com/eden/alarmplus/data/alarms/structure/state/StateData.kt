@@ -1,5 +1,6 @@
 package com.eden.alarmplus.data.alarms.structure.state
 
+import androidx.compose.runtime.Immutable
 import kotlin.uuid.Uuid
 
 /**
@@ -8,35 +9,29 @@ import kotlin.uuid.Uuid
  *     │          └────🯝────┘│
  *     └──────────🯝──────────┘
  */
-sealed class StateData
-{
-    abstract val groupUuid: Uuid
+@Immutable
+data class StateData(
+    val groupUuid: Uuid,
+    val type: Type,
+) {
 
-    data class Undefined(
-        override val groupUuid: Uuid,
-    ): StateData() {
-        fun toActive() = Active(groupUuid)
-        fun toDismissed() = Dismissed(groupUuid)
-        fun toIdle() = Idle(groupUuid)
+    enum class Type {
+        UNDEFINED,
+        ACTIVE,
+        DISMISSED,
+        IDLE,
     }
 
-    data class Active(
-        override val groupUuid: Uuid,
-    ): StateData() {
-        fun toDismissed() = Dismissed(groupUuid)
-        fun toIdle() = Idle(groupUuid)
+    fun toActive(): StateData {
+        assert(this.type == Type.UNDEFINED || this.type == Type.IDLE)
+        return StateData(groupUuid, Type.ACTIVE)
     }
-
-    data class Dismissed(
-        override val groupUuid: Uuid,
-    ): StateData() {
-        fun toIdle() = Idle(groupUuid)
+    fun toDismissed(): StateData {
+        assert(this.type == Type.UNDEFINED || this.type == Type.ACTIVE || this.type == Type.IDLE)
+        return StateData(groupUuid, Type.DISMISSED)
     }
-
-    data class Idle(
-        override val groupUuid: Uuid,
-    ): StateData() {
-        fun toActive() = Active(groupUuid)
-        fun toDismissed() = Dismissed(groupUuid)
+    fun toIdle(): StateData {
+        assert(this.type == Type.UNDEFINED || this.type == Type.ACTIVE || this.type == Type.DISMISSED)
+        return StateData(groupUuid, Type.IDLE)
     }
 }

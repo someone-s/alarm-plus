@@ -1,6 +1,5 @@
 package com.eden.alarmplus.ui.main.alarms.edit.group
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -19,19 +18,21 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import com.eden.alarmplus.ui.common.FormatViewModel
+import com.eden.alarmplus.ui.common.FormatViewModelProvider
 
 @Composable
 fun AlarmItem(
@@ -39,12 +40,10 @@ fun AlarmItem(
     onSelect: (AlarmData) -> Unit,
     onDelete: (AlarmData) -> Unit,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
+    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
 
-    val context = LocalContext.current
-    val timeFormatter = remember(DateFormat.is24HourFormat(context)) {
-        DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-    }
+    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
 
     val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
     val dismissBoxState = remember(alarm) {
@@ -85,7 +84,7 @@ fun AlarmItem(
                 shapes = shapes,
                 content = {
                     Text(
-                        text = timeFormatter.format(alarm.info.time),
+                        text = currentFormatUiState.timeFormatter.format(alarm.info.time),
                         maxLines = 1,
                         style = MaterialTheme.typography.titleLarge,
                     )

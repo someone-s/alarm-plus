@@ -1,7 +1,9 @@
 package com.eden.alarmplus.data.alarms.structure.group
 
+import androidx.compose.runtime.Immutable
 import kotlin.uuid.Uuid
 
+@Immutable
 data class GroupInfo(
     val uuid: Uuid = Uuid.random(),
     val name: String?,

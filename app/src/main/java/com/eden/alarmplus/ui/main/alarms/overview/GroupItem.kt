@@ -20,6 +20,8 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,10 +29,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import com.eden.alarmplus.ui.common.FormatViewModel
+import com.eden.alarmplus.ui.common.FormatViewModelProvider
 
 @Composable
 fun GroupItem(
@@ -40,9 +43,8 @@ fun GroupItem(
     onToggle: (Boolean) -> Unit,
     onDelete: () -> Unit,
     shapes: ListItemShapes = ListItemDefaults.segmentedShapes(0, 1),
+    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
-    val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-
     val firstTime = group.alarms.firstOrNull()?.info?.time
 
     val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
@@ -52,6 +54,8 @@ fun GroupItem(
             positionalThreshold = positionalThreshold,
         )
     }
+
+    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
 
     SwipeToDismissBox(
         state = dismissBoxState,
@@ -102,7 +106,7 @@ fun GroupItem(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = if (firstTime != null) timeFormatter.format(firstTime) else "--:--",
+                            text = if (firstTime != null) currentFormatUiState.timeFormatter.format(firstTime) else "--:--",
                             fontWeight = FontWeight.SemiBold,
                             style = MaterialTheme.typography.displayMedium,
                         )
@@ -111,7 +115,7 @@ fun GroupItem(
                                 .map { it.info.time }
                                 .forEach { remainingTime ->
                                     Text(
-                                        text = timeFormatter.format(remainingTime),
+                                        text = currentFormatUiState.timeFormatter.format(remainingTime),
                                         fontWeight = FontWeight.Normal,
                                         style = MaterialTheme.typography.bodyMedium,
                                         maxLines = 1,

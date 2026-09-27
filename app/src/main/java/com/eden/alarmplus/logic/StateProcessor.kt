@@ -176,11 +176,11 @@ class StateProcessor(
             // return if null (invalidated by changes, a new run should be triggered)
             val currentState = stateRepository.getState(groupUuid) ?: throw InvalidatedStateException()
 
-            val newState = when (currentState) {
-                is StateData.Active -> currentState.toDismissed()
-                is StateData.Dismissed -> currentState
-                is StateData.Idle -> currentState
-                is StateData.Undefined -> {
+            val newState = when (currentState.type) {
+                StateData.Type.ACTIVE -> currentState.toDismissed()
+                StateData.Type.DISMISSED -> currentState
+                StateData.Type.IDLE -> currentState
+                StateData.Type.UNDEFINED -> {
                     Log.w("$javaClass", "Dismissing group $groupUuid with existing state Undefined.")
                     currentState.toDismissed()
                 }
@@ -211,18 +211,18 @@ class StateProcessor(
 
             val newState =
                 if (group.info.active)
-                    when (currentState) {
-                        is StateData.Active -> if (inDuration) currentState else currentState.toIdle()
-                        is StateData.Dismissed -> if (inDuration) currentState else currentState.toIdle()
-                        is StateData.Idle -> if (inDuration) currentState.toActive() else currentState
-                        is StateData.Undefined -> if (inDuration) currentState.toActive() else currentState.toIdle()
+                    when (currentState.type) {
+                        StateData.Type.ACTIVE -> if (inDuration) currentState else currentState.toIdle()
+                        StateData.Type.DISMISSED -> if (inDuration) currentState else currentState.toIdle()
+                        StateData.Type.IDLE -> if (inDuration) currentState.toActive() else currentState
+                        StateData.Type.UNDEFINED -> if (inDuration) currentState.toActive() else currentState.toIdle()
                     }
                 else
-                    when (currentState) {
-                        is StateData.Active -> currentState.toIdle()
-                        is StateData.Dismissed -> currentState.toIdle()
-                        is StateData.Idle -> currentState
-                        is StateData.Undefined -> currentState.toIdle()
+                    when (currentState.type) {
+                        StateData.Type.ACTIVE -> currentState.toIdle()
+                        StateData.Type.DISMISSED -> currentState.toIdle()
+                        StateData.Type.IDLE -> currentState
+                        StateData.Type.UNDEFINED -> currentState.toIdle()
                     }
 
             if (!handle.isValid()) throw InvalidatedStateException()
@@ -247,21 +247,21 @@ class StateProcessor(
             // return if null (invalidated by changes, a new run should be triggered)
             val currentState = stateRepository.getState(alarmAtTime.group.uuid) ?: throw InvalidatedStateException()
 
-            val shouldSendNotification = when (currentState) {
-                is StateData.Active -> true
-                is StateData.Dismissed -> false
-                is StateData.Idle -> true
-                is StateData.Undefined -> {
+            val shouldSendNotification = when (currentState.type) {
+                StateData.Type.ACTIVE -> true
+                StateData.Type.DISMISSED -> false
+                StateData.Type.IDLE -> true
+                StateData.Type.UNDEFINED -> {
                     Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
                     true
                 }
             }
 
-            val newState = when (currentState) {
-                is StateData.Active -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
-                is StateData.Dismissed -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
-                is StateData.Idle -> if (alarmAtTime.isLastInGroup) currentState else currentState.toActive()
-                is StateData.Undefined -> {
+            val newState = when (currentState.type) {
+                StateData.Type.ACTIVE -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
+                StateData.Type.DISMISSED -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
+                StateData.Type.IDLE -> if (alarmAtTime.isLastInGroup) currentState else currentState.toActive()
+                StateData.Type.UNDEFINED -> {
                     Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
                     if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState.toActive()
                 }

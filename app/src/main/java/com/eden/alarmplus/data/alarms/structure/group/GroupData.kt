@@ -1,7 +1,9 @@
 package com.eden.alarmplus.data.alarms.structure.group
 
+import androidx.compose.runtime.Immutable
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 
+@Immutable
 data class GroupData(
     val info: GroupInfo,
     val alarms: List<AlarmData>,

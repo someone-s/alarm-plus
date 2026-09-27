@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,13 +46,18 @@ import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.ui.common.FormatViewModel
+import com.eden.alarmplus.ui.common.FormatViewModelProvider
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.ui.main.alarms.overview.GroupItem
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
+import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotInSpan
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.toJavaDuration
 
 @Serializable
 object AlarmsRoute
@@ -59,10 +65,12 @@ object AlarmsRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupAlarmScreen(
-    viewModel: GroupAlarmViewModel = viewModel(factory = GroupAlarmViewModelProvider.Factory)
+    viewModel: GroupAlarmViewModel = viewModel(factory = GroupAlarmViewModelProvider.Factory),
+    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
 
     val groupAlarmUiState by viewModel.groupAlarmsUiState.collectAsState()
+    val currentTimeUiState by viewModel.currentTimeUiState.collectAsState()
 
     val editSheetState = rememberEditSheetState()
 
@@ -179,14 +187,24 @@ fun GroupAlarmScreen(
                         bottom = 8.dp
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
+
                 ) {
-                    items(items = groupAlarmUiState.groupAndStateList) { groupAndState ->
+                    items(items = groupAlarmUiState.groupAndStateList, key = { it.first.info.uuid }) { groupAndState ->
                         val group = groupAndState.first
                         val state = groupAndState.second
+
+                        val activeSoon by remember { derivedStateOf {
+                            group.info.active &&
+                            isTimeRightBeforeAndNotInSpan(
+                                timeSpan = group.alarms.map { it.info.time },
+                                time = currentTimeUiState.localTime,
+                                acceptedDuration = 1.hours.toJavaDuration()
+                            )
+                        } }
+
                         GroupItem(
                             group = group,
-                            active = state is StateData.Active
-                            ,
+                            active = (state.type == StateData.Type.ACTIVE) || activeSoon,
                             onSelect = {
                                 editSheetState.showSheet(group)
                             },
@@ -198,7 +216,8 @@ fun GroupAlarmScreen(
                             },
                             onDelete = {
                                 showRevertGroupDeleteSnackbar(group)
-                            }
+                            },
+                            formatViewModel = formatViewModel,
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -235,7 +254,11 @@ fun GroupAlarmScreenPreview() {
                 NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {}
             }
         ) { innerPadding ->
-            NavHost(navController, startDestination = AlarmsRoute, Modifier.padding(innerPadding)) {
+            NavHost(
+                navController,
+                startDestination = AlarmsRoute,
+                Modifier.padding(innerPadding)
+            ) {
                 composable<AlarmsRoute> {
                     GroupAlarmScreen(viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory))
                 }

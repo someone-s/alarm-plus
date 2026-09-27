@@ -1,7 +1,9 @@
 package com.eden.alarmplus.data.alarms.structure.alarm
 
+import androidx.compose.runtime.Immutable
 import java.time.LocalTime
 
+@Immutable
 data class AlarmData(
     val info: AlarmInfo,
     val features: List<AlarmFeature>,

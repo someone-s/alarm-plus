@@ -8,9 +8,12 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.uuid.Uuid
 
 object MockGroupAlarmViewModelProvider {
@@ -48,7 +51,7 @@ object MockGroupAlarmViewModelProvider {
                                     ),
                                 )
                             ),
-                            StateData.Active(Uuid.random())
+                            StateData(Uuid.random(), StateData.Type.ACTIVE)
                         ),
                         Pair(
                             GroupData(
@@ -71,14 +74,14 @@ object MockGroupAlarmViewModelProvider {
                                     ),
                                 )
                             ),
-                            StateData.Idle(Uuid.random())
+                            StateData(Uuid.random(), StateData.Type.IDLE)
                         ),
                     ))
                 },
-                timeProvider = object : GroupAlarmViewModel.TimeProvider {
-                    override val currentTime: LocalTime
-                        get() = LocalTime.of(9, 0)
-
+                timeTickRepository = object : TimeTickRepository {
+                    override fun currentDateTime(): Flow<ZonedDateTime> {
+                        return flowOf(ZonedDateTime.of(2026, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault()))
+                    }
                 }
             )
         }

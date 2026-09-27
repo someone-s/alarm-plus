@@ -1,11 +1,19 @@
 package com.eden.alarmplus.data
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import com.eden.alarmplus.data.alarms.database.AlarmsDatabase
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.repository.OfflineGroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.repository.OfflineStateRepository
 import com.eden.alarmplus.data.alarms.repository.StateRepository
+import com.eden.alarmplus.data.datetime.receiver.TimeChangeReceiver
+import com.eden.alarmplus.data.datetime.receiver.TimeTickReceiver
+import com.eden.alarmplus.data.datetime.repository.ReceiverTimeFormatRepository
+import com.eden.alarmplus.data.datetime.repository.ReceiverTimeTickRepository
+import com.eden.alarmplus.data.datetime.repository.TimeFormatRepository
+import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.data.notifications.database.NotificationsDatabase
 import com.eden.alarmplus.data.notifications.repository.ConcurrentPendingIntentRepository
 import com.eden.alarmplus.data.notifications.repository.PendingIntentRepository
@@ -46,5 +54,17 @@ class AppDataContainer(
 
     override val pendingIntentRepository: PendingIntentRepository by lazy {
         ConcurrentPendingIntentRepository(NotificationsDatabase.getDatabase(context).pendingIntentDao())
+    }
+
+    override val timeFormatRepository: TimeFormatRepository by lazy {
+        val timeChangeReceiver = TimeChangeReceiver()
+        context.registerReceiver(timeChangeReceiver, IntentFilter(Intent.ACTION_TIME_CHANGED))
+        ReceiverTimeFormatRepository(context, timeChangeReceiver)
+    }
+
+    override val timeTickRepository: TimeTickRepository by lazy {
+        val timeTickReceiver = TimeTickReceiver()
+        context.registerReceiver(timeTickReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
+        ReceiverTimeTickRepository(timeTickReceiver)
     }
 }
