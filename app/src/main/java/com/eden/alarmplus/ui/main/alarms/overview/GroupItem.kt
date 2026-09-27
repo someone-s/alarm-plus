@@ -20,20 +20,59 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.ui.common.FormatViewModel
 import com.eden.alarmplus.ui.common.FormatViewModelProvider
+
+object GroupItemDefaults {
+
+    @Composable
+    fun textStyles(
+        titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+        firstTimeStyle: TextStyle = MaterialTheme.typography.displayMedium,
+        remainingTimesStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    ): GroupItemTextStyle {
+        val textMeasurer = rememberTextMeasurer(cacheSize = 3)
+        val density = LocalDensity.current
+
+        return remember(titleStyle, firstTimeStyle, remainingTimesStyle, density) {
+            GroupItemTextStyle(
+                titleStyle = titleStyle,
+                titleComputedHeight = with(density) { textMeasurer.measure("0", titleStyle).size.height.toDp() },
+                firstTimeStyle = firstTimeStyle,
+                firstTimeComputedHeight = with(density) { textMeasurer.measure("0", firstTimeStyle).size.height.toDp() },
+                remainingTimesStyle = remainingTimesStyle,
+                remainingTimesComputedHeight = with(density) { textMeasurer.measure("0", remainingTimesStyle).size.height.toDp() },
+            )
+        }
+    }
+}
+
+@Immutable
+class GroupItemTextStyle(
+    val titleStyle: TextStyle,
+    val titleComputedHeight: Dp,
+    val firstTimeStyle: TextStyle,
+    val firstTimeComputedHeight: Dp,
+    val remainingTimesStyle: TextStyle,
+    val remainingTimesComputedHeight: Dp,
+)
 
 @Composable
 fun GroupItem(
@@ -44,6 +83,7 @@ fun GroupItem(
     onDelete: () -> Unit,
     shapes: ListItemShapes = ListItemDefaults.segmentedShapes(0, 1),
     formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
+    textStyles: GroupItemTextStyle = GroupItemDefaults.textStyles()
 ) {
     val firstTime = group.alarms.firstOrNull()?.info?.time
 
@@ -101,27 +141,32 @@ fun GroupItem(
                     Column {
                         Text(
                             text = group.info.name ?: "",
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = if (group.info.active) FontWeight.SemiBold else FontWeight.Light,
+                            style = textStyles.titleStyle,
+                            maxLines = 1,
+                            modifier = Modifier.height(textStyles.titleComputedHeight),
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = if (firstTime != null) currentFormatUiState.timeFormatter.format(firstTime) else "--:--",
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = if (group.info.active) FontWeight.SemiBold else FontWeight.Light,
+                            style = textStyles.firstTimeStyle,
+                            maxLines = 1,
+                            modifier = Modifier.height(textStyles.firstTimeComputedHeight),
                         )
+
+                        val times = remember(group.alarms) { group.alarms.map { it.info.time }.take(5) }
+
                         Row {
-                            group.alarms
-                                .map { it.info.time }
-                                .forEach { remainingTime ->
-                                    Text(
-                                        text = currentFormatUiState.timeFormatter.format(remainingTime),
-                                        fontWeight = FontWeight.Normal,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = 1,
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                }
+                            Spacer(modifier = Modifier.height(textStyles.remainingTimesComputedHeight))
+                            times.forEach { remainingTime ->
+                                Text(
+                                    text = currentFormatUiState.timeFormatter.format(remainingTime),
+                                    fontWeight = if (group.info.active) FontWeight.SemiBold else FontWeight.Normal,
+                                    style = textStyles.remainingTimesStyle,
+                                    maxLines = 1,
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
                         }
                     }
                 },

@@ -204,52 +204,52 @@ fun GroupAlarmScreen(
         },
         content = { paddingValues ->
 
-                LazyColumn(
-                    modifier = Modifier
-                        .width(480.dp)
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(
-                        top = 32.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 72.dp
-                    ),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            LazyColumn(
+                modifier = Modifier
+                    .width(480.dp)
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(
+                    top = 32.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 72.dp
+                ),
+                horizontalAlignment = Alignment.CenterHorizontally,
 
-                ) {
-                    items(items = groupAlarmUiState.groupAndStateList, key = { it.first.info.uuid }) { groupAndState ->
-                        val group = groupAndState.first
-                        val state = groupAndState.second
+            ) {
+                items(items = groupAlarmUiState.groupAndStateList, key = { it.first.info.uuid }) { groupAndState ->
+                    val group = groupAndState.first
+                    val state = groupAndState.second
 
-                        val activeSoon by remember { derivedStateOf {
-                            group.info.active &&
-                            isTimeRightBeforeAndNotInSpan(
-                                timeSpan = group.alarms.map { it.info.time },
-                                time = currentTimeUiState.localTime,
-                                acceptedDuration = 1.hours.toJavaDuration()
-                            )
-                        } }
-
-                        GroupItem(
-                            group = group,
-                            active = (state.type == StateData.Type.ACTIVE) || activeSoon,
-                            onSelect = {
-                                editSheetState.showSheet(group)
-                            },
-                            onToggle = { active ->
-                                val groupUuid = group.info.uuid
-                                scope.launch {
-                                    viewModel.toggleGroupAlarm(groupUuid, active)
-                                }
-                            },
-                            onDelete = {
-                                showRevertGroupDeleteSnackbar(group)
-                            },
-                            formatViewModel = formatViewModel,
+                    val activeSoon by remember { derivedStateOf {
+                        group.info.active &&
+                        isTimeRightBeforeAndNotInSpan(
+                            timeSpan = group.alarms.map { it.info.time },
+                            time = currentTimeUiState.localTime,
+                            acceptedDuration = 1.hours.toJavaDuration()
                         )
-                        Spacer(Modifier.height(8.dp))
-                    }
+                    } }
+
+                    GroupItem(
+                        group = group,
+                        active = (state.type == StateData.Type.ACTIVE) || activeSoon,
+                        onSelect = {
+                            editSheetState.showSheet(group)
+                        },
+                        onToggle = { active ->
+                            val groupUuid = group.info.uuid
+                            scope.launch {
+                                viewModel.toggleGroupAlarm(groupUuid, active)
+                            }
+                        },
+                        onDelete = {
+                            showRevertGroupDeleteSnackbar(group)
+                        },
+                        formatViewModel = formatViewModel,
+                    )
+                    Spacer(Modifier.height(8.dp))
                 }
+            }
 
             EditSheet(
                 state = editSheetState,
