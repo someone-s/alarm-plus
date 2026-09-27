@@ -51,4 +51,6 @@
     <string name="ui_main_notification_permissiondialog_grantaction">Grant</string>
     <string name="ui_main_notification_permissiondialog_title">Notifications</string>
     <string name="ui_main_notification_permissiondialog_body">%1$s uses notifications to display alarms. The app will not function without notification permissions.</string>
+    <string name="ui_notification_notificationcontent_snoozeaction">Snooze</string>
+    <string name="ui_notification_notificationcontent_dismissaction">Dismiss</string>
 </resources>

@@ -44,7 +44,10 @@
         <activity
             android:name=".ui.notification.NotificationActivity"
             android:exported="false"
-            android:theme="@style/Theme.AlarmPlus"/>
+            android:theme="@style/Theme.AlarmPlus"
+            android:turnScreenOn="true"
+            android:showWhenLocked="true"
+            tools:targetApi="27" />
         <receiver
             android:name=".logic.InitializationReceiver"
             android:enabled="true"

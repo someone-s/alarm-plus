@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.notifications.repository.PendingIntentRepository
 import com.eden.alarmplus.ui.notification.NotificationActivity
 import kotlin.time.Duration.Companion.minutes
@@ -30,7 +31,7 @@ class NotificationSender(
     }
 
     suspend fun sendAlarmNotification(
-        groupUuid: Uuid,
+        group: GroupInfo,
         alarm: AlarmData,
         isLastInGroup: Boolean,
     ) {
@@ -38,89 +39,94 @@ class NotificationSender(
         // There will always only be one notification per group
         // so tag is the group's uuid
         // and id can be a fixed value
-        val groupUuidString = groupUuid.toHexString()
+        val notificationTag = group.uuid.toHexString()
 
-        suspend fun buildNotificationAction(
-            repoTag: Int,
-            notificationTag: String,
-            icon: Int,
-            title: Int,
-            response: Int,
-        ) = NotificationCompat.Action.Builder(
-            icon,
-            context.getString(title),
-            PendingIntent.getBroadcast(
-                context,
-                pendingIntentRepository.swapRequestCode(repoTag, groupUuidString),
-                Intent(context, NotificationReceiver::class.java).apply {
-                    putExtra(NotificationReceiver.EXTRA_NOTIFICATION_TAG, notificationTag)
-                    putExtra(NotificationReceiver.EXTRA_GROUP_UUID, groupUuid)
-                    putExtra(NotificationReceiver.EXTRA_RESPONSE, response)
-                },
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
-            )
-        ).build()
-
-        suspend fun buildSnoozeAction(notificationTag: String) = buildNotificationAction(
-            REPO_SNOOZE_TAG,
-            notificationTag,
-            R.drawable.snooze,
-            R.string.notifications_snoozeaction_title,
-            NotificationReceiver.RESPONSE_SNOOZE,
-        )
-
-        suspend fun buildDismissAction(notificationTag: String) = buildNotificationAction(
-            REPO_DISMISS_TAG,
-            notificationTag,
-            R.drawable.close,
-            R.string.notifications_dismissaction_title,
-            NotificationReceiver.RESPONSE_DISMISS,
-        )
-
-
-        suspend fun buildFullScreenPendingIntent() = PendingIntent.getActivity(
+        suspend fun buildNotificationPendingIntent(repoTag: Int, notificationAction: String) = PendingIntent.getBroadcast(
             context,
-            pendingIntentRepository.swapRequestCode(REPO_FULLSCREEN_TAG, groupUuidString),
+            pendingIntentRepository.swapRequestCode(repoTag, notificationTag),
+            Intent(context, NotificationReceiver::class.java).apply {
+                action = notificationAction
+                putExtra(NotificationReceiver.EXTRA_NOTIFICATION_TAG, notificationTag)
+                putExtra(NotificationReceiver.EXTRA_GROUP_UUID, group.uuid)
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+
+        suspend fun buildFullScreenPendingIntent(
+            snoozePendingIntent: PendingIntent?,
+            dismissPendingIntent: PendingIntent?,
+        ) = PendingIntent.getActivity(
+            context,
+            pendingIntentRepository.swapRequestCode(REPO_FULLSCREEN_TAG, notificationTag),
             Intent(context, NotificationActivity::class.java).apply {
-                putExtra(NotificationActivity.EXTRA_GROUP_UUID, groupUuid)
-                alarm.getFeature<AudioFeature>()
+                putExtra(NotificationActivity.EXTRA_GROUP_UUID, group.uuid)
                 putExtra(NotificationActivity.EXTRA_IS_LAST_IN_GROUP, isLastInGroup)
+                if (snoozePendingIntent != null)
+                    putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozePendingIntent)
+                if (dismissPendingIntent != null)
+                    putExtra(NotificationActivity.EXTRA_DISMISS_PENDING_INTENT, dismissPendingIntent)
+                alarm.getFeature<AudioFeature>()
+
+                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)
+
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
             },
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        suspend fun buildNotification(
+            includeFullScreenIntent: Boolean,
+        ) = NotificationCompat.Builder(context, ChannelContainer.ALARM_CHANNEL_ID).apply {
+            // needed on older platform that does not support notification channel
+            setPriority(NotificationCompat.PRIORITY_HIGH)
+
+            setSmallIcon(R.drawable.icon_full)
+            setContentTitle(group.name ?: "Untitled Alarm")
+
+            setTimeoutAfter(10.minutes.inWholeMilliseconds)
+
+            val snoozePendingIntent = if (!isLastInGroup)
+                buildNotificationPendingIntent(REPO_SNOOZE_TAG, NotificationReceiver.ACTION_SNOOZE)
+            else null
+
+            val dismissPendingIntent =
+                buildNotificationPendingIntent(REPO_DISMISS_TAG, NotificationReceiver.ACTION_DISMISS)
+
+            if (snoozePendingIntent != null)
+                addAction(
+                    R.drawable.snooze,
+                    context.getString(R.string.notifications_snoozeaction_title),
+                    snoozePendingIntent
+                )
+
+            addAction(
+                R.drawable.close,
+                context.getString(R.string.notifications_dismissaction_title),
+                dismissPendingIntent
+            )
+
+            if (includeFullScreenIntent)
+                @SuppressLint("FullScreenIntentPolicy")
+                setFullScreenIntent(
+                    buildFullScreenPendingIntent(
+                        snoozePendingIntent = snoozePendingIntent,
+                        dismissPendingIntent = dismissPendingIntent,
+                    ),
+                    true
+                )
+        }.build()
+
         with (NotificationManagerCompat.from(context)) {
 
-            // There will always only be one notification per group
-            // so tag is the group's uuid
-            // and id can be a fixed value
-            val tag = groupUuidString
 
             // Cancel previous notification of this group, if exist
-            cancel(tag, 0)
+            cancel(notificationTag, 0)
 
             // Ensure channel exists
             createNotificationChannel(channelContainer.alarmChannel)
-
-            // Construct notification
-            val builder = NotificationCompat.Builder(context, ChannelContainer.ALARM_CHANNEL_ID).apply {
-                // needed on older platform that does not support notification channel
-                setPriority(NotificationCompat.PRIORITY_HIGH)
-
-                setSmallIcon(R.drawable.icon_full)
-                setContentTitle("Alarm!!")
-
-                setTimeoutAfter(10.minutes.inWholeMilliseconds)
-
-                if (!isLastInGroup)
-                    addAction(buildSnoozeAction(tag))
-
-                addAction(buildDismissAction(tag))
-
-                if (canUseFullScreenIntent())
-                    @SuppressLint("FullScreenIntentPolicy")
-                    setFullScreenIntent(buildFullScreenPendingIntent(), true)
-            }
 
             // Exit if no permission to send notifications
             if (ContextCompat.checkSelfPermission(
@@ -131,7 +137,11 @@ class NotificationSender(
                 return@with
             }
 
-            notify(tag, 0, builder.build())
+            val notification = buildNotification(
+                includeFullScreenIntent = canUseFullScreenIntent(),
+            )
+
+            notify(notificationTag, 0, notification)
         }
     }
 }

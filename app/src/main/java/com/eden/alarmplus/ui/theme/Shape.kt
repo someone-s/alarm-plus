@@ -26,7 +26,7 @@ class PolygonShape(
     ): Outline {
 
         matrix.reset()
-        val bounds = polygon.calculateBounds().let { Rect(it[0], it[1], it[2], it[3]) }
+        val bounds = polygon.calculateBounds(approximate = false).let { Rect(it[0], it[1], it[2], it[3]) }
         val maxDimension = max(bounds.width, bounds.height)
         matrix.scale(size.width / maxDimension, size.height / maxDimension)
         matrix.translate(-bounds.left, -bounds.top)

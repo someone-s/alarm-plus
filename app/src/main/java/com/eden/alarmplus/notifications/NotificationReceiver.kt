@@ -3,8 +3,15 @@ package com.eden.alarmplus.notifications
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.IntentCompat
+import com.eden.alarmplus.AlarmPlusApplication
 import com.eden.alarmplus.BuildConfig
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 class NotificationReceiver: BroadcastReceiver() {
     companion object {
@@ -18,17 +25,13 @@ class NotificationReceiver: BroadcastReceiver() {
          */
         const val EXTRA_GROUP_UUID = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_UUID"
 
-        /**
-         * Extra either [RESPONSE_SNOOZE] or [RESPONSE_DISMISS]
-         */
-        const val EXTRA_RESPONSE = "${BuildConfig.APPLICATION_ID}.EXTRA_RESPONSE"
+        const val ACTION_SNOOZE = "${BuildConfig.APPLICATION_ID}.ACTION_SNOOZE"
 
-        const val RESPONSE_SNOOZE = 1
-
-        const val RESPONSE_DISMISS = 2
+        const val ACTION_DISMISS = "${BuildConfig.APPLICATION_ID}.ACTION_DISMISS"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+
         intent.getStringExtra(EXTRA_NOTIFICATION_TAG).also {
             if (it == null) return@also
             with(NotificationManagerCompat.from(context)) {
@@ -36,5 +39,37 @@ class NotificationReceiver: BroadcastReceiver() {
             }
         }
 
+        val groupUuid = IntentCompat.getSerializableExtra(intent, EXTRA_GROUP_UUID, Uuid::class.java)
+        if (groupUuid == null) {
+            Log.e("$javaClass", "Missing EXTRA_GROUP_UUID.")
+            return
+        }
+
+        when (intent.action) {
+            ACTION_SNOOZE -> {
+                // do nothing, alarm stays active
+            }
+            ACTION_DISMISS -> {
+                val application = context.applicationContext as AlarmPlusApplication
+                val stateProcessor = application.stateProcessor
+
+                val pendingResult = goAsync()
+                @OptIn(DelicateCoroutinesApi::class)
+                GlobalScope.launch {
+                    try {
+                        stateProcessor.dismissGroup(groupUuid)
+                    }
+                    catch (e: Exception) {
+                        Log.e("$javaClass", "Exception while calling stateProcessor.", e)
+                    }
+                    finally {
+                        pendingResult.finish()
+                    }
+                }
+            }
+            else -> {
+                Log.e("$javaClass", "Unknown action.")
+            }
+        }
     }
 }

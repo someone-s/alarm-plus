@@ -36,7 +36,7 @@ class OfflineStateRepository(private val stateDao: StateDao): StateRepository {
             .map { alarmAtTimestamp ->
                 StateRepository.AlarmsAtTime(
                     alarm = alarmAtTimestamp.alarm.toAlarmData(),
-                    groupUuid = alarmAtTimestamp.alarm.groupUuid.toUuid(),
+                    group = alarmAtTimestamp.group.toGroupInfo(),
                     isLastInGroup = alarmAtTimestamp.isLastInGroup,
                 )
             }

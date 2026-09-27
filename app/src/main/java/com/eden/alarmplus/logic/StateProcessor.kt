@@ -5,7 +5,10 @@ import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
 import com.eden.alarmplus.notifications.NotificationSender
+import kotlinx.coroutines.delay
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.Uuid
 
 class StateProcessor(
     private val stateRepository: StateRepository,
@@ -14,47 +17,83 @@ class StateProcessor(
 ) {
 
     companion object {
+
         object Lock {
 
             data class Handle(
                 val index: Long,
-                val isInit: Boolean,
+                val mode: HandleMode,
             )
 
-            private var initializing = false
+            enum class HandleMode {
+                DISMISS,
+                INIT,
+                ITERATE,
+            }
+
+            private const val UPDATE_BIT = 0
+            private const val BLOCKING_BIT = 1
+            enum class LockMode(val mask: Int) {
+                IDLE(0 shl UPDATE_BIT + 0 shl BLOCKING_BIT),
+                UPDATE_BLOCKING(1 shl UPDATE_BIT + 1 shl BLOCKING_BIT),
+                UPDATE_SURPASSABLE(1 shl UPDATE_BIT + 0 shl BLOCKING_BIT),
+            }
+            fun LockMode.isUpdating(): Boolean = (this.mask and (1 shl UPDATE_BIT)) != 0
+            fun LockMode.isBlocking(): Boolean = (this.mask and (1 shl BLOCKING_BIT)) != 0
+
+
+            private var mode = LockMode.IDLE
             private var latestIndex = 0L
 
-            fun getInitHandle() = synchronized(this@Lock) {
-                initializing = true
+            fun tryGetDismissHandle() = synchronized(this@Lock) {
+                if (mode.isBlocking())
+                    return@synchronized null
+
+                mode = LockMode.UPDATE_BLOCKING
                 return@synchronized Handle(
                     ++latestIndex,
-                    isInit = true,
+                    mode = HandleMode.DISMISS,
                 )
             }
 
-            fun returnInitHandle(handle: Handle): Unit = synchronized(this@Lock) {
-                if (isValidImplementation(handle)) {
-                    initializing = false
-                    latestIndex++
-                }
+            fun tryGetInitHandle() = synchronized(this@Lock) {
+                if (mode.isBlocking())
+                    return@synchronized null
+
+                mode = LockMode.UPDATE_BLOCKING
+                return@synchronized Handle(
+                    ++latestIndex,
+                    mode = HandleMode.INIT,
+                )
             }
 
             fun tryGetIterateHandle() = synchronized(this@Lock) {
-                if (initializing)
+                if (mode.isBlocking())
                     return@synchronized null
 
+                mode = LockMode.UPDATE_SURPASSABLE
                 return@synchronized Handle(
                     ++latestIndex,
-                    isInit = false,
+                    mode = HandleMode.ITERATE,
                 )
             }
 
-            private fun isValidImplementation(handle: Handle): Boolean {
-                if (!handle.isInit && initializing)
-                    return false
+            fun returnHandle(handle: Handle): Unit = synchronized(this@Lock) {
+                if (isValidImplementation(handle)) {
+                    latestIndex++
+                    mode = LockMode.IDLE
+                }
+            }
 
+            private fun isValidImplementation(handle: Handle): Boolean {
                 if (handle.index != latestIndex)
                     return false
+
+                when (handle.mode) {
+                    HandleMode.INIT -> if (this@Lock.mode != LockMode.UPDATE_BLOCKING) return false
+                    HandleMode.DISMISS -> if (this@Lock.mode != LockMode.UPDATE_BLOCKING) return false
+                    HandleMode.ITERATE -> if (this@Lock.mode != LockMode.UPDATE_SURPASSABLE) return false
+                }
 
                 return true
             }
@@ -70,8 +109,15 @@ class StateProcessor(
      * @param dateTime the lower bound exclusive to process
      */
     suspend fun initializeState(dateTime: LocalDateTime) {
-
-        val handle = Lock.getInitHandle()
+        var handle: Lock.Handle
+        while (true) {
+            val result = Lock.tryGetInitHandle()
+            if (result != null) {
+                handle = result
+                break
+            }
+            delay(10.milliseconds)
+        }
 
         try {
             constructState(handle, dateTime)
@@ -82,7 +128,7 @@ class StateProcessor(
             Log.i("$javaClass", "This initialization block is no longer valid, exiting early.")
         }
         finally {
-            Lock.returnInitHandle(handle)
+            Lock.returnHandle(handle)
         }
     }
 
@@ -107,7 +153,44 @@ class StateProcessor(
         catch (_: InvalidatedStateException) {
             Log.i("$javaClass", "This iterate block is no longer valid, exiting early.")
         }
+        finally {
+            Lock.returnHandle(handle)
+        }
 
+    }
+
+    suspend fun dismissGroup(groupUuid: Uuid) {
+        var handle: Lock.Handle
+        while (true) {
+            val result = Lock.tryGetDismissHandle()
+            if (result != null) {
+                handle = result
+                break
+            }
+            delay(10.milliseconds)
+        }
+
+        try {
+            if (!handle.isValid()) throw InvalidatedStateException()
+            // return if null (invalidated by changes, a new run should be triggered)
+            val currentState = stateRepository.getState(groupUuid) ?: throw InvalidatedStateException()
+
+            val newState = when (currentState) {
+                is StateData.Active -> currentState.toDismissed()
+                is StateData.Dismissed -> currentState
+                is StateData.Idle -> currentState
+                is StateData.Undefined -> {
+                    Log.w("$javaClass", "Dismissing group $groupUuid with existing state Undefined.")
+                    currentState.toDismissed()
+                }
+            }
+
+            if (!handle.isValid()) throw InvalidatedStateException()
+            stateRepository.updateState(newState)
+        }
+        finally {
+            Lock.returnHandle(handle)
+        }
     }
 
     /**
@@ -169,21 +252,29 @@ class StateProcessor(
         for (alarmAtTime in alarmsAtTime) {
 
             if (!handle.isValid()) throw InvalidatedStateException()
+            // return if null (invalidated by changes, a new run should be triggered)
+            val currentState = stateRepository.getState(alarmAtTime.group.uuid) ?: throw InvalidatedStateException()
+
+            val newState = when (currentState) {
+                is StateData.Active -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
+                is StateData.Dismissed -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
+                is StateData.Idle -> if (alarmAtTime.isLastInGroup) currentState else currentState.toActive()
+                is StateData.Undefined -> {
+                    Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
+                    if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState.toActive()
+                }
+            }
 
             // Show alarm
-            notificationSender.sendAlarmNotification(
-                groupUuid = alarmAtTime.groupUuid,
-                alarm = alarmAtTime.alarm,
-                isLastInGroup = alarmAtTime.isLastInGroup,
-            )
-
-            // set group state to idle if last alarm in group
-            if (alarmAtTime.isLastInGroup)
-                stateRepository.updateState(
-                    StateData.Idle(
-                        alarmAtTime.groupUuid,
-                    )
+            if (currentState is StateData.Active || newState is StateData.Active)
+                notificationSender.sendAlarmNotification(
+                    group = alarmAtTime.group,
+                    alarm = alarmAtTime.alarm,
+                    isLastInGroup = alarmAtTime.isLastInGroup,
                 )
+
+            if (!handle.isValid()) throw InvalidatedStateException()
+            stateRepository.updateState(newState)
         }
     }
 

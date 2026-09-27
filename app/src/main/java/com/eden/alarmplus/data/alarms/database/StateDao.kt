@@ -61,6 +61,10 @@ interface StateDao {
     )
     suspend fun getAllGroupsWithAlarms(): List<GroupWithAlarms>
 
+    /**
+     * [Transaction] annotation required as using relations.
+     */
+    @Transaction
     @Query(
         """
             WITH

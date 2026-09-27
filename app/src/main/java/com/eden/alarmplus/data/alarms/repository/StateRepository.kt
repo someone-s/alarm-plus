@@ -2,6 +2,7 @@ package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import java.time.LocalTime
 import kotlin.uuid.Uuid
@@ -10,7 +11,7 @@ interface StateRepository {
 
     data class AlarmsAtTime(
         val alarm: AlarmData,
-        val groupUuid: Uuid,
+        val group: GroupInfo,
         val isLastInGroup: Boolean,
     )
 
