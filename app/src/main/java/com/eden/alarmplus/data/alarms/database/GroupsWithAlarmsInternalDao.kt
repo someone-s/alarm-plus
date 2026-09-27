@@ -36,14 +36,14 @@ interface GroupsWithAlarmsInternalDao: GroupsWithAlarmsDao {
         """
             UPDATE groups
             SET 
-                active = :active
+                enabled = :enabled
             WHERE
                 group_upper_uuid = :groupUpperUuid
                 AND
                 group_lower_uuid = :groupLowerUuid
         """
     )
-    override suspend fun toggle(groupUpperUuid: Long, groupLowerUuid: Long, active: Boolean)
+    override suspend fun toggle(groupUpperUuid: Long, groupLowerUuid: Long, enabled: Boolean)
 
     /**
      * Room only compares by primary key;

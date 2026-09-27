@@ -210,7 +210,7 @@ class StateProcessor(
             val currentState = stateRepository.getState(group.info.uuid) ?: throw InvalidatedStateException()
 
             val newState =
-                if (group.info.active)
+                if (group.info.enabled)
                     when (currentState.type) {
                         StateData.Type.ACTIVE -> if (inDuration) currentState else currentState.toIdle()
                         StateData.Type.DISMISSED -> if (inDuration) currentState else currentState.toIdle()

@@ -46,8 +46,8 @@ class GroupAlarmViewModel(
         groupAlarmsRepository.delete(groupUuid)
     }
 
-    suspend fun toggleGroupAlarm(groupUuid: Uuid, active: Boolean) {
-        groupAlarmsRepository.toggle(groupUuid, active)
+    suspend fun toggleGroupAlarm(groupUuid: Uuid, enabled: Boolean) {
+        groupAlarmsRepository.toggle(groupUuid, enabled)
     }
 
 

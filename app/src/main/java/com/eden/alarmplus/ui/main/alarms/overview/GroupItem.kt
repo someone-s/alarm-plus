@@ -130,7 +130,7 @@ fun GroupItem(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
-                else if (group.info.active)
+                else if (group.info.enabled)
                     ListItemDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -146,14 +146,14 @@ fun GroupItem(
                     Column {
                         Text(
                             text = group.info.name ?: "",
-                            fontWeight = if (group.info.active) FontWeight.SemiBold else FontWeight.Light,
+                            fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Light,
                             style = textStyles.titleStyle,
                             maxLines = 1,
                             modifier = Modifier.height(textStyles.titleComputedHeight),
                         )
                         Text(
                             text = if (firstTime != null) currentFormatUiState.timeFormatter.format(firstTime) else "--:--",
-                            fontWeight = if (group.info.active) FontWeight.SemiBold else FontWeight.Light,
+                            fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Light,
                             style = textStyles.firstTimeStyle,
                             maxLines = 1,
                             modifier = Modifier.height(textStyles.firstTimeComputedHeight),
@@ -166,7 +166,7 @@ fun GroupItem(
                             times.forEach { remainingTime ->
                                 Text(
                                     text = currentFormatUiState.timeFormatter.format(remainingTime),
-                                    fontWeight = if (group.info.active) FontWeight.SemiBold else FontWeight.Normal,
+                                    fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Normal,
                                     style = textStyles.remainingTimesStyle,
                                     maxLines = 1,
                                 )
@@ -177,7 +177,7 @@ fun GroupItem(
                 },
                 trailingContent = {
                     Switch(
-                        checked = group.info.active,
+                        checked = group.info.enabled,
                         onCheckedChange = onToggle,
                     )
                 },

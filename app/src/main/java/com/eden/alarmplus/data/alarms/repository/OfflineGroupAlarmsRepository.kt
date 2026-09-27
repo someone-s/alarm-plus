@@ -28,11 +28,11 @@ class OfflineGroupAlarmsRepository(
         }
     }
 
-    override suspend fun toggle(groupUuid: Uuid, active: Boolean) {
+    override suspend fun toggle(groupUuid: Uuid, enabled: Boolean) {
         withContext(NonCancellable) {
             val longs = groupUuid.toUuidLongs()
-            groupsWithAlarmsDao.toggle(longs.upperUuid, longs.lowerUuid, active)
-            super.toggle(groupUuid, active)
+            groupsWithAlarmsDao.toggle(longs.upperUuid, longs.lowerUuid, enabled)
+            super.toggle(groupUuid, enabled)
         }
     }
 

@@ -22,7 +22,7 @@ interface StateDao {
                         AND
                         groups.group_lower_uuid = alarms.group_lower_uuid
                     WHERE 
-                        groups.active
+                        groups.enabled
                         AND
                         alarms.timestamp > :timestamp
                     ORDER BY timestamp ASC
@@ -35,7 +35,7 @@ interface StateDao {
                         groups.group_upper_uuid = alarms.group_upper_uuid
                         AND
                         groups.group_lower_uuid = alarms.group_lower_uuid
-                    WHERE groups.active
+                    WHERE groups.enabled
                     ORDER BY timestamp ASC
                     LIMIT 1
                 )
@@ -111,7 +111,7 @@ interface StateDao {
                         AND
                         `groups`.group_lower_uuid = alarms.group_lower_uuid
                         AND
-                        `groups`.active
+                        `groups`.enabled
                 )
                 AND
                 alarms.timestamp = :timestamp

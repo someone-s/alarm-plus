@@ -20,10 +20,10 @@ interface GroupAlarmsRepository {
     /**
      * Must call super at the end of block to notify changes
      * @param groupUuid of group to toggle
-     * @param active value to set
+     * @param enabled value to set
      */
     @CallSuper
-    suspend fun toggle(groupUuid: Uuid, active: Boolean) {
+    suspend fun toggle(groupUuid: Uuid, enabled: Boolean) {
         notify(ChangeNotification.Update(groupUuid))
     }
 

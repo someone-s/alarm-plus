@@ -222,7 +222,7 @@ fun GroupAlarmScreen(
                     val state = groupAndState.second
 
                     val activeSoon by remember { derivedStateOf {
-                        group.info.active &&
+                        group.info.enabled &&
                         isTimeRightBeforeAndNotInSpan(
                             timeSpan = group.alarms.map { it.info.time },
                             time = currentTimeUiState.localTime,
@@ -236,10 +236,10 @@ fun GroupAlarmScreen(
                         onSelect = {
                             editSheetState.showSheet(group)
                         },
-                        onToggle = { active ->
+                        onToggle = { enabled ->
                             val groupUuid = group.info.uuid
                             scope.launch {
-                                viewModel.toggleGroupAlarm(groupUuid, active)
+                                viewModel.toggleGroupAlarm(groupUuid, enabled)
                             }
                         },
                         onDelete = {

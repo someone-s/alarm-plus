@@ -17,13 +17,13 @@ import kotlin.uuid.Uuid
 fun GroupInfo.toGroupEntity() = GroupEntity(
     uuid = this.uuid.toUuidLongs(),
     name = this.name,
-    active = this.active,
+    enabled = this.enabled,
 )
 
 fun GroupEntity.toGroupInfo() = GroupInfo(
     uuid = this.uuid.toUuid(),
     name = this.name,
-    active = this.active,
+    enabled = this.enabled,
 )
 
 fun AlarmData.toAlarmEntity(group: Uuid): AlarmEntity {

@@ -15,7 +15,7 @@ data class GroupEntity(
     val uuid: UuidLongs,
     @ColumnInfo(name = "name")
     val name: String?,
-    @ColumnInfo(name = "active")
-    val active: Boolean,
+    @ColumnInfo(name = "enabled")
+    val enabled: Boolean,
 ) {
 }

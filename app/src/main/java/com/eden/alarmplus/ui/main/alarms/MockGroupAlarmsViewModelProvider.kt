@@ -28,7 +28,7 @@ object MockGroupAlarmViewModelProvider {
                             GroupData(
                                 info = GroupInfo(
                                     name = "Morning alarms",
-                                    active = true,
+                                    enabled = true,
                                 ),
                                 alarms = listOf(
                                     AlarmData(
@@ -57,7 +57,7 @@ object MockGroupAlarmViewModelProvider {
                             GroupData(
                                 info = GroupInfo(
                                     name = "Lunch alerts",
-                                    active = false,
+                                    enabled = false,
                                 ),
                                 alarms = listOf(
                                     AlarmData(
