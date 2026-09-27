@@ -44,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
+import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
@@ -96,7 +97,7 @@ fun GroupAlarmScreen(
     val revertGroupUpdateAction = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupupdateaction)
     fun showRevertGroupUpdateSnackbar(editGroup: GroupData) {
         val groupUuid = editGroup.info.uuid
-        val originalGroup = groupAlarmUiState.groupDataList.firstOrNull { it.info.uuid == groupUuid }
+        val originalGroup = groupAlarmUiState.groupAndStateList.firstOrNull { it.first.info.uuid == groupUuid }?.first
 
         scope.launch {
             viewModel.insertOrReplaceGroupAlarm(editGroup)
@@ -179,9 +180,13 @@ fun GroupAlarmScreen(
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    items(items = groupAlarmUiState.groupDataList) { group ->
+                    items(items = groupAlarmUiState.groupAndStateList) { groupAndState ->
+                        val group = groupAndState.first
+                        val state = groupAndState.second
                         GroupItem(
                             group = group,
+                            active = state is StateData.Active
+                            ,
                             onSelect = {
                                 editSheetState.showSheet(group)
                             },
@@ -232,7 +237,7 @@ fun GroupAlarmScreenPreview() {
         ) { innerPadding ->
             NavHost(navController, startDestination = AlarmsRoute, Modifier.padding(innerPadding)) {
                 composable<AlarmsRoute> {
-                    GroupAlarmScreen()
+                    GroupAlarmScreen(viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory))
                 }
             }
         }

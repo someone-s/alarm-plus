@@ -35,6 +35,7 @@ import java.time.format.FormatStyle
 @Composable
 fun GroupItem(
     group: GroupData,
+    active: Boolean,
     onSelect: () -> Unit,
     onToggle: (Boolean) -> Unit,
     onDelete: () -> Unit,
@@ -80,10 +81,16 @@ fun GroupItem(
         content = {
             SegmentedListItem(
                 shapes = shapes,
-                colors = ListItemDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                ),
+                colors = if (active)
+                    ListItemDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                else
+                    ListItemDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { onSelect() },
                 content = {

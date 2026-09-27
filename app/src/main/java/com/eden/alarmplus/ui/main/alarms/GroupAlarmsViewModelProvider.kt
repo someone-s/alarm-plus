@@ -14,5 +14,5 @@ object GroupAlarmViewModelProvider {
     }
 }
 
-fun CreationExtras.mainApplication(): AlarmPlusApplication =
+private fun CreationExtras.mainApplication(): AlarmPlusApplication =
     this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AlarmPlusApplication

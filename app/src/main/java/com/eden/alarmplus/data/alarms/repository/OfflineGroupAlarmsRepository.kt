@@ -2,6 +2,7 @@ package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.GroupsWithAlarmsDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.common.repository.toUuidLongs
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -47,19 +48,22 @@ class OfflineGroupAlarmsRepository(
         notificationListener.onNotification(notification)
     }
 
-    override fun getAllGroupsStream(): Flow<List<GroupData>> {
+    override fun getAllGroupsStream(): Flow<List<Pair<GroupData, StateData>>> {
         return groupsWithAlarmsDao.getAll()
             .map { groupsWithAlarms ->
                 groupsWithAlarms
                     .map { groupWithAlarms ->
-                        GroupData(
-                            info = groupWithAlarms.group.toGroupInfo(),
-                            alarms = groupWithAlarms.alarms.map { alarm -> alarm.toAlarmData() },
+                        Pair(
+                            GroupData(
+                                info = groupWithAlarms.group.toGroupInfo(),
+                                alarms = groupWithAlarms.alarms.map { alarm -> alarm.toAlarmData() },
+                            ),
+                            groupWithAlarms.state.toStateData()
                         )
                     }
-                    .sortedBy { groupData ->
-                        if (groupData.alarms.isEmpty()) LocalTime.of(0, 0)
-                        else groupData.alarms.minOf { a -> a.info.time }
+                    .sortedBy { pair ->
+                        if (pair.first.alarms.isEmpty()) LocalTime.of(0, 0)
+                        else pair.first.alarms.minOf { a -> a.info.time }
                     }
             }
     }

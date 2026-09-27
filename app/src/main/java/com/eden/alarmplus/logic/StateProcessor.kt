@@ -5,6 +5,7 @@ import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
 import com.eden.alarmplus.notifications.NotificationSender
+import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
@@ -202,25 +203,7 @@ class StateProcessor(
         val time = dateTime.toLocalTime()
         for (group in stateRepository.getAllGroups()) {
 
-            val inDuration: Boolean
-
-            if (group.alarms.isEmpty()) {
-                inDuration = false
-            } else if (group.alarms.size == 1) {
-                inDuration = time.equals(group.alarms.first())
-            } else {
-                val startTime = group.alarms.first().info.time
-                val endTime = group.alarms.last().info.time
-
-                val isWrapAround = startTime.isAfter(endTime)
-
-                val isAfterOrAtStart = time.isAfter(startTime) || time.equals(startTime)
-                val isAfterOrAtEnd = time.isAfter(endTime) || time.equals(endTime)
-
-                inDuration =
-                    if (isWrapAround) isAfterOrAtStart == isAfterOrAtEnd
-                    else isAfterOrAtStart != isAfterOrAtEnd
-            }
+            val inDuration: Boolean = isTimeWithinTimeSpan(group.alarms.map { it.info.time }, time)
 
             if (!handle.isValid()) throw InvalidatedStateException()
             // return if null (invalidated by changes, a new run should be triggered)
@@ -289,3 +272,4 @@ class StateProcessor(
         wakeScheduler.tryScheduleWake(fromDateTime = dateTime)
     }
 }
+

@@ -11,4 +11,9 @@ data class GroupWithAlarms(
         entityColumns = ["group_upper_uuid", "group_lower_uuid"],
     )
     val alarms: List<AlarmEntity>,
+    @Relation(
+        parentColumns = ["group_upper_uuid", "group_lower_uuid"],
+        entityColumns = ["group_upper_uuid", "group_lower_uuid"],
+    )
+    val state: StateEntity,
 )
