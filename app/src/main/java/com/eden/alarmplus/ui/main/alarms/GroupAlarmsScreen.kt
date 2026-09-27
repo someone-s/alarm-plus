@@ -1,12 +1,13 @@
 package com.eden.alarmplus.ui.main.alarms
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,15 +16,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -32,7 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +49,8 @@ import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.ui.main.navigation.CommonBottomBar
+import com.eden.alarmplus.ui.main.navigation.CommonBottomBarState
 import com.eden.alarmplus.ui.common.FormatViewModel
 import com.eden.alarmplus.ui.common.FormatViewModelProvider
 import com.eden.alarmplus.ui.common.MockFormatViewModelProvider
@@ -53,22 +58,24 @@ import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.ui.main.alarms.overview.GroupItem
+import com.eden.alarmplus.ui.main.navigation.AlarmsRoute
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotInSpan
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
+import kotlin.collections.listOf
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.toJavaDuration
-
-@Serializable
-object AlarmsRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupAlarmScreen(
     viewModel: GroupAlarmViewModel = viewModel(factory = GroupAlarmViewModelProvider.Factory),
     formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
-) {
+    sharedContentKey: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    bottomBarState: CommonBottomBarState,
+) = with(sharedTransitionScope) {
 
     val groupAlarmUiState by viewModel.groupAlarmsUiState.collectAsState()
     val currentTimeUiState by viewModel.currentTimeUiState.collectAsState()
@@ -132,7 +139,50 @@ fun GroupAlarmScreen(
         }
     }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     Scaffold(
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .sharedElement(
+                sharedContentState = rememberSharedContentState(sharedContentKey),
+                animatedVisibilityScope = animatedVisibilityScope
+            ),
+        topBar = {
+            LargeFlexibleTopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+                            painter = painterResource(R.drawable.alarm),
+                            contentDescription = null,
+                            modifier = Modifier.size(52.dp)
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.ui_main_alarms_alarmscreen_title),
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(Modifier.width(20.dp))
+                    }
+                },
+                titleHorizontalAlignment = Alignment.CenterHorizontally,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent,
+                ),
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        bottomBar = {
+            CommonBottomBar(state = bottomBarState)
+        },
         floatingActionButton = {
             AddButton(
                 onClick = {
@@ -148,44 +198,17 @@ fun GroupAlarmScreen(
                 hostState = snackbarHostState,
             )
         },
-        // inset is already handled by parent Scaffold
-        contentWindowInsets = WindowInsets(),
         content = { paddingValues ->
-
-            Column(
-                modifier = Modifier.padding(paddingValues),
-            ) {
-                Spacer(Modifier.height(40.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-                        painter = painterResource(R.drawable.alarm),
-                        contentDescription = null,
-                        modifier = Modifier.size(52.dp)
-                    )
-                    Spacer(Modifier.width(16.dp))
-                    Text(
-                        text = stringResource(R.string.ui_main_alarms_alarmscreen_title),
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(Modifier.width(20.dp))
-                }
-                Spacer(Modifier.height(32.dp))
 
                 LazyColumn(
                     modifier = Modifier
-                        .width(480.dp),
+                        .width(480.dp)
+                        .padding(paddingValues),
                     contentPadding = PaddingValues(
-                        top = 0.dp,
+                        top = 32.dp,
                         start = 16.dp,
                         end = 16.dp,
-                        bottom = 8.dp
+                        bottom = 72.dp
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -222,9 +245,7 @@ fun GroupAlarmScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                     }
-                    item { Spacer(Modifier.height(64.dp)) }
                 }
-            }
 
             EditSheet(
                 state = editSheetState,
@@ -250,20 +271,16 @@ fun GroupAlarmScreenPreview() {
     val navController = rememberNavController()
 
     AlarmPlusTheme {
-        Scaffold(
-            bottomBar = {
-                NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {}
-            }
-        ) { innerPadding ->
-            NavHost(
-                navController,
-                startDestination = AlarmsRoute,
-                Modifier.padding(innerPadding)
-            ) {
+        SharedTransitionLayout {
+            NavHost(navController, startDestination = AlarmsRoute) {
                 composable<AlarmsRoute> {
                     GroupAlarmScreen(
                         viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory),
                         formatViewModel = viewModel(factory = MockFormatViewModelProvider.Factory),
+                        sharedContentKey = "SCAFFOLD",
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = this,
+                        bottomBarState = CommonBottomBarState(listOf()),
                     )
                 }
             }
