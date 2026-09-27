@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -151,6 +153,8 @@ fun GroupAlarmScreen(
         topBar = {
             LargeFlexibleTopAppBar(
                 title = {
+                    val textStyle = LocalTextStyle.current
+                    val imageSize = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -160,16 +164,16 @@ fun GroupAlarmScreen(
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
                             painter = painterResource(R.drawable.alarm),
                             contentDescription = null,
-                            modifier = Modifier.size(52.dp)
+                            modifier = Modifier.size(imageSize)
                         )
-                        Spacer(Modifier.width(16.dp))
+                        Spacer(Modifier.width(imageSize * 0.25f))
                         Text(
                             text = stringResource(R.string.ui_main_alarms_alarmscreen_title),
                             fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.displayMedium,
+                            style = textStyle,
                             color = MaterialTheme.colorScheme.onBackground
                         )
-                        Spacer(Modifier.width(20.dp))
+                        Spacer(Modifier.width(imageSize * 0.4f))
                     }
                 },
                 titleHorizontalAlignment = Alignment.CenterHorizontally,
