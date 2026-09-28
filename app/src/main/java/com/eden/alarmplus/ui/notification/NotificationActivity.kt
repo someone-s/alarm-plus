@@ -11,8 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.IntentCompat
 import com.eden.alarmplus.BuildConfig
-import com.eden.alarmplus.ui.main.MainContent
-import com.eden.alarmplus.ui.main.notification.PermissionLogic
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 
 
@@ -22,11 +20,6 @@ class NotificationActivity: ComponentActivity() {
          * Extra of type [kotlin.uuid.Uuid] representing the group to show
          */
         const val EXTRA_GROUP_UUID = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_UUID"
-
-        /**
-         * Extra of type [Boolean] determining whether to show snooze option
-         */
-        const val EXTRA_IS_LAST_IN_GROUP = "${BuildConfig.APPLICATION_ID}.EXTRA_IS_LAST_IN_GROUP"
 
         /**
          * Extra of type [android.os.Parcelable] that is a [android.app.PendingIntent];

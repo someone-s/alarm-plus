@@ -23,6 +23,13 @@
         android:name="android.permission.USE_FULL_SCREEN_INTENT"
         android:purposeString="@string/manifest_permission_usefullscreenintent_purpose"
         tools:ignore="FullScreenIntentPolicy" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        android:purposeString="@string/manifest_permission_foregroundservice_purpose"
+        tools:ignore="ForegroundServicesPolicy" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED"
+        android:purposeString="@string/manifest_permission_foregroundservicesystemexempted_purpose" />
 
     <application
         android:name=".AlarmPlusApplication"
@@ -51,6 +58,11 @@
             android:turnScreenOn="true"
             android:showWhenLocked="true"
             tools:targetApi="27" />
+        <service
+            android:name=".alert.AlertService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="systemExempted" />
         <receiver
             android:name=".logic.InitializationReceiver"
             android:enabled="true"
@@ -66,7 +78,7 @@
             android:enabled="true"
             android:exported="false" />
         <receiver
-            android:name=".alert.notification.NotificationReceiver"
+            android:name=".alert.notification.AlarmNotificationScope$Receiver"
             android:enabled="true"
             android:exported="false" />
         <meta-data

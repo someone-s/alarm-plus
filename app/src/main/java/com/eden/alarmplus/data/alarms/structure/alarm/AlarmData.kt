@@ -1,13 +1,18 @@
 package com.eden.alarmplus.data.alarms.structure.alarm
 
+import android.os.Parcelable
 import androidx.compose.runtime.Immutable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import java.time.LocalTime
 
 @Immutable
+@Serializable
+@Parcelize
 data class AlarmData(
     val info: AlarmInfo,
     val features: List<AlarmFeature>,
-) {
+) : Parcelable {
     fun shallowCopy(time: LocalTime) = AlarmData(
         info = this.info.shallowCopy(time),
         features = this.features,

@@ -38,6 +38,8 @@
     <string name="manifest_permission_postnotifications_purpose">Push notifications when alarm goes off</string>
     <string name="manifest_permission_vibrate_purpose">Vibrate phone when alarm firing</string>
     <string name="manifest_permission_usefullscreenintent_purpose">Display full screen notification when alarm goes off</string>
+    <string name="manifest_permission_foregroundservice_purpose">Used for alarms features beyond notifications</string>
+    <string name="manifest_permission_foregroundservicesystemexempted_purpose">Holds exact alarm permission(s), used for alarms</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeleteaction">Revert</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>
     <string name="ui_main_alarms_groupscreen_revertgroupupdatemessage">Revert changes to alarm group?</string>
@@ -46,7 +48,6 @@
     <string name="notifications_alarmchannel_description">Notify when alarm is ringing.</string>
     <string name="notifications_dismissaction_title">Dismiss</string>
     <string name="notifications_snoozeaction_title">Snooze</string>
-    <string name="a" translatable="false"/>
     <string name="notifications_alarmchannel_name">Alarms</string>
     <string name="ui_main_notification_permissiondialog_ignoreaction">Ignore</string>
     <string name="ui_main_notification_permissiondialog_grantaction">Grant</string>
@@ -54,4 +55,7 @@
     <string name="ui_main_notification_permissiondialog_body">%1$s uses notifications to display alarms. The app will not function without notification permissions.</string>
     <string name="ui_notification_notificationcontent_snoozeaction">Snooze</string>
     <string name="ui_notification_notificationcontent_dismissaction">Dismiss</string>
+    <string name="notifications_servicechannel_name">Alert Service</string>
+    <string name="notifications_servicechannel_description">Notify when the app is displaying alarms.</string>
+    <string name="alert_notification_alarmnotificationbuilder_placeholder">Untitled Alarm</string>
 </resources>
