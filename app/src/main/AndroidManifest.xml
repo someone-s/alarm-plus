@@ -17,6 +17,9 @@
         android:name="android.permission.POST_NOTIFICATIONS"
         android:purposeString="@string/manifest_permission_postnotifications_purpose"/>
     <uses-permission
+        android:name="android.permission.VIBRATE"
+        android:purposeString="@string/manifest_permission_vibrate_purpose"/>
+    <uses-permission
         android:name="android.permission.USE_FULL_SCREEN_INTENT"
         android:purposeString="@string/manifest_permission_usefullscreenintent_purpose"
         tools:ignore="FullScreenIntentPolicy" />
@@ -63,7 +66,7 @@
             android:enabled="true"
             android:exported="false" />
         <receiver
-            android:name=".notifications.NotificationReceiver"
+            android:name=".alert.notifications.NotificationReceiver"
             android:enabled="true"
             android:exported="false" />
         <meta-data

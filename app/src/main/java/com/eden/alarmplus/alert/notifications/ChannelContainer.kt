@@ -1,4 +1,4 @@
-package com.eden.alarmplus.notifications
+package com.eden.alarmplus.alert.notifications
 
 import android.app.NotificationManager
 import android.content.Context

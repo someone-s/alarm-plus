@@ -36,6 +36,7 @@
     <string name="manifest_permission_receivebootcomplete_purpose">Re-schedule alarms after device boot</string>
     <string name="manifest_permission_exactalarm_purpose">Used to schedule user-defined alarms</string>
     <string name="manifest_permission_postnotifications_purpose">Push notifications when alarm goes off</string>
+    <string name="manifest_permission_vibrate_purpose">Vibrate phone when alarm firing</string>
     <string name="manifest_permission_usefullscreenintent_purpose">Display full screen notification when alarm goes off</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeleteaction">Revert</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>

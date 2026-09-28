@@ -5,8 +5,8 @@ import com.eden.alarmplus.data.AppContainer
 import com.eden.alarmplus.data.AppDataContainer
 import com.eden.alarmplus.logic.StateProcessor
 import com.eden.alarmplus.logic.WakeScheduler
-import com.eden.alarmplus.notifications.ChannelContainer
-import com.eden.alarmplus.notifications.NotificationSender
+import com.eden.alarmplus.alert.notifications.ChannelContainer
+import com.eden.alarmplus.alert.notifications.NotificationSender
 import java.time.LocalDateTime
 import kotlin.uuid.Uuid
 

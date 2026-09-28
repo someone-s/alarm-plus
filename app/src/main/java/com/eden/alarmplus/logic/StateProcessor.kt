@@ -4,7 +4,7 @@ import android.util.Log
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
-import com.eden.alarmplus.notifications.NotificationSender
+import com.eden.alarmplus.alert.notifications.NotificationSender
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
@@ -247,7 +247,7 @@ class StateProcessor(
             // return if null (invalidated by changes, a new run should be triggered)
             val currentState = stateRepository.getState(alarmAtTime.group.uuid) ?: throw InvalidatedStateException()
 
-            val shouldSendNotification = when (currentState.type) {
+            val shouldNotify = when (currentState.type) {
                 StateData.Type.ACTIVE -> true
                 StateData.Type.DISMISSED -> false
                 StateData.Type.IDLE -> true
@@ -268,12 +268,12 @@ class StateProcessor(
             }
 
             // Show alarm
-            if (shouldSendNotification)
+            if (shouldNotify) {
                 notificationSender.sendAlarmNotification(
                     group = alarmAtTime.group,
-                    alarm = alarmAtTime.alarm,
                     isLastInGroup = alarmAtTime.isLastInGroup,
                 )
+            }
 
             if (!handle.isValid()) throw InvalidatedStateException()
             stateRepository.updateState(newState)

@@ -1,4 +1,4 @@
-package com.eden.alarmplus.notifications
+package com.eden.alarmplus.alert.notifications
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -11,13 +11,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
-import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.notifications.repository.PendingIntentRepository
 import com.eden.alarmplus.ui.notification.NotificationActivity
 import kotlin.time.Duration.Companion.minutes
-import kotlin.uuid.Uuid
 
 class NotificationSender(
     private val context: Context,
@@ -32,7 +29,6 @@ class NotificationSender(
 
     suspend fun sendAlarmNotification(
         group: GroupInfo,
-        alarm: AlarmData,
         isLastInGroup: Boolean,
     ) {
 
@@ -65,7 +61,6 @@ class NotificationSender(
                     putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozePendingIntent)
                 if (dismissPendingIntent != null)
                     putExtra(NotificationActivity.EXTRA_DISMISS_PENDING_INTENT, dismissPendingIntent)
-                alarm.getFeature<AudioFeature>()
 
                 addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)

@@ -1,4 +1,4 @@
-package com.eden.alarmplus.notifications
+package com.eden.alarmplus.alert.notifications
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -21,7 +21,7 @@ class NotificationReceiver: BroadcastReceiver() {
         const val EXTRA_NOTIFICATION_TAG = "${BuildConfig.APPLICATION_ID}.EXTRA_NOTIFICATION_TAG"
 
         /**
-         * Extra of type [kotlin.uuid.Uuid] representing the group to show
+         * Extra of type [Uuid] representing the group to show
          */
         const val EXTRA_GROUP_UUID = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_UUID"
 
