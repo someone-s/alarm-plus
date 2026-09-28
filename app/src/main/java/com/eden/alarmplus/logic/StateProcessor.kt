@@ -4,7 +4,7 @@ import android.util.Log
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
-import com.eden.alarmplus.alert.notifications.NotificationSender
+import com.eden.alarmplus.alert.notification.NotificationSender
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime

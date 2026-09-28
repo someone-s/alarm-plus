@@ -66,7 +66,7 @@
             android:enabled="true"
             android:exported="false" />
         <receiver
-            android:name=".alert.notifications.NotificationReceiver"
+            android:name=".alert.notification.NotificationReceiver"
             android:enabled="true"
             android:exported="false" />
         <meta-data

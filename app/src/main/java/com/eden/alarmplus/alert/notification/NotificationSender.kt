@@ -1,4 +1,4 @@
-package com.eden.alarmplus.alert.notifications
+package com.eden.alarmplus.alert.notification
 
 import android.Manifest
 import android.annotation.SuppressLint
