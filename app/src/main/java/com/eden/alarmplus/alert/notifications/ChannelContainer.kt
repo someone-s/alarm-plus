@@ -14,11 +14,11 @@ class ChannelContainer(
     }
 
     val alarmChannel by lazy {
-        NotificationChannelCompat.Builder(ALARM_CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH)
-            .apply {
-                setName(context.getString(R.string.notifications_alarmchannel_name))
-                setDescription(context.getString(R.string.notifications_alarmchannel_description))
-            }
-            .build()
+        NotificationChannelCompat.Builder(ALARM_CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH).apply {
+            setName(context.getString(R.string.notifications_alarmchannel_name))
+            setDescription(context.getString(R.string.notifications_alarmchannel_description))
+            setSound(null, null)
+            setVibrationEnabled(false)
+        }.build()
     }
 }

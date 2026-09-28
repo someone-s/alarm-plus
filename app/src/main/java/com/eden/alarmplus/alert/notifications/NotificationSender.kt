@@ -75,8 +75,11 @@ class NotificationSender(
         suspend fun buildNotification(
             includeFullScreenIntent: Boolean,
         ) = NotificationCompat.Builder(context, ChannelContainer.ALARM_CHANNEL_ID).apply {
-            // needed on older platform that does not support notification channel
+
+            // These needed on older platform that does not support notification channel
             setPriority(NotificationCompat.PRIORITY_HIGH)
+            setSound(null)
+            setVibrate(null)
 
             setSmallIcon(R.drawable.icon_full)
             setContentTitle(group.name ?: "Untitled Alarm")
