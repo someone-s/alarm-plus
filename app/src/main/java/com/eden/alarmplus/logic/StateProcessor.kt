@@ -1,6 +1,10 @@
 package com.eden.alarmplus.logic
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import com.eden.alarmplus.alert.AlertLogic
+import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
@@ -11,6 +15,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class StateProcessor(
+    private val context: Context,
     private val stateRepository: StateRepository,
     private val wakeScheduler: WakeScheduler,
 ) {
@@ -266,8 +271,13 @@ class StateProcessor(
             }
 
             // Show alarm
-            if (shouldNotify) {
-            }
+            if (shouldNotify)
+                context.startService(Intent(context, AlertService::class.java).apply {
+                    action = AlertLogic.ACTION_ALERT
+                    putExtra(AlertLogic.EXTRA_GROUP_INFO, alarmAtTime.group)
+                    putExtra(AlertLogic.EXTRA_ALARM_DATA, alarmAtTime.alarm)
+                    putExtra(AlertLogic.EXTRA_IS_LAST_IN_GROUP, alarmAtTime.isLastInGroup)
+                })
 
             if (!handle.isValid()) throw InvalidatedStateException()
             stateRepository.updateState(newState)

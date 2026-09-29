@@ -77,10 +77,6 @@
             android:name=".logic.WakeReceiver"
             android:enabled="true"
             android:exported="false" />
-        <receiver
-            android:name=".alert.notification.AlarmNotificationScope$Receiver"
-            android:enabled="true"
-            android:exported="false" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
