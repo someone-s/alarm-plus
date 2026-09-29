@@ -19,19 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
-import com.eden.alarmplus.data.alarms.structure.alarm.emptyAlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
 import com.eden.alarmplus.data.alarms.structure.audio.AudioData
 
 
 @Composable
-fun rememberAlarmSectionState(): AlarmSectionState {
-    return remember { AlarmSectionState() }
+fun rememberAlarmSectionState(key: Any): AlarmSectionState {
+    return remember(key) { AlarmSectionState() }
 }
 @Stable
 class AlarmSectionState {
-    var value by mutableStateOf(emptyAlarmData)
+    var value by mutableStateOf(getUniqueAlarmData())
     var modified by mutableStateOf(false)
 
     fun setAlarmDraft(alarm: AlarmData) {

@@ -16,6 +16,7 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.emptyGroupData
+import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.main.alarms.edit.alarm.AlarmSection
 import com.eden.alarmplus.ui.main.alarms.edit.alarm.rememberAlarmSectionState
 import com.eden.alarmplus.ui.main.alarms.edit.group.GroupSection
@@ -30,7 +31,7 @@ fun rememberEditSheetState(): EditSheetState {
 @Stable
 class EditSheetState {
     var showSheet by mutableStateOf(false)
-    var group by mutableStateOf(emptyGroupData)
+    var group by mutableStateOf(getUniqueGroupData())
     var modified by mutableStateOf(false)
 
     fun showSheet(
@@ -66,9 +67,11 @@ fun EditSheet(
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
     val groupSectionState = rememberGroupSectionState(
-            group = state.group,
-        )
-    val alarmSectionState = rememberAlarmSectionState()
+        group = state.group,
+    )
+    val alarmSectionState = rememberAlarmSectionState(
+        key = state.group
+    )
 
     fun hideSheet() {
         coroutineScope.launch {
