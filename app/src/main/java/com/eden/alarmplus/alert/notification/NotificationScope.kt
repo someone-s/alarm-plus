@@ -42,7 +42,7 @@ class NotificationScope(
             context,
             info.fullScreenRequestCode,
             Intent(context, NotificationActivity::class.java).apply {
-                putExtra(NotificationActivity.EXTRA_NOTIFICATTION_ID, info.notificationId)
+                putExtra(NotificationActivity.EXTRA_NOTIFICATION_ID, info.notificationId)
 
                 if (snoozeIntent != null)
                     putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozeIntent)
