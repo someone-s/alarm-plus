@@ -49,6 +49,8 @@ class AlertLogic(
 
         const val ACTION_SNOOZE = "${BuildConfig.APPLICATION_ID}.ACTION_SNOOZE"
         const val ACTION_DISMISS = "${BuildConfig.APPLICATION_ID}.ACTION_DISMISS"
+        const val ACTION_FULL_SCREEN_RESUME = "${BuildConfig.APPLICATION_ID}.ACTION_FULL_SCREEN_RESUME"
+        const val ACTION_FULL_SCREEN_PAUSE = "${BuildConfig.APPLICATION_ID}.ACTION_FULL_SCREEN_PAUSE"
 
         const val EXTRA_NOTIFICATION_ID = "${BuildConfig.APPLICATION_ID}.EXTRA_NOTIFICATION_ID"
         const val EXTRA_GROUP_UUID = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_UUID"
@@ -56,11 +58,13 @@ class AlertLogic(
         private val FOREGROUND_SERVICE_TYPE = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
         else 0
+
     }
 
 
     /**
-     * First element is the currently displayed alert
+     * Last element is the currently playing alert,
+     * the service is always bound to the last notification
      */
     private val activeQueue = ArrayDeque<AlertState>()
 
@@ -76,6 +80,10 @@ class AlertLogic(
      *  - [ACTION_DISMISS]
      *      - [EXTRA_NOTIFICATION_ID]
      *      - [EXTRA_GROUP_UUID]
+     *  - [ACTION_FULL_SCREEN_RESUME]
+     *      - [EXTRA_NOTIFICATION_ID]
+     *  - [ACTION_FULL_SCREEN_PAUSE]
+     *      - [EXTRA_NOTIFICATION_ID]
      */
     fun processRequest(startId: Int, intent: Intent) {
         intent.dataString
@@ -92,6 +100,16 @@ class AlertLogic(
                 isLastInGroup = intent.getBooleanExtra(
                     EXTRA_IS_LAST_IN_GROUP, false
                 )
+            )
+            ACTION_FULL_SCREEN_PAUSE -> processFullScreenPause(
+                notificationId = intent.getIntExtra(
+                    EXTRA_NOTIFICATION_ID, -1
+                ).also { if (it < 0) throw IllegalArgumentException("Intent missing notification id.") }
+            )
+            ACTION_FULL_SCREEN_RESUME -> processFullScreenResume(
+                notificationId = intent.getIntExtra(
+                    EXTRA_NOTIFICATION_ID, -1
+                ).also { if (it < 0) throw IllegalArgumentException("Intent missing notification id.") }
             )
             ACTION_SNOOZE -> processSnooze(
                 serviceStartId = startId,
@@ -166,24 +184,19 @@ class AlertLogic(
 
         synchronized(this@AlertLogic) {
 
-            val isFirst = activeQueue.isEmpty()
-
-            if (isFirst)
-                ServiceCompat.startForeground(
-                    service,
-                    notificationId,
-                    notification,
-                    FOREGROUND_SERVICE_TYPE
-                )
-            else
-                with(notificationManager) {
-                    notify(notificationId, notification)
-                }
+            ServiceCompat.startForeground(
+                service,
+                notificationId,
+                notification,
+                FOREGROUND_SERVICE_TYPE
+            )
 
             activeQueue.addLast(AlertState(
                 groupUuid = groupInfo.uuid,
                 notificationId = notificationId,
                 notification = notification,
+                /** If full screen, set by [processFullScreenResume] */
+                isFullScreen = false,
             ))
 
             // Cancel previous notifications from the same group
@@ -201,7 +214,7 @@ class AlertLogic(
         notificationId: Int,
         notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(service),
     ) {
-        val isBindNotification = notificationId == (activeQueue.firstOrNull()?.notificationId)
+        val isLastNotification = notificationId == (activeQueue.lastOrNull()?.notificationId)
 
         // Remove notification from list
         activeQueue.removeIf { it.notificationId == notificationId }
@@ -216,12 +229,12 @@ class AlertLogic(
             service.stopSelf(serviceStartId)
         }
         else {
-            if (isBindNotification)
-                // Bind next notification
+            if (isLastNotification)
+                // Bind new last notification, notification pushed again
                 ServiceCompat.startForeground(
                     service,
-                    activeQueue.first().notificationId,
-                    activeQueue.first().notification,
+                    activeQueue.last().notificationId,
+                    activeQueue.last().notification,
                     FOREGROUND_SERVICE_TYPE
                 )
 
@@ -229,6 +242,28 @@ class AlertLogic(
             with(notificationManager) {
                 cancel(notificationId)
             }
+        }
+    }
+
+    private fun setStateFullScreen(notificationId: Int, isFullScreen: Boolean) {
+        val entry = activeQueue.withIndex().firstOrNull { it.value.notificationId == notificationId }
+        if (entry == null) return
+        activeQueue[entry.index] = entry.value.shallowCopy(isFullScreen)
+    }
+
+    private fun processFullScreenPause(
+        notificationId: Int
+    ) {
+        synchronized(this@AlertLogic) {
+            setStateFullScreen(notificationId, isFullScreen = false)
+        }
+    }
+
+    private fun processFullScreenResume(
+        notificationId: Int
+    ) {
+        synchronized(this@AlertLogic) {
+            setStateFullScreen(notificationId, isFullScreen = true)
         }
     }
 

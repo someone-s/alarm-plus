@@ -15,27 +15,34 @@ class NotificationScope(
     private val context: Context,
     private val channelContainer: ChannelContainer,
 ) {
+
+    private data class FullScreenInfo(val notificationId: Int,
+        val fullScreenRequestCode: Int,
+    )
+
     inner class Builder(
         private val group: GroupInfo,
     ) {
-
-        var snoozeIntent: PendingIntent? = null
-        var dismissIntent: PendingIntent? = null
-        var fullScreenRequestCode: Int = -1
-        var timeoutMs: Long? = null
+        private var snoozeIntent: PendingIntent? = null
+        private var dismissIntent: PendingIntent? = null
+        private var fullScreenInfo: FullScreenInfo? = null
+        private var timeoutMs: Long? = null
 
 
         fun addSnoozeIntent(pendingIntent: PendingIntent) { snoozeIntent = pendingIntent }
 
         fun addDismissIntent(pendingIntent: PendingIntent) { dismissIntent = pendingIntent }
 
-        fun addFullScreen(requestCode: Int) { fullScreenRequestCode = requestCode }
+        fun addFullScreen(notificationId: Int, fullScreenRequestCode: Int = notificationId) { fullScreenInfo = FullScreenInfo(
+            notificationId = notificationId,
+            fullScreenRequestCode = fullScreenRequestCode,
+        ) }
 
-        private fun buildFullScreenIntent(requestCode: Int) = PendingIntent.getActivity(
+        private fun buildFullScreenIntent(info: FullScreenInfo) = PendingIntent.getActivity(
             context,
-            requestCode,
+            info.fullScreenRequestCode,
             Intent(context, NotificationActivity::class.java).apply {
-                putExtra(NotificationActivity.EXTRA_GROUP_UUID, group.uuid)
+                putExtra(NotificationActivity.EXTRA_NOTIFICATTION_ID, info.notificationId)
 
                 if (snoozeIntent != null)
                     putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozeIntent)
@@ -89,10 +96,11 @@ class NotificationScope(
                         dismissIntent
                     )
 
-                if (fullScreenRequestCode >= 0)
+                val capturedFullScreenInfo = fullScreenInfo
+                if (capturedFullScreenInfo != null)
                     @SuppressLint("FullScreenIntentPolicy")
                     setFullScreenIntent(
-                        buildFullScreenIntent(fullScreenRequestCode),
+                        buildFullScreenIntent(capturedFullScreenInfo),
                         true
                     )
             }.build()
