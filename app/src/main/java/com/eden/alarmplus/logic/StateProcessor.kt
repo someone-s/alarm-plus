@@ -3,6 +3,7 @@ package com.eden.alarmplus.logic
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.eden.alarmplus.alert.AlertLogic
 import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
@@ -272,12 +273,14 @@ class StateProcessor(
 
             // Show alarm
             if (shouldNotify)
-                context.startService(Intent(context, AlertService::class.java).apply {
-                    action = AlertLogic.ACTION_ALERT
-                    putExtra(AlertLogic.EXTRA_GROUP_INFO, alarmAtTime.group)
-                    putExtra(AlertLogic.EXTRA_ALARM_DATA, alarmAtTime.alarm)
-                    putExtra(AlertLogic.EXTRA_IS_LAST_IN_GROUP, alarmAtTime.isLastInGroup)
-                })
+                ContextCompat.startForegroundService(context,
+                    Intent(context, AlertService::class.java).apply {
+                        action = AlertLogic.ACTION_ALERT
+                        putExtra(AlertLogic.EXTRA_GROUP_INFO, alarmAtTime.group)
+                        putExtra(AlertLogic.EXTRA_ALARM_DATA, alarmAtTime.alarm)
+                        putExtra(AlertLogic.EXTRA_IS_LAST_IN_GROUP, alarmAtTime.isLastInGroup)
+                    }
+                )
 
             if (!handle.isValid()) throw InvalidatedStateException()
             stateRepository.updateState(newState)
