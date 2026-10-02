@@ -184,6 +184,12 @@ class AlertLogic(
 
         synchronized(this@AlertLogic) {
 
+            if (activeQueue.isNotEmpty())
+                ServiceCompat.stopForeground(
+                    service,
+                    ServiceCompat.STOP_FOREGROUND_DETACH
+                )
+
             ServiceCompat.startForeground(
                 service,
                 notificationId,
