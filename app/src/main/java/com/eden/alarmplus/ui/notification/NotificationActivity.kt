@@ -1,7 +1,6 @@
 package com.eden.alarmplus.ui.notification
 
 import android.app.PendingIntent
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -10,11 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
 import com.eden.alarmplus.BuildConfig
-import com.eden.alarmplus.alert.AlertLogic
-import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 
 

@@ -185,7 +185,6 @@ class AlertLogic(
                 groupUuid = groupInfo.uuid,
                 notificationId = notificationId,
                 notification = notification,
-                /** If full screen, set by [processFullScreenResume] */
                 isFullScreen = false,
             ))
 
