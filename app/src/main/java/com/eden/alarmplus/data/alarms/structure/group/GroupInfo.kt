@@ -29,10 +29,10 @@ data class GroupInfo(
 
 val emptyGroupInfo = GroupInfo(
     name = null,
-    enabled = false,
+    enabled = true,
 )
 
 fun getUniqueGroupInfo() = GroupInfo(
     name = null,
-    enabled = false,
+    enabled = true,
 )
