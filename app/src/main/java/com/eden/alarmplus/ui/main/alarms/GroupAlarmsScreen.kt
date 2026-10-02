@@ -233,6 +233,7 @@ fun GroupAlarmScreen(
                     } }
 
                     GroupItem(
+                        modifier = Modifier.animateItem(),
                         group = group,
                         active = (state.type == StateData.Type.ACTIVE) || activeSoon,
                         onSelect = {

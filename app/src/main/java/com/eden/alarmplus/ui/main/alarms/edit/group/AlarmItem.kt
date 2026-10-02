@@ -39,6 +39,7 @@ fun AlarmItem(
     alarm: AlarmData,
     onSelect: (AlarmData) -> Unit,
     onDelete: (AlarmData) -> Unit,
+    modifier: Modifier = Modifier,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
     formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
@@ -54,6 +55,7 @@ fun AlarmItem(
     }
 
     SwipeToDismissBox(
+        modifier = modifier,
         state = dismissBoxState,
         onDismiss = { onDelete(alarm) },
         backgroundContent = {

@@ -81,6 +81,7 @@ fun GroupItem(
     onSelect: () -> Unit,
     onToggle: (Boolean) -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
     shapes: ListItemShapes = ListItemDefaults.segmentedShapes(0, 1),
     formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
     textStyles: GroupItemTextStyle = GroupItemDefaults.textStyles()
@@ -98,6 +99,7 @@ fun GroupItem(
     val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
 
     SwipeToDismissBox(
+        modifier = modifier,
         state = dismissBoxState,
         onDismiss = { onDelete() },
         backgroundContent = {
