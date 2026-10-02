@@ -49,8 +49,6 @@ class AlertLogic(
 
         const val ACTION_SNOOZE = "${BuildConfig.APPLICATION_ID}.ACTION_SNOOZE"
         const val ACTION_DISMISS = "${BuildConfig.APPLICATION_ID}.ACTION_DISMISS"
-        const val ACTION_FULL_SCREEN_RESUME = "${BuildConfig.APPLICATION_ID}.ACTION_FULL_SCREEN_RESUME"
-        const val ACTION_FULL_SCREEN_PAUSE = "${BuildConfig.APPLICATION_ID}.ACTION_FULL_SCREEN_PAUSE"
 
         const val EXTRA_NOTIFICATION_ID = "${BuildConfig.APPLICATION_ID}.EXTRA_NOTIFICATION_ID"
         const val EXTRA_GROUP_UUID = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_UUID"
@@ -80,10 +78,6 @@ class AlertLogic(
      *  - [ACTION_DISMISS]
      *      - [EXTRA_NOTIFICATION_ID]
      *      - [EXTRA_GROUP_UUID]
-     *  - [ACTION_FULL_SCREEN_RESUME]
-     *      - [EXTRA_NOTIFICATION_ID]
-     *  - [ACTION_FULL_SCREEN_PAUSE]
-     *      - [EXTRA_NOTIFICATION_ID]
      */
     fun processRequest(startId: Int, intent: Intent) {
         intent.dataString
@@ -100,16 +94,6 @@ class AlertLogic(
                 isLastInGroup = intent.getBooleanExtra(
                     EXTRA_IS_LAST_IN_GROUP, false
                 )
-            )
-            ACTION_FULL_SCREEN_PAUSE -> processFullScreenPause(
-                notificationId = intent.getIntExtra(
-                    EXTRA_NOTIFICATION_ID, -1
-                ).also { if (it < 0) throw IllegalArgumentException("Intent missing notification id.") }
-            )
-            ACTION_FULL_SCREEN_RESUME -> processFullScreenResume(
-                notificationId = intent.getIntExtra(
-                    EXTRA_NOTIFICATION_ID, -1
-                ).also { if (it < 0) throw IllegalArgumentException("Intent missing notification id.") }
             )
             ACTION_SNOOZE -> processSnooze(
                 serviceStartId = startId,
@@ -248,28 +232,6 @@ class AlertLogic(
             with(notificationManager) {
                 cancel(notificationId)
             }
-        }
-    }
-
-    private fun setStateFullScreen(notificationId: Int, isFullScreen: Boolean) {
-        val entry = activeQueue.withIndex().firstOrNull { it.value.notificationId == notificationId }
-        if (entry == null) return
-        activeQueue[entry.index] = entry.value.shallowCopy(isFullScreen)
-    }
-
-    private fun processFullScreenPause(
-        notificationId: Int
-    ) {
-        synchronized(this@AlertLogic) {
-            setStateFullScreen(notificationId, isFullScreen = false)
-        }
-    }
-
-    private fun processFullScreenResume(
-        notificationId: Int
-    ) {
-        synchronized(this@AlertLogic) {
-            setStateFullScreen(notificationId, isFullScreen = true)
         }
     }
 
