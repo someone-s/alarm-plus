@@ -116,7 +116,6 @@ fun GroupAlarmScreen(
     val revertGroupUpdateAction = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupupdateaction)
     fun showRevertGroupUpdateSnackbar(editGroup: GroupData) {
         val groupUuid = editGroup.info.uuid
-        Log.i("dfsdfsd", "${groupUuid}")
         val originalGroup = groupAlarmUiState.groupAndStateList.firstOrNull { it.first.info.uuid == groupUuid }?.first
 
         scope.launch {

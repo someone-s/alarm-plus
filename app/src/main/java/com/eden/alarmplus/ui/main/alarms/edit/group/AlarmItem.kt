@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import com.eden.alarmplus.ui.common.FormatViewModel
 import com.eden.alarmplus.ui.common.FormatViewModelProvider
@@ -97,6 +98,13 @@ fun AlarmItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.height(IntrinsicSize.Min)
                     ) {
+                        val pinStartFeature = alarm.getFeature<PinStartFeature>()
+                        if (pinStartFeature != null)
+                            Icon(
+                                painter = painterResource(R.drawable.keep),
+                                contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_pinstart),
+                            )
+
                         val audioFeature = alarm.getFeature<AudioFeature>()
                         if (audioFeature?.data != null)
                             Icon(
@@ -113,6 +121,7 @@ fun AlarmItem(
                                 painter = painterResource(R.drawable.volume_off),
                                 contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_silent),
                             )
+
                         VerticalDivider()
                         Icon(
                             painter = painterResource(R.drawable.chevron_forward),

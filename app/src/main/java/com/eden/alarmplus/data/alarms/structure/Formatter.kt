@@ -2,6 +2,7 @@ package com.eden.alarmplus.data.alarms.structure
 
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -14,6 +15,7 @@ val formatter = Json {
         polymorphic(AlarmFeature::class) {
             subclass(AudioFeature::class)
             subclass(VibrateFeature::class)
+            subclass(PinStartFeature::class)
         }
     }
 }

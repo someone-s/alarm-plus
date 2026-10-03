@@ -1,32 +1,43 @@
 package com.eden.alarmplus.ui.main.alarms.edit.alarm
 
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 
+@Stable
 open class Option(
+    val icon: Int,
     val name: String,
     val onInteract: () -> Unit,
 )
 
+@Stable
 class ExpandOption(
+    icon: Int,
     name: String,
     val value: String,
     onInteract: () -> Unit,
 ): Option(
+    icon = icon,
     name = name,
     onInteract = onInteract,
 )
 
+@Stable
 class SwitchOption(
+    icon: Int,
     name: String,
     val value: Boolean,
     onInteract: () -> Unit,
 ): Option(
+    icon = icon,
     name = name,
     onInteract = onInteract,
 )
@@ -41,6 +52,12 @@ fun AlarmOption(
             SegmentedListItem(
                 modifier = Modifier.clickable { option.onInteract() },
                 shapes = shapes,
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(option.icon),
+                        contentDescription = null
+                    )
+                },
                 content = {
                     Text(
                         text = option.name,
@@ -58,6 +75,12 @@ fun AlarmOption(
         is SwitchOption ->
             SegmentedListItem(
                 shapes = shapes,
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(option.icon),
+                        contentDescription = null
+                    )
+                },
                 content = {
                     Text(
                         text = option.name,

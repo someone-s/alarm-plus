@@ -118,7 +118,7 @@ fun EditSheet(
                             editMode = EditMode.ITEM
                         },
                         onDeleteAlarm = { targetAlarm ->
-                            groupSectionState.removeIfExistAlarm(targetAlarm)
+                            groupSectionState.removeIfExistAlarm(targetAlarm.info.uuid)
                             alarmSectionState.clearAlarm()
                         },
                         onDelete = {
@@ -143,7 +143,7 @@ fun EditSheet(
                                 editMode = EditMode.LIST
                             },
                             onDelete = {
-                                groupSectionState.removeIfExistAlarm(alarmSectionState.value)
+                                groupSectionState.removeIfExistAlarm(alarmSectionState.value.info.uuid)
                                 alarmSectionState.clearAlarm()
                                 editMode = EditMode.LIST
                             }

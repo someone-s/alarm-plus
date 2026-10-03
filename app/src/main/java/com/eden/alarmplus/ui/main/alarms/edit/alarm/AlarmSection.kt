@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
 import com.eden.alarmplus.data.alarms.structure.audio.AudioData
@@ -84,6 +85,7 @@ fun AlarmSection(
 
     val options = listOf(
         ExpandOption(
+            icon = R.drawable.volume_up,
             name = stringResource(R.string.ui_main_alarms_edit_alarm_alarmsection_option_sound),
             value = state.value.getFeature<AudioFeature>()?.data?.name ?: "Unset",
             onInteract = {
@@ -91,6 +93,7 @@ fun AlarmSection(
             },
         ),
         SwitchOption(
+            icon = R.drawable.mobile_vibrate,
             name = stringResource(R.string.ui_main_alarms_edit_alarm_alarmsection_option_vibrate),
             value = state.value.getFeature<VibrateFeature>() != null,
             onInteract = {
@@ -98,6 +101,18 @@ fun AlarmSection(
                     state.value = state.value.shallowCopyRemoveFeature<VibrateFeature>()
                 else
                     state.value = state.value.shallowCopyAddFeature(VibrateFeature())
+                state.modified = true
+            },
+        ),
+        SwitchOption(
+            icon = R.drawable.keep,
+            name = stringResource(R.string.ui_main_alarms_edit_alarm_alarmsection_option_pinstart),
+            value = state.value.getFeature<PinStartFeature>() != null,
+            onInteract = {
+                if (state.value.getFeature<PinStartFeature>() != null)
+                    state.value = state.value.shallowCopyRemoveFeature<PinStartFeature>()
+                else
+                    state.value = state.value.shallowCopyAddFeature(PinStartFeature())
                 state.modified = true
             },
         ),

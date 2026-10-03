@@ -19,9 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.ui.common.FormatViewModel
 import com.eden.alarmplus.ui.common.FormatViewModelProvider
+import java.time.LocalTime
+import kotlin.time.Duration.Companion.hours
+import kotlin.uuid.Uuid
 
 
 @Composable
@@ -39,14 +43,16 @@ class GroupSectionState(
     initialGroup: GroupData,
 ) {
     var info by mutableStateOf(initialGroup.info)
-    val sortedAlarms = initialGroup.alarms.sortedBy { it.info.time }.toMutableStateList()
+    val sortedAlarms = initialGroup.alarms.toMutableStateList()
     var modified by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
 
     fun addOrUpdateAlarm(alarm: AlarmData) {
         val index = sortedAlarms.indexOfFirst { it.info.uuid == alarm.info.uuid }
-        val different = if (index >= 0) {
-            val oldAlarm = sortedAlarms[index]
+
+        val oldAlarm = if (index >= 0) sortedAlarms[index] else null
+
+        val editedAndPotentiallyReordered = if (index >= 0) {
             sortedAlarms[index] = alarm
             alarm != oldAlarm
         }
@@ -54,13 +60,52 @@ class GroupSectionState(
             sortedAlarms.add(alarm)
             true
         }
-        sortedAlarms.sortBy { it.info.time }
-        modified = modified || different
+
+        val previousPin = oldAlarm?.getFeature<PinStartFeature>() != null
+        val currentPin = alarm.getFeature<PinStartFeature>() != null
+        if (!previousPin && currentPin) {
+
+            val currentPinIndices = sortedAlarms
+                .withIndex()
+                .filter { it.value.info.uuid != alarm.info.uuid }
+                .filter { it.value.getFeature<PinStartFeature>() != null }
+                .map { it.index }
+                .toList()
+
+            currentPinIndices.forEach { index ->
+                sortedAlarms[index] = sortedAlarms[index].shallowCopyRemoveFeature<PinStartFeature>()
+            }
+        }
+        val pinChangedAndPotentiallyReordered = currentPin != previousPin
+
+        val pinTime = sortedAlarms.firstOrNull { it.getFeature<PinStartFeature>() != null }?.info?.time ?: LocalTime.MIDNIGHT
+        sortedAlarms.sortBy {
+            val alarmTime = it.info.time
+            if (alarmTime < pinTime)
+                alarmTime.toNanoOfDay() + 24.hours.inWholeNanoseconds
+            else
+                alarmTime.toNanoOfDay()
+        }
+        modified = modified || editedAndPotentiallyReordered || pinChangedAndPotentiallyReordered
     }
 
-    fun removeIfExistAlarm(alarm: AlarmData) {
-        val result = sortedAlarms.removeIf { it.info.uuid == alarm.info.uuid }
-        modified = modified || result
+    fun removeIfExistAlarm(alarmUuid: Uuid) {
+        val unpinnedAndPotentiallyReordered = sortedAlarms
+            .filter{ it.info.uuid == alarmUuid }
+            .any { it.getFeature<PinStartFeature>() != null }
+
+        val removedAndPotentiallyReordered = sortedAlarms.removeIf { it.info.uuid == alarmUuid }
+
+        val pinTime = sortedAlarms.firstOrNull { it.getFeature<PinStartFeature>() != null }?.info?.time ?: LocalTime.MIDNIGHT
+        sortedAlarms.sortBy {
+            val alarmTime = it.info.time
+            if (alarmTime < pinTime)
+                alarmTime.toNanoOfDay() + 24.hours.inWholeNanoseconds
+            else
+                alarmTime.toNanoOfDay()
+        }
+
+        modified = modified || unpinnedAndPotentiallyReordered || removedAndPotentiallyReordered
     }
 
     val group: GroupData
