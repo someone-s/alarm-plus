@@ -40,6 +40,8 @@
     <string name="manifest_permission_usefullscreenintent_purpose">Display full screen notification when alarm goes off</string>
     <string name="manifest_permission_foregroundservice_purpose">Used for alarms features beyond notifications</string>
     <string name="manifest_permission_foregroundservicesystemexempted_purpose">Holds exact alarm permission(s), used for alarms</string>
+    <string name="manifest_permission_foregroundservicemediaplayback_purpose">Use to play audible alarms</string>
+    <string name="manifest_attribution_playaudiblealarms">Audible alarms</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeleteaction">Revert</string>
     <string name="ui_main_alarms_groupscreen_revertgroupdeletemessage">Restore deleted alarm group?</string>
     <string name="ui_main_alarms_groupscreen_revertgroupupdatemessage">Revert changes to alarm group?</string>
@@ -58,4 +60,6 @@
     <string name="notifications_servicechannel_name">Alert Service</string>
     <string name="notifications_servicechannel_description">Notify when the app is displaying alarms.</string>
     <string name="alert_notification_alarmnotificationbuilder_placeholder">Untitled Alarm</string>
+    <string name="ui_main_alarms_edit_alarm_alarmsection_option_sound">Sound</string>
+    <string name="ui_main_alarms_edit_alarm_alarmsection_option_vibrate">Vibrate</string>
 </resources>

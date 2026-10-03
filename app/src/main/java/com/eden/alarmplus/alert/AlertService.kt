@@ -11,11 +11,12 @@ import android.os.Message
 import android.os.Process
 import android.util.Log
 import androidx.core.os.BundleCompat
+import androidx.lifecycle.LifecycleService
 import com.eden.alarmplus.AlarmPlusApplication
 import com.eden.alarmplus.BuildConfig
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-class AlertService: Service() {
+class AlertService: LifecycleService() {
 
     companion object {
         private const val THREAD_NAME = "${BuildConfig.APPLICATION_ID}.AlertServiceThread"
@@ -52,10 +53,13 @@ class AlertService: Service() {
     }
 
     override fun onCreate() {
+        super.onCreate()
         alertLogic = AlertLogic(
             this,
             (application as AlarmPlusApplication).stateProcessor,
             (application as AlarmPlusApplication).notificationScope,
+            (application as AlarmPlusApplication).hapticAudioPlayer,
+            (application as AlarmPlusApplication).vibrationScope,
         )
 
         HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_DISPLAY).apply {
@@ -66,7 +70,8 @@ class AlertService: Service() {
         }
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
 
         // Start a job for each start request
         serviceHandler?.obtainMessage()?.also { msg ->
@@ -85,6 +90,9 @@ class AlertService: Service() {
         stopSelf()
     }
 
-    override fun onBind(intent: Intent): IBinder? = null
+    override fun onBind(intent: Intent): IBinder? {
+        super.onBind(intent)
+        return null
+    }
 
 }

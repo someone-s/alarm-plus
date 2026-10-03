@@ -97,8 +97,8 @@ fun AlarmItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.height(IntrinsicSize.Min)
                     ) {
-
-                        if (alarm.getFeature<AudioFeature>() != null)
+                        val audioFeature = alarm.getFeature<AudioFeature>()
+                        if (audioFeature?.data != null)
                             Icon(
                                 painter = painterResource(R.drawable.volume_up),
                                 contentDescription = stringResource(R.string.ui_main_alarms_edit_group_alarmitem_feature_audible),

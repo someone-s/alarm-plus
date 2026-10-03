@@ -17,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
@@ -77,14 +79,14 @@ fun AlarmSection(
 
     val options = listOf(
         ExpandOption(
-            name = "Sound",
+            name = stringResource(R.string.ui_main_alarms_edit_alarm_alarmsection_option_sound),
             value = state.value.getFeature<AudioFeature>()?.data?.name ?: "Unset",
             onInteract = {
                 ringtonePickerLauncher.launch(state.value.getFeature<AudioFeature>()?.data?.uri)
             },
         ),
         SwitchOption(
-            name = "Vibrate",
+            name = stringResource(R.string.ui_main_alarms_edit_alarm_alarmsection_option_vibrate),
             value = state.value.getFeature<VibrateFeature>() != null,
             onInteract = {
                 if (state.value.getFeature<VibrateFeature>() != null)

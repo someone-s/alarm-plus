@@ -80,19 +80,26 @@ class NotificationScope(
                 if (capturedTimeoutMs != null)
                     setTimeoutAfter(capturedTimeoutMs)
 
-                if (snoozeIntent != null)
+                if (snoozeIntent != null) {
                     addAction(
                         R.drawable.snooze,
                         context.getString(R.string.notifications_snoozeaction_title),
                         snoozeIntent
                     )
+                }
 
-                if (dismissIntent != null)
+                if (dismissIntent != null) {
                     addAction(
                         R.drawable.close,
                         context.getString(R.string.notifications_dismissaction_title),
                         dismissIntent
                     )
+                }
+
+                if (snoozeIntent != null)
+                    setDeleteIntent(snoozeIntent)
+                else if (dismissIntent != null)
+                    setDeleteIntent(dismissIntent)
 
                 val capturedFullScreenInfo = fullScreenInfo
                 if (capturedFullScreenInfo != null)

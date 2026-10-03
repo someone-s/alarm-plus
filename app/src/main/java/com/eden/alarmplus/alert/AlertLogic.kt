@@ -12,9 +12,14 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
+import androidx.lifecycle.lifecycleScope
 import com.eden.alarmplus.BuildConfig
+import com.eden.alarmplus.alert.hapticaudio.HapticAudioScope
 import com.eden.alarmplus.alert.notification.NotificationScope
+import com.eden.alarmplus.alert.vibration.VibrationScope
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.logic.StateProcessor
 import kotlinx.coroutines.runBlocking
@@ -25,6 +30,8 @@ class AlertLogic(
     private val service: AlertService,
     private val stateProcessor: StateProcessor,
     private val notificationScope: NotificationScope,
+    private val hapticAudioScope: HapticAudioScope,
+    private val vibrationScope: VibrationScope,
 ) {
 
     companion object {
@@ -133,60 +140,9 @@ class AlertLogic(
 
         val notificationManager = NotificationManagerCompat.from(service)
 
-        val notification = with(notificationManager) {
-            notificationScope.Builder(groupInfo).apply {
-                addTimeout(10.minutes.inWholeMilliseconds)
-
-                if (!isLastInGroup)
-                    addSnoozeIntent(PendingIntent.getService(
-                        service,
-                        notificationId,
-                        Intent(service, AlertService::class.java).apply {
-                            action = ACTION_SNOOZE
-                            putExtra(EXTRA_NOTIFICATION_ID, notificationId)
-                        },
-                        PendingIntent.FLAG_IMMUTABLE
-                    ))
-
-                addDismissIntent(PendingIntent.getService(
-                    service,
-                    notificationId,
-                    Intent(service, AlertService::class.java).apply {
-                        action = ACTION_DISMISS
-                        putExtra(EXTRA_NOTIFICATION_ID, notificationId)
-                        putExtra(EXTRA_GROUP_UUID, groupInfo.uuid)
-                    },
-                    PendingIntent.FLAG_IMMUTABLE
-                ))
-
-                if (canUseFullScreenIntent())
-                    addFullScreen(notificationId)
-
-            }.build(this@with)
-        }
-
-
         synchronized(this@AlertLogic) {
 
-            if (activeQueue.isNotEmpty())
-                ServiceCompat.stopForeground(
-                    service,
-                    ServiceCompat.STOP_FOREGROUND_DETACH
-                )
-
-            ServiceCompat.startForeground(
-                service,
-                notificationId,
-                notification,
-                FOREGROUND_SERVICE_TYPE
-            )
-
-            activeQueue.addLast(AlertState(
-                groupUuid = groupInfo.uuid,
-                notificationId = notificationId,
-                notification = notification,
-                isFullScreen = false,
-            ))
+            startNotification(notificationId, groupInfo, alarmData, isLastInGroup, notificationManager)
 
             // Cancel previous notifications from the same group
             val currentCopy = activeQueue
@@ -196,6 +152,83 @@ class AlertLogic(
 
             currentCopy.forEach { cancelNotification(serviceStartId, it.notificationId, notificationManager) }
         }
+    }
+
+    private fun startNotification(
+        notificationId: Int,
+        groupInfo: GroupInfo,
+        alarmData: AlarmData,
+        isLastInGroup: Boolean,
+        notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(service),
+    ) {
+        if (activeQueue.isNotEmpty())
+            ServiceCompat.stopForeground(
+                service,
+                ServiceCompat.STOP_FOREGROUND_DETACH
+            )
+
+        val notification = with(notificationManager) {
+            notificationScope.Builder(groupInfo).apply {
+                addTimeout(10.minutes.inWholeMilliseconds)
+
+                if (!isLastInGroup)
+                    addSnoozeIntent(
+                        PendingIntent.getService(
+                            service,
+                            notificationId,
+                            Intent(service, AlertService::class.java).apply {
+                                action = ACTION_SNOOZE
+                                putExtra(EXTRA_NOTIFICATION_ID, notificationId)
+                            },
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
+                    )
+
+                addDismissIntent(
+                    PendingIntent.getService(
+                        service,
+                        notificationId,
+                        Intent(service, AlertService::class.java).apply {
+                            action = ACTION_DISMISS
+                            putExtra(EXTRA_NOTIFICATION_ID, notificationId)
+                            putExtra(EXTRA_GROUP_UUID, groupInfo.uuid)
+                        },
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+
+                if (canUseFullScreenIntent())
+                    addFullScreen(notificationId)
+
+            }.build(this@with)
+        }
+
+        val state = AlertState(
+            groupUuid = groupInfo.uuid,
+            notificationId = notificationId,
+            notification = notification,
+            audioData = alarmData.getFeature<AudioFeature>()?.data,
+            vibrateEnabled = alarmData.getFeature<VibrateFeature>() != null
+        )
+
+        activeQueue.addLast(state)
+
+        playNotification(state)
+    }
+
+    private fun playNotification(alertState: AlertState) {
+        ServiceCompat.startForeground(
+            service,
+            alertState.notificationId,
+            alertState.notification,
+            FOREGROUND_SERVICE_TYPE
+        )
+
+        if (alertState.audioData != null)
+            hapticAudioScope.start(alertState.audioData, alertState.vibrateEnabled)
+
+        if (alertState.vibrateEnabled)
+            vibrationScope.start(service.lifecycleScope)
     }
 
     private fun cancelNotification(
@@ -209,6 +242,11 @@ class AlertLogic(
         activeQueue.removeIf { it.notificationId == notificationId }
 
         if (activeQueue.isEmpty()) {
+
+            hapticAudioScope.stopIfExist()
+
+            vibrationScope.stopIfExist()
+
             // Stop foreground also cancel notification
             ServiceCompat.stopForeground(
                 service,
@@ -220,12 +258,7 @@ class AlertLogic(
         else {
             if (isLastNotification)
                 // Bind new last notification, notification pushed again
-                ServiceCompat.startForeground(
-                    service,
-                    activeQueue.last().notificationId,
-                    activeQueue.last().notification,
-                    FOREGROUND_SERVICE_TYPE
-                )
+                playNotification(activeQueue.last())
 
             // Cancel notification
             with(notificationManager) {

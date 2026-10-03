@@ -30,6 +30,13 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED"
         android:purposeString="@string/manifest_permission_foregroundservicesystemexempted_purpose" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        android:purposeString="@string/manifest_permission_foregroundservicemediaplayback_purpose" />
+    
+    <attribution
+        android:tag="playAudibleAlarms"
+        android:label="@string/manifest_attribution_playaudiblealarms" />
 
     <application
         android:name=".AlarmPlusApplication"

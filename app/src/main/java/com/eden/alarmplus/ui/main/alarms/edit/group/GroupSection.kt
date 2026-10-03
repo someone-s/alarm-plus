@@ -44,7 +44,11 @@ class GroupSectionState(
     var showDeleteDialog by mutableStateOf(false)
 
     fun addOrUpdateAlarm(alarm: AlarmData) {
-        sortedAlarms.add(alarm)
+        val index = sortedAlarms.indexOfFirst { it.info.uuid == alarm.info.uuid }
+        if (index >= 0)
+            sortedAlarms[index] = alarm
+        else
+            sortedAlarms.add(alarm)
         sortedAlarms.sortBy { it.info.time }
         modified = true
     }
