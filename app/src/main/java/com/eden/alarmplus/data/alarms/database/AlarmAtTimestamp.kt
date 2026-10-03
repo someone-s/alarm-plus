@@ -14,4 +14,6 @@ data class AlarmAtTimestamp(
     val group: GroupEntity,
     @ColumnInfo("is_last_in_group")
     val isLastInGroup: Boolean,
+    @ColumnInfo("in_dismissable_window")
+    val inDismissableWindow: Boolean,
 )

@@ -9,12 +9,12 @@ import androidx.room3.Update
 interface StateDao {
     /**
      * @param timestamp in whole minutes
-     * @return next alarm's timestamp in whole minutes, null if no alarms
+     * @return next alarm or dismissable window start timestamp in whole minutes, null if no alarms
      */
     @Query(
         """
             WITH 
-                after_timestamp_cte AS (
+                after_alarm_timestamp_cte AS (
                     SELECT alarms.timestamp 
                     FROM alarms
                     LEFT JOIN groups ON 
@@ -28,7 +28,7 @@ interface StateDao {
                     ORDER BY timestamp ASC
                     LIMIT 1
                 ),
-                first_timestamp_cte AS (
+                first_alarm_timestamp_cte AS (
                     SELECT alarms.timestamp
                     FROM alarms
                     LEFT JOIN groups ON 
@@ -36,6 +36,45 @@ interface StateDao {
                         AND
                         groups.group_lower_uuid = alarms.group_lower_uuid
                     WHERE groups.enabled
+                    ORDER BY timestamp ASC
+                    LIMIT 1
+                ),
+                after_dismissable_timestamp_cte AS (
+                    SELECT ((alarms.timestamp - :window + 60 * 24) % (60 * 24)) AS timestamp
+                    FROM alarms
+                    LEFT JOIN groups ON 
+                        groups.group_upper_uuid = alarms.group_upper_uuid
+                        AND
+                        groups.group_lower_uuid = alarms.group_lower_uuid
+                    WHERE 
+                        groups.enabled
+                        AND
+                        ((alarms.timestamp - :window + 60 * 24) % (60 * 24)) > :timestamp
+                    ORDER BY ((alarms.timestamp - :window + 60 * 24) % (60 * 24)) ASC
+                    LIMIT 1
+                ),
+                first_dismissable_timestamp_cte AS (
+                    SELECT ((alarms.timestamp - :window + 60 * 24) % (60 * 24)) AS timestamp
+                    FROM alarms
+                    LEFT JOIN groups ON 
+                        groups.group_upper_uuid = alarms.group_upper_uuid
+                        AND
+                        groups.group_lower_uuid = alarms.group_lower_uuid
+                    WHERE groups.enabled
+                    ORDER BY ((alarms.timestamp - :window + 60 * 24) % (60 * 24)) ASC
+                    LIMIT 1
+                ),
+                after_timestamp_cte AS (
+                    SELECT timestamp FROM after_alarm_timestamp_cte
+                    UNION
+                    SELECT timestamp FROM after_dismissable_timestamp_cte
+                    ORDER BY timestamp ASC
+                    LIMIT 1
+                ),
+                first_timestamp_cte AS (
+                    SELECT timestamp FROM first_alarm_timestamp_cte
+                    UNION
+                    SELECT timestamp FROM first_dismissable_timestamp_cte
                     ORDER BY timestamp ASC
                     LIMIT 1
                 )
@@ -47,7 +86,7 @@ interface StateDao {
             
         """
     )
-    suspend fun findNextActiveTimestampAfter(timestamp: Int): Int?
+    suspend fun findNextTimestampAfter(timestamp: Int, window: Int): Int?
 
     /**
      * [Transaction] annotation required as using relations.
@@ -85,6 +124,25 @@ interface StateDao {
                         FROM alarms
                     )
                     WHERE alarm_sequence = 1
+                ),
+                first_alarms_cte AS (
+                    SELECT
+                        group_upper_uuid,
+                        group_lower_uuid,
+                        timestamp
+                    FROM (
+                        SELECT
+                            *,
+                            ROW_NUMBER() OVER(
+                                PARTITION BY 
+                                    group_upper_uuid,
+                                    group_lower_uuid
+                                ORDER BY sort_value ASC
+                            )
+                            AS alarm_sequence
+                        FROM alarms
+                    )
+                    WHERE alarm_sequence = 1
                 )
             SELECT 
                 *, 
@@ -100,7 +158,26 @@ interface StateDao {
                     THEN true
                     ELSE false
                 END
-                AS is_last_in_group
+                AS is_last_in_group,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT *
+                        FROM first_alarms_cte
+                        WHERE
+                            alarms.group_upper_uuid = first_alarms_cte.group_upper_uuid
+                            AND alarms.group_lower_uuid = first_alarms_cte.group_lower_uuid
+                            AND (
+                                :timestamp >= (first_alarms_cte.timestamp - :window)
+                                AND :timestamp < first_alarms_cte.timestamp
+                            ) OR (
+                                :timestamp - (24 * 60) >= (first_alarms_cte.timestamp - :window)
+                                AND :timestamp - (24 * 60) < first_alarms_cte.timestamp
+                            )
+                    )
+                    THEN true
+                    ELSE false
+                END
+                AS in_dismissable_window
             FROM alarms
             WHERE 
                 EXISTS (
@@ -117,7 +194,55 @@ interface StateDao {
                 alarms.timestamp = :timestamp
         """
     )
-    suspend fun getAlarmsWithGroupsAtTimestamp(timestamp: Int): List<AlarmAtTimestamp>
+    suspend fun getAlarmsWithGroupsAtTimestamp(timestamp: Int, window: Int): List<AlarmAtTimestamp>
+
+    /**
+     * @param timestamp in minutes
+     * @param window in minutes, how much time in advance does the window begin
+     */
+    @Transaction
+    @Query(
+        """
+            WITH
+                first_alarms_cte AS (
+                    SELECT 
+                        group_upper_uuid,
+                        group_lower_uuid,
+                        timestamp
+                    FROM (
+                        SELECT
+                            *,
+                            ROW_NUMBER() OVER(
+                                PARTITION BY 
+                                    group_upper_uuid,
+                                    group_lower_uuid
+                                ORDER BY sort_value ASC
+                            )
+                            AS alarm_sequence 
+                        FROM alarms
+                    )
+                    WHERE alarm_sequence = 1
+                )
+            SELECT  
+                first_alarms_cte.group_upper_uuid,
+                first_alarms_cte.group_lower_uuid
+            FROM first_alarms_cte
+            WHERE 
+                EXISTS (
+                    SELECT *
+                    FROM `groups`
+                    WHERE
+                        `groups`.group_upper_uuid = first_alarms_cte.group_upper_uuid
+                        AND
+                        `groups`.group_lower_uuid = first_alarms_cte.group_lower_uuid
+                        AND
+                        `groups`.enabled
+                )
+                AND
+                (first_alarms_cte.timestamp + 60 * 24 - :window) % (60 * 24) = :timestamp
+        """
+    )
+    suspend fun getPrimedAtTimestamp(timestamp: Int, window: Int): List<PrimedAtTimestamp>
     
     @Query(
         """

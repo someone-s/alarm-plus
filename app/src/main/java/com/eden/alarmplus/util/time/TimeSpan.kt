@@ -28,6 +28,23 @@ fun isTimeRightBeforeAndNotInSpan(
 }
 
 @Stable
+fun isTimeRightBeforeAndNotAnchor(
+    anchor: LocalTime,
+    window: Duration,
+    time: LocalTime
+): Boolean {
+    val wrappedDuration = Duration.between(time, anchor).let {
+        if (it.isNegative) it.plusDays(1)
+        else it
+    }
+
+    if (wrappedDuration.isZero)
+        return false
+
+    return wrappedDuration <= window
+}
+
+@Stable
 fun isTimeWithinTimeSpan(
     timeSpan: List<LocalTime>,
     time: LocalTime

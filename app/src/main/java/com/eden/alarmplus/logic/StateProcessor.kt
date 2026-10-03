@@ -9,16 +9,22 @@ import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
+import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
+import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotInSpan
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
+import java.time.Duration
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
 
 class StateProcessor(
     private val context: Context,
     private val stateRepository: StateRepository,
     private val wakeScheduler: WakeScheduler,
+    private val dismissWindow: Duration
 ) {
 
     companion object {
@@ -184,6 +190,7 @@ class StateProcessor(
                 StateData.Type.ACTIVE -> currentState.toDismissed()
                 StateData.Type.DISMISSED -> currentState
                 StateData.Type.IDLE -> currentState
+                StateData.Type.PRIMED -> currentState.toDismissed()
                 StateData.Type.UNDEFINED -> {
                     Log.w("$javaClass", "Dismissing group $groupUuid with existing state Undefined.")
                     currentState.toDismissed()
@@ -208,26 +215,41 @@ class StateProcessor(
         for (group in stateRepository.getAllGroups()) {
 
             val inDuration: Boolean = isTimeWithinTimeSpan(group.alarms.map { it.info.time }, time)
+            val inDismissableWindow: Boolean = if (group.alarms.isNotEmpty())
+                isTimeRightBeforeAndNotAnchor(group.alarms.first().info.time, dismissWindow, time)
+            else false
 
             if (!handle.isValid()) throw InvalidatedStateException()
             // return if null (invalidated by changes, a new run should be triggered)
             val currentState = stateRepository.getState(group.info.uuid) ?: throw InvalidatedStateException()
 
             val newState =
-                if (group.info.enabled)
-                    when (currentState.type) {
+                if (group.info.enabled) {
+                    val intermediateState = when (currentState.type) {
                         StateData.Type.ACTIVE -> if (inDuration) currentState else currentState.toIdle()
                         StateData.Type.DISMISSED -> if (inDuration) currentState else currentState.toIdle()
-                        StateData.Type.IDLE -> if (inDuration) currentState.toActive() else currentState
+                        StateData.Type.IDLE -> if (inDuration) currentState.toPrimed().toActive() else currentState
+                        StateData.Type.PRIMED -> if (inDuration) currentState.toActive() else currentState
                         StateData.Type.UNDEFINED -> if (inDuration) currentState.toActive() else currentState.toIdle()
                     }
+                    when (intermediateState.type) {
+                        StateData.Type.ACTIVE -> intermediateState
+                        StateData.Type.DISMISSED -> intermediateState
+                        StateData.Type.IDLE -> if (inDismissableWindow) intermediateState.toPrimed() else intermediateState
+                        StateData.Type.PRIMED -> intermediateState
+                        StateData.Type.UNDEFINED -> intermediateState
+                    }
+                }
                 else
                     when (currentState.type) {
                         StateData.Type.ACTIVE -> currentState.toIdle()
                         StateData.Type.DISMISSED -> currentState.toIdle()
                         StateData.Type.IDLE -> currentState
+                        StateData.Type.PRIMED -> currentState.toDismissed().toIdle()
                         StateData.Type.UNDEFINED -> currentState.toIdle()
                     }
+
+
 
             if (!handle.isValid()) throw InvalidatedStateException()
             stateRepository.updateState(newState)
@@ -243,7 +265,7 @@ class StateProcessor(
         if (!handle.isValid()) throw InvalidatedStateException()
 
         val time = dateTime.toLocalTime()
-        val alarmsAtTime = stateRepository.getAlarmsAtTime(time)
+        val alarmsAtTime = stateRepository.getAlarmsAtTime(time, dismissWindow)
 
         for (alarmAtTime in alarmsAtTime) {
 
@@ -255,19 +277,32 @@ class StateProcessor(
                 StateData.Type.ACTIVE -> true
                 StateData.Type.DISMISSED -> false
                 StateData.Type.IDLE -> true
+                StateData.Type.PRIMED -> true
                 StateData.Type.UNDEFINED -> {
                     Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
                     true
                 }
             }
 
-            val newState = when (currentState.type) {
+            val intermediateState = when (currentState.type) {
                 StateData.Type.ACTIVE -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
                 StateData.Type.DISMISSED -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
-                StateData.Type.IDLE -> if (alarmAtTime.isLastInGroup) currentState else currentState.toActive()
+                StateData.Type.IDLE -> if (alarmAtTime.isLastInGroup) currentState else currentState.toPrimed().toActive()
+                StateData.Type.PRIMED -> if (alarmAtTime.isLastInGroup) currentState.toActive().toIdle() else currentState.toActive()
                 StateData.Type.UNDEFINED -> {
                     Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
                     if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState.toActive()
+                }
+            }
+
+            val newState = when (intermediateState.type) {
+                StateData.Type.ACTIVE -> intermediateState
+                StateData.Type.DISMISSED -> intermediateState
+                StateData.Type.IDLE -> if (alarmAtTime.inDismissableWindow) intermediateState.toPrimed() else intermediateState
+                StateData.Type.PRIMED -> intermediateState
+                StateData.Type.UNDEFINED -> {
+                    Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
+                    intermediateState
                 }
             }
 
@@ -282,6 +317,27 @@ class StateProcessor(
                     }
                 )
 
+            if (!handle.isValid()) throw InvalidatedStateException()
+            stateRepository.updateState(newState)
+        }
+
+        val primedAtTime = stateRepository.getPrimedAtTime(time, dismissWindow)
+
+        for (groupUuid in primedAtTime) {
+            if (!handle.isValid()) throw InvalidatedStateException()
+            // return if null (invalidated by changes, a new run should be triggered)
+            val currentState = stateRepository.getState(groupUuid) ?: throw InvalidatedStateException()
+
+            val newState = when (currentState.type) {
+                StateData.Type.ACTIVE -> currentState
+                StateData.Type.DISMISSED -> currentState
+                StateData.Type.IDLE -> currentState.toPrimed()
+                StateData.Type.PRIMED -> currentState
+                StateData.Type.UNDEFINED -> {
+                    Log.w("$javaClass", "Updating group ${groupUuid} with existing state Undefined.")
+                    currentState
+                }
+            }
             if (!handle.isValid()) throw InvalidatedStateException()
             stateRepository.updateState(newState)
         }

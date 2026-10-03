@@ -61,6 +61,7 @@ fun StateData.toStateEntity() = StateEntity(
         StateData.Type.ACTIVE -> StateEntity.ACTIVE_VALUE
         StateData.Type.DISMISSED -> StateEntity.DISMISSED_VALUE
         StateData.Type.IDLE -> StateEntity.IDLE_VALUE
+        StateData.Type.PRIMED -> StateEntity.PRIMED_VALUE
         StateData.Type.UNDEFINED -> StateEntity.UNDEFINED_VALUE
     }
 )
@@ -69,6 +70,7 @@ fun StateEntity.toStateData() = when(this.value) {
     StateEntity.ACTIVE_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.ACTIVE)
     StateEntity.DISMISSED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.DISMISSED)
     StateEntity.IDLE_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.IDLE)
+    StateEntity.PRIMED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.PRIMED)
     StateEntity.UNDEFINED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.UNDEFINED)
     else -> throw IllegalArgumentException("StateEntity.value is ${this.value}, not recognized.")
 }

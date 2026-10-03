@@ -10,25 +10,29 @@ import com.eden.alarmplus.logic.WakeScheduler
 import com.eden.alarmplus.alert.notification.ChannelContainer
 import com.eden.alarmplus.alert.notification.NotificationScope
 import com.eden.alarmplus.alert.vibration.VibrationScope
+import java.time.Duration
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
 
 class AlarmPlusApplication: Application() {
 
     companion object {
         const val ATTRIBUTION_TAG_PLAY_AUDIBLE_ALARM = "playAudibleAlarm"
+        val DISMISS_WINDOW = 1.hours.toJavaDuration()
     }
 
     lateinit var container: AppContainer
 
     val stateProcessor: StateProcessor by lazy {
         assert(this::container.isInitialized)
-        StateProcessor(this, container.stateRepository, wakeScheduler)
+        StateProcessor(this, container.stateRepository, wakeScheduler, DISMISS_WINDOW)
     }
 
     private val wakeScheduler: WakeScheduler by lazy {
         assert(this::container.isInitialized)
-        WakeScheduler(this, container.stateRepository)
+        WakeScheduler(this, container.stateRepository, DISMISS_WINDOW)
     }
 
     val notificationScope: NotificationScope by lazy {

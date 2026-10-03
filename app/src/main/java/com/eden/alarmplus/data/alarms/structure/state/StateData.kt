@@ -5,9 +5,9 @@ import kotlin.uuid.Uuid
 
 /**
  *     ┌──────────🯟──────────┐
- * ACTIVE──🯟──DISMISSED──🯟──IDLE
- *     │          └────🯝────┘│
- *     └──────────🯝──────────┘
+ * ACTIVE──🯟──DISMISSED──🯟──IDLE──🯟──PRIMED
+ *    │           └────🯝───────────────┘│
+ *    └────────────────🯝────────────────┘
  */
 @Immutable
 data class StateData(
@@ -20,18 +20,23 @@ data class StateData(
         ACTIVE,
         DISMISSED,
         IDLE,
+        PRIMED,
     }
 
     fun toActive(): StateData {
-        assert(this.type == Type.UNDEFINED || this.type == Type.IDLE)
-        return StateData(groupUuid, Type.ACTIVE)
+        assert(this.type == Type.UNDEFINED || this.type == Type.PRIMED)
+        return StateData(this.groupUuid, Type.ACTIVE)
     }
     fun toDismissed(): StateData {
-        assert(this.type == Type.UNDEFINED || this.type == Type.ACTIVE || this.type == Type.IDLE)
-        return StateData(groupUuid, Type.DISMISSED)
+        assert(this.type == Type.UNDEFINED || this.type == Type.ACTIVE || this.type == Type.PRIMED)
+        return StateData(this.groupUuid, Type.DISMISSED)
     }
     fun toIdle(): StateData {
         assert(this.type == Type.UNDEFINED || this.type == Type.ACTIVE || this.type == Type.DISMISSED)
-        return StateData(groupUuid, Type.IDLE)
+        return StateData(this.groupUuid, Type.IDLE)
+    }
+    fun toPrimed(): StateData {
+        assert(this.type == Type.UNDEFINED || this.type == Type.IDLE)
+        return StateData(this.groupUuid, Type.PRIMED)
     }
 }

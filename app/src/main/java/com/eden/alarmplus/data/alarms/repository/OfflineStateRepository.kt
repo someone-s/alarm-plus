@@ -3,15 +3,19 @@ package com.eden.alarmplus.data.alarms.repository
 import com.eden.alarmplus.data.alarms.database.StateDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.common.repository.toUuid
 import com.eden.alarmplus.data.common.repository.toUuidLongs
+import java.time.Duration
 import java.time.LocalTime
 import kotlin.uuid.Uuid
 
-class OfflineStateRepository(private val stateDao: StateDao): StateRepository {
+class OfflineStateRepository(
+    private val stateDao: StateDao
+): StateRepository {
 
-    override suspend fun findNextActiveAlarmTimeAfter(time: LocalTime): LocalTime? {
+    override suspend fun findNextTimeAfter(time: LocalTime, window: Duration): LocalTime? {
         val fromTimestamp = time.hour * 60 + time.minute
-        val nextTimestamp = stateDao.findNextActiveTimestampAfter(fromTimestamp) ?: return null
+        val nextTimestamp = stateDao.findNextTimestampAfter(fromTimestamp, window.toMinutes().toInt()) ?: return null
         return LocalTime.of(nextTimestamp / 60, nextTimestamp % 60)
     }
 
@@ -31,16 +35,23 @@ class OfflineStateRepository(private val stateDao: StateDao): StateRepository {
             }
     }
 
-    override suspend fun getAlarmsAtTime(time: LocalTime): List<StateRepository.AlarmsAtTime> {
+    override suspend fun getAlarmsAtTime(time: LocalTime, window: Duration): List<StateRepository.AlarmsAtTime> {
         val timestamp = time.hour * 60 + time.minute
-        return stateDao.getAlarmsWithGroupsAtTimestamp(timestamp)
+        return stateDao.getAlarmsWithGroupsAtTimestamp(timestamp, window.toMinutes().toInt())
             .map { alarmAtTimestamp ->
                 StateRepository.AlarmsAtTime(
                     alarm = alarmAtTimestamp.alarm.toAlarmData(),
                     group = alarmAtTimestamp.group.toGroupInfo(),
                     isLastInGroup = alarmAtTimestamp.isLastInGroup,
+                    inDismissableWindow = alarmAtTimestamp.inDismissableWindow
                 )
             }
+    }
+
+    override suspend fun getPrimedAtTime(time: LocalTime, window: Duration): List<Uuid> {
+        val timestamp = time.hour * 60 + time.minute
+        return stateDao.getPrimedAtTimestamp(timestamp, window.toMinutes().toInt())
+            .map { it.groupUuid.toUuid() }
     }
 
     override suspend fun getState(groupUuid: Uuid): StateData? {

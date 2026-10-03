@@ -77,7 +77,7 @@ class GroupItemTextStyle(
 @Composable
 fun GroupItem(
     group: GroupData,
-    active: Boolean,
+    dismissable: Boolean,
     onSelect: () -> Unit,
     onToggle: (Boolean) -> Unit,
     onDelete: () -> Unit,
@@ -127,7 +127,7 @@ fun GroupItem(
         content = {
             SegmentedListItem(
                 shapes = shapes,
-                colors = if (active)
+                colors = if (dismissable)
                     ListItemDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,

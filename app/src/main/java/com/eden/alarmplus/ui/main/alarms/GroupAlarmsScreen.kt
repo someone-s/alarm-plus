@@ -1,6 +1,5 @@
 package com.eden.alarmplus.ui.main.alarms
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -63,11 +62,8 @@ import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.ui.main.alarms.overview.GroupItem
 import com.eden.alarmplus.ui.main.navigation.AlarmsRoute
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
-import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotInSpan
 import kotlinx.coroutines.launch
 import kotlin.collections.listOf
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.toJavaDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +77,6 @@ fun GroupAlarmScreen(
 ) = with(sharedTransitionScope) {
 
     val groupAlarmUiState by viewModel.groupAlarmsUiState.collectAsState()
-    val currentTimeUiState by viewModel.currentTimeUiState.collectAsState()
 
     val editSheetState = rememberEditSheetState()
 
@@ -222,19 +217,16 @@ fun GroupAlarmScreen(
                     val group = groupAndState.first
                     val state = groupAndState.second
 
-                    val activeSoon by remember { derivedStateOf {
-                        group.info.enabled &&
-                        isTimeRightBeforeAndNotInSpan(
-                            timeSpan = group.alarms.map { it.info.time },
-                            time = currentTimeUiState.localTime,
-                            acceptedDuration = 1.hours.toJavaDuration()
-                        )
-                    } }
-
                     GroupItem(
                         modifier = Modifier.animateItem(),
                         group = group,
-                        active = (state.type == StateData.Type.ACTIVE) || activeSoon,
+                        dismissable = when (state.type) {
+                            StateData.Type.ACTIVE -> true
+                            StateData.Type.UNDEFINED -> false
+                            StateData.Type.DISMISSED -> false
+                            StateData.Type.IDLE -> false
+                            StateData.Type.PRIMED -> true
+                        },
                         onSelect = {
                             editSheetState.showSheet(group)
                         },

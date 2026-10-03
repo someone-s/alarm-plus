@@ -30,5 +30,6 @@ data class StateEntity(
         const val ACTIVE_VALUE = 1
         const val DISMISSED_VALUE = 2
         const val IDLE_VALUE = 3
+        const val PRIMED_VALUE = 4
     }
 }
