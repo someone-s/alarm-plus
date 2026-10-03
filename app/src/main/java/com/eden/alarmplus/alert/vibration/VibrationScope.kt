@@ -10,14 +10,22 @@ class VibrationScope(context: Context) {
     }
 
     private val effect: VibrationEffectCompat by lazy {
+        val frequencyHz = vibrator?.frequencyProfile?.minFrequencyHz
         VibrationEffectCompat.createRepeatingEffect(
-            VibrationEffectCompat.BasicEnvelopBuilder()
-                .setInitialSharpness(0.5f)
-                .addControlPoint(1f, 0.5f, 1900)
-                .addControlPoint(1f, 0.5f, 100)
-                .addControlPoint(0f, 0.5f, 900)
-                .addControlPoint(0f, 0.5f, 100)
-                .build()
+            if ((vibrator?.areEnvelopEffectsSupported() ?: false) && frequencyHz != null)
+                VibrationEffectCompat.WaveformEnvelopBuilder()
+                    .setInitialFrequencyHz(frequencyHz)
+                    .addControlPoint(1f, frequencyHz, 1900)
+                    .addControlPoint(1f, frequencyHz, 100)
+                    .addControlPoint(0f, frequencyHz, 900)
+                    .addControlPoint(0f, frequencyHz, 100)
+                    .build()
+            else
+                VibrationEffectCompat.createWaveform(
+                    longArrayOf(2000L, 400L),
+                    intArrayOf(VibrationEffectCompat.DEFAULT_AMPLITUDE, 0),
+                    -1
+                )
         )
     }
 
