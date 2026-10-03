@@ -45,12 +45,17 @@ class GroupSectionState(
 
     fun addOrUpdateAlarm(alarm: AlarmData) {
         val index = sortedAlarms.indexOfFirst { it.info.uuid == alarm.info.uuid }
-        if (index >= 0)
+        val different = if (index >= 0) {
+            val oldAlarm = sortedAlarms[index]
             sortedAlarms[index] = alarm
-        else
+            alarm != oldAlarm
+        }
+        else {
             sortedAlarms.add(alarm)
+            true
+        }
         sortedAlarms.sortBy { it.info.time }
-        modified = true
+        modified = modified || different
     }
 
     fun removeIfExistAlarm(alarm: AlarmData) {
@@ -71,6 +76,7 @@ fun GroupSection(
     state: GroupSectionState,
     onAddAlarm: () -> Unit,
     onSelectAlarm: (AlarmData) -> Unit,
+    onDeleteAlarm: (AlarmData) -> Unit,
     onDelete: () -> Unit,
     onBack: () -> Unit,
     formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
@@ -105,9 +111,7 @@ fun GroupSection(
                 ),
                 alarm = alarm,
                 onSelect = onSelectAlarm,
-                onDelete = { targetAlarm ->
-                    state.removeIfExistAlarm(targetAlarm)
-                },
+                onDelete = onDeleteAlarm,
                 formatViewModel = formatViewModel,
             )
         }

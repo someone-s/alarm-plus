@@ -79,7 +79,7 @@ interface StateDao {
                                 PARTITION BY 
                                     group_upper_uuid,
                                     group_lower_uuid
-                                ORDER BY timestamp DESC
+                                ORDER BY sort_value DESC
                             )
                             AS alarm_sequence
                         FROM alarms

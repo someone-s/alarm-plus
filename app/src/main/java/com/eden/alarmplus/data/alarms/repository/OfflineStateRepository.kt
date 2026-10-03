@@ -3,7 +3,6 @@ package com.eden.alarmplus.data.alarms.repository
 import com.eden.alarmplus.data.alarms.database.StateDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
-import com.eden.alarmplus.data.common.repository.toUuid
 import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
 import kotlin.uuid.Uuid
@@ -21,7 +20,9 @@ class OfflineStateRepository(private val stateDao: StateDao): StateRepository {
             .map { groupWithAlarms ->
                 GroupData(
                     info = groupWithAlarms.group.toGroupInfo(),
-                    alarms = groupWithAlarms.alarms.map { alarm -> alarm.toAlarmData() },
+                    alarms = groupWithAlarms.unorderedAlarms
+                        .sortedBy { alarm -> alarm.sortValue }
+                        .map { alarm -> alarm.toAlarmData() },
                 )
             }
             .sortedBy { groupData ->

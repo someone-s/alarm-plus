@@ -31,6 +31,8 @@ data class AlarmEntity(
     val alarmUuid: UuidLongs,
     @Embedded(prefix = "group_")
     val groupUuid: UuidLongs,
+    @ColumnInfo(name = "sort_value")
+    val sortValue: Int,
     /**
      * In whole minutes
      */

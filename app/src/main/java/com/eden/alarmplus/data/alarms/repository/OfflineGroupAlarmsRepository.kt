@@ -23,7 +23,11 @@ class OfflineGroupAlarmsRepository(
 
     override suspend fun insertOrReplace(group: GroupData) {
         withContext(NonCancellable) {
-            groupsWithAlarmsDao.insertOrReplace(group.info.toGroupEntity(), group.alarms.map { it.toAlarmEntity(group.info.uuid) })
+            groupsWithAlarmsDao.insertOrReplace(
+                group = group.info.toGroupEntity(),
+                alarms = group.alarms.mapIndexed { index, alarm ->
+                    alarm.toAlarmEntity(index, group.info.uuid)
+                })
             super.insertOrReplace(group)
         }
     }
@@ -56,7 +60,9 @@ class OfflineGroupAlarmsRepository(
                         Pair(
                             GroupData(
                                 info = groupWithAlarms.group.toGroupInfo(),
-                                alarms = groupWithAlarms.alarms.map { alarm -> alarm.toAlarmData() },
+                                alarms = groupWithAlarms.unorderedAlarms
+                                    .sortedBy { alarm -> alarm.sortValue }
+                                    .map { alarm -> alarm.toAlarmData() },
                             ),
                             groupWithAlarms.state.toStateData()
                         )

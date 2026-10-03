@@ -45,6 +45,11 @@ class AlarmSectionState {
         value = alarm
         modified = false
     }
+
+    fun clearAlarm() {
+        value = getUniqueAlarmData()
+        modified = false
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

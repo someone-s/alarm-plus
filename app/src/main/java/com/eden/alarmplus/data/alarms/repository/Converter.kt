@@ -26,7 +26,7 @@ fun GroupEntity.toGroupInfo() = GroupInfo(
     enabled = this.enabled,
 )
 
-fun AlarmData.toAlarmEntity(group: Uuid): AlarmEntity {
+fun AlarmData.toAlarmEntity(sortValue: Int, group: Uuid): AlarmEntity {
 
     val timestamp = this.info.time.let { it.hour * 60 + it.minute }
 
@@ -35,6 +35,7 @@ fun AlarmData.toAlarmEntity(group: Uuid): AlarmEntity {
     return AlarmEntity(
         alarmUuid = this.info.uuid.toUuidLongs(),
         groupUuid = group.toUuidLongs(),
+        sortValue = sortValue,
         timestamp = timestamp,
         features = features,
     )
