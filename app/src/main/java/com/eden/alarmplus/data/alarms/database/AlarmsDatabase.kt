@@ -11,7 +11,7 @@ import androidx.room3.RoomDatabase
         AlarmEntity::class,
         StateEntity::class,
     ],
-    version = 1,
+    version = 2,
 )
 abstract class AlarmsDatabase: RoomDatabase() {
     protected abstract fun groupWithAlarmsInternalDao(): GroupsWithAlarmsInternalDao
@@ -25,6 +25,7 @@ abstract class AlarmsDatabase: RoomDatabase() {
         fun getDatabase(context: Context): AlarmsDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AlarmsDatabase::class.java, "alarms-database")
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { Instance = it }
             }
