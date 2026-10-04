@@ -10,14 +10,11 @@ import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.logic.StateProcessor.Companion.Lock.isValid
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
-import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotInSpan
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalDateTime
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
 
 class StateProcessor(
