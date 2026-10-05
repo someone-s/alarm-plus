@@ -10,7 +10,7 @@ import com.eden.alarmplus.logic.WakeScheduler
 import com.eden.alarmplus.alert.notification.ChannelContainer
 import com.eden.alarmplus.alert.notification.NotificationScope
 import com.eden.alarmplus.alert.vibration.VibrationScope
-import java.time.Duration
+import com.eden.alarmplus.logic.LocalStateProcessor
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.toJavaDuration
@@ -27,7 +27,7 @@ class AlarmPlusApplication: Application() {
 
     val stateProcessor: StateProcessor by lazy {
         assert(this::container.isInitialized)
-        StateProcessor(this, container.stateRepository, wakeScheduler, DISMISS_WINDOW)
+        LocalStateProcessor(this, container.stateRepository, wakeScheduler, DISMISS_WINDOW)
     }
 
     private val wakeScheduler: WakeScheduler by lazy {

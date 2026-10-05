@@ -7,6 +7,7 @@ import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
+import com.eden.alarmplus.logic.StateProcessor
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -18,6 +19,7 @@ import kotlin.uuid.Uuid
 class GroupAlarmViewModel(
     private val groupAlarmsRepository: GroupAlarmsRepository,
     timeTickRepository: TimeTickRepository,
+    private val stateProcessor: StateProcessor,
 ): ViewModel() {
 
     val currentTimeUiState: StateFlow<CurrentTimeUiState> =
@@ -50,6 +52,9 @@ class GroupAlarmViewModel(
         groupAlarmsRepository.toggle(groupUuid, enabled)
     }
 
+    suspend fun dismissGroupAlarm(groupUuid: Uuid) {
+        stateProcessor.dismissGroup(groupUuid)
+    }
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L

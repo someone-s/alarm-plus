@@ -239,6 +239,12 @@ fun GroupAlarmScreen(
                         onDelete = {
                             showRevertGroupDeleteSnackbar(group)
                         },
+                        onDismiss = {
+                            val groupUuid = group.info.uuid
+                            scope.launch {
+                                viewModel.dismissGroupAlarm(groupUuid)
+                            }
+                        },
                         formatViewModel = formatViewModel,
                     )
                     Spacer(Modifier.height(8.dp))
