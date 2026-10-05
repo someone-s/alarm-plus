@@ -23,11 +23,12 @@ class WakeReceiver: BroadcastReceiver() {
 
         val toDateTime = intent.getStringExtra(EXTRA_TO_DATE_TIME).let {
             if (it != null) {
-                Log.w("$javaClass", "Supplied extra is null.")
                 return@let LocalDateTime.parse(it)
             }
-            else
+            else {
+                Log.w("$javaClass", "Supplied extra is null.")
                 return@let LocalDateTime.now()
+            }
 
         }
 

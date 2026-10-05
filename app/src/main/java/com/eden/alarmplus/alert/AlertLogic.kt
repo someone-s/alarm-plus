@@ -180,7 +180,7 @@ class AlertLogic(
                                 action = ACTION_SNOOZE
                                 putExtra(EXTRA_NOTIFICATION_ID, notificationId)
                             },
-                            PendingIntent.FLAG_IMMUTABLE
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
                     )
 
@@ -193,7 +193,7 @@ class AlertLogic(
                             putExtra(EXTRA_NOTIFICATION_ID, notificationId)
                             putExtra(EXTRA_GROUP_UUID, groupInfo.uuid)
                         },
-                        PendingIntent.FLAG_IMMUTABLE
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
                 )
 
@@ -236,16 +236,19 @@ class AlertLogic(
         notificationId: Int,
         notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(service),
     ) {
+        // last notification is most recent notification
         val isLastNotification = notificationId == (activeQueue.lastOrNull()?.notificationId)
+
+        if (isLastNotification) {
+            hapticAudioScope.stopIfExist()
+
+            vibrationScope.stopIfExist()
+        }
 
         // Remove notification from list
         activeQueue.removeIf { it.notificationId == notificationId }
 
         if (activeQueue.isEmpty()) {
-
-            hapticAudioScope.stopIfExist()
-
-            vibrationScope.stopIfExist()
 
             // Stop foreground also cancel notification
             ServiceCompat.stopForeground(

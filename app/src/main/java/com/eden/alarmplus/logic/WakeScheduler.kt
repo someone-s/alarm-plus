@@ -53,7 +53,7 @@ class WakeScheduler(
             if (dateTime != null)
                 putExtra(WakeReceiver.EXTRA_TO_DATE_TIME, dateTime.toString())
         },
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
     private fun clearWakeAlarm() {

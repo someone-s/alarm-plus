@@ -180,6 +180,7 @@ class StateProcessor(
 
         try {
             if (!handle.isValid()) throw InvalidatedStateException()
+            Log.i("$javaClass", "Dismissing group '$groupUuid'.")
             // return if null (invalidated by changes, a new run should be triggered)
             val currentState = stateRepository.getState(groupUuid) ?: throw InvalidatedStateException()
 
