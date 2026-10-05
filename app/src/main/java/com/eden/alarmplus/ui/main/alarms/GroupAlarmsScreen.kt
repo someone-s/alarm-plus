@@ -36,8 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -83,6 +85,8 @@ fun GroupAlarmScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val hapticFeedback = LocalHapticFeedback.current
+
     val revertGroupDeleteMessage = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupdeletemessage)
     val revertGroupDeleteAction = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupdeleteaction)
     fun showRevertGroupDeleteSnackbar(deleteGroup: GroupData) {
@@ -97,6 +101,7 @@ fun GroupAlarmScreen(
                     duration = SnackbarDuration.Long,
                     withDismissAction = true,
                 )
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
             when (result) {
                 SnackbarResult.ActionPerformed -> {
                     viewModel.insertOrReplaceGroupAlarm(deleteGroup)
@@ -124,6 +129,7 @@ fun GroupAlarmScreen(
                     duration = SnackbarDuration.Long,
                     withDismissAction = true,
                 )
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
             when (result) {
                 SnackbarResult.ActionPerformed -> {
                     if (originalGroup != null)

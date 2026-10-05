@@ -24,6 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
@@ -45,6 +47,8 @@ fun NotificationContent(
     } }
 
     val dismissClip = remember { PolygonShape(MaterialShapes.Cookie4Sided) }
+
+    val hapticFeedback = LocalHapticFeedback.current
 
     Scaffold { innerPadding ->
         FlexBox(
@@ -103,7 +107,15 @@ fun NotificationContent(
             ) {
 
                 FilledTonalButton(
-                    onClick = { if (onSnooze != null) onSnooze() },
+                    onClick = {
+                        if (onSnooze != null) {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            onSnooze()
+                        }
+                        else {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
+                        }
+                    },
                     enabled = onSnooze != null,
                     modifier = Modifier
                         .flex { basis(1f) },
@@ -117,7 +129,10 @@ fun NotificationContent(
 
                 if (onDismiss != null)
                     FilledTonalButton(
-                        onClick = onDismiss,
+                        onClick = {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            onDismiss()
+                        },
                         shape = RectangleShape,
                         modifier = Modifier
                             .flex {

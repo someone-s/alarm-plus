@@ -12,6 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
@@ -73,7 +75,10 @@ fun EditSheet(
         key = state.group
     )
 
+    val hapticFeedback = LocalHapticFeedback.current
+
     fun hideSheet() {
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
         coroutineScope.launch {
             sheetState.hide()
             state.showSheet = false

@@ -18,11 +18,16 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -55,6 +60,17 @@ fun AlarmItem(
         )
     }
 
+    val hapticFeedback = LocalHapticFeedback.current
+
+
+    var loaded by remember(alarm) { mutableStateOf(false) }
+    LaunchedEffect(dismissBoxState.targetValue) {
+        if (loaded)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+        else
+            loaded = true
+    }
+
     SwipeToDismissBox(
         modifier = modifier,
         state = dismissBoxState,
@@ -83,7 +99,10 @@ fun AlarmItem(
         },
         content = {
             SegmentedListItem(
-                onClick = { onSelect(alarm) },
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    onSelect(alarm)
+                },
                 shapes = shapes,
                 content = {
                     Text(

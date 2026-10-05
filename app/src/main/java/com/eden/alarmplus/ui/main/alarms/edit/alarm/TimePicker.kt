@@ -8,9 +8,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.isPm
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
@@ -30,13 +38,44 @@ fun TimePicker(
         is24Hour = DateFormat.is24HourFormat(context),
     )
 
+    val hapticFeedback = LocalHapticFeedback.current
+
+
+    var dialLoaded by remember(alarm) { mutableStateOf(false) }
+    LaunchedEffect(timePickerState.hourInput, timePickerState.minuteInput) {
+        if (dialLoaded)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+        else
+            dialLoaded = true
+    }
+
+
+    var selectionLoaded by remember(alarm) { mutableStateOf(false) }
+    LaunchedEffect(timePickerState.selection) {
+        if (selectionLoaded)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+        else
+            selectionLoaded = true
+    }
+
+    var zoneLoaded by remember(alarm) { mutableStateOf(false) }
+    LaunchedEffect(timePickerState.isPm) {
+        if (zoneLoaded)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+        else
+            zoneLoaded = true
+    }
+
     TimePickerDialog(
         onDismissRequest = onDismiss,
         title = {},
         content = { TimePicker(timePickerState) },
         confirmButton = {
             FilledTonalButton(
-                onClick = { onSelect(LocalTime.of(timePickerState.hour, timePickerState.minute)) },
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    onSelect(LocalTime.of(timePickerState.hour, timePickerState.minute))
+                },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -46,7 +85,10 @@ fun TimePicker(
         },
         dismissButton = {
             TextButton(
-                onClick = onDismiss,
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    onDismiss()
+                },
                 content = { Text(text = stringResource(R.string.ui_main_alarms_edit_alarm_alarmtimepicker_cancelaction)) },
             )
         }

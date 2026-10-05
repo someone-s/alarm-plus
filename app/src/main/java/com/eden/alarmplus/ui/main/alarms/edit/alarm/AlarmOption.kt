@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 
 @Stable
@@ -47,10 +49,15 @@ fun AlarmOption(
     shapes: ListItemShapes,
     option: Option,
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
+
     when (option) {
         is ExpandOption ->
             SegmentedListItem(
-                modifier = Modifier.clickable { option.onInteract() },
+                modifier = Modifier.clickable {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    option.onInteract()
+                },
                 shapes = shapes,
                 leadingContent = {
                     Icon(
@@ -91,7 +98,13 @@ fun AlarmOption(
                 trailingContent = {
                     Switch(
                         checked = option.value,
-                        onCheckedChange = { option.onInteract() },
+                        onCheckedChange = {
+                            hapticFeedback.performHapticFeedback(
+                                if (it) HapticFeedbackType.ToggleOn
+                                else HapticFeedbackType.ToggleOff
+                            )
+                            option.onInteract()
+                        },
                     )
                 },
             )

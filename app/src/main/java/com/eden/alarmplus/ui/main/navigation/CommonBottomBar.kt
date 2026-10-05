@@ -12,6 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
@@ -42,6 +44,7 @@ class CommonBottomBarState(
 fun CommonBottomBar(
     state: CommonBottomBarState,
 )  {
+    val hapticFeedback = LocalHapticFeedback.current
 
     NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
         state.topLevelRoutes.forEach { topLevelRoute ->
@@ -59,7 +62,10 @@ fun CommonBottomBar(
                 },
                 label = { Text(stringResource(topLevelRoute.name)) },
                 selected = state.currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
-                onClick = { state.targetRoute = topLevelRoute },
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    state.targetRoute = topLevelRoute
+                },
             )
         }
     }

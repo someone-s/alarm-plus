@@ -8,6 +8,8 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
@@ -18,8 +20,13 @@ fun AddButton(
     shapes: ListItemShapes,
     onClick: () -> Unit,
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
+
     SegmentedListItem(
-        modifier = Modifier.clickable { onClick() },
+        modifier = Modifier.clickable {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+            onClick()
+        },
         shapes = shapes,
         content = {
             Text(

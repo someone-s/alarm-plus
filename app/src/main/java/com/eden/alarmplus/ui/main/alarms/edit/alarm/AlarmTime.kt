@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +44,8 @@ fun AlarmTime(
 ) {
     val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
     val clip = remember { PolygonShape(MaterialShapes.Cookie6Sided) }
+
+    val hapticFeedback = LocalHapticFeedback.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -65,7 +69,10 @@ fun AlarmTime(
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             shape = RectangleShape,
-            onClick = onClick,
+            onClick = {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                onClick()
+            },
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit),

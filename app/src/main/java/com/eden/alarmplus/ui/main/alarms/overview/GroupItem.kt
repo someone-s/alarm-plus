@@ -27,13 +27,18 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -111,6 +116,17 @@ fun GroupItem(
 
     val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
 
+    val hapticFeedback = LocalHapticFeedback.current
+
+
+    var loaded by remember(group) { mutableStateOf(false) }
+    LaunchedEffect(dismissBoxState.targetValue) {
+        if (loaded)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+        else
+            loaded = true
+    }
+
     SwipeToDismissBox(
         modifier = modifier,
         state = dismissBoxState,
@@ -165,7 +181,10 @@ fun GroupItem(
                             ),
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clickable { onSelect() }
+                            .clickable {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                onSelect()
+                            }
                             .fillMaxWidth(),
                         content = {
                             Column {
@@ -209,7 +228,13 @@ fun GroupItem(
                         trailingContent = {
                             Switch(
                                 checked = group.info.enabled,
-                                onCheckedChange = onToggle,
+                                onCheckedChange = {
+                                    hapticFeedback.performHapticFeedback(
+                                        if (it) HapticFeedbackType.ToggleOn
+                                        else HapticFeedbackType.ToggleOff
+                                    )
+                                    onToggle(it)
+                                },
                             )
                         },
                     )

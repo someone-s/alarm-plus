@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +40,8 @@ fun GroupTitle(
 ) {
     val clip = remember { PolygonShape(MaterialShapes.Cookie6Sided) }
     var showTitleInput by remember { mutableStateOf(false) }
+
+    val hapticFeedback = LocalHapticFeedback.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -63,6 +67,7 @@ fun GroupTitle(
             ),
             shape = RectangleShape,
             onClick = {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
                 showTitleInput = true
             },
         ) {

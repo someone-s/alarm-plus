@@ -7,6 +7,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
 
@@ -20,6 +22,8 @@ fun TitleInput(
         initialText = title ?: "",
     )
 
+    val hapticFeedback = LocalHapticFeedback.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
@@ -30,13 +34,17 @@ fun TitleInput(
         },
         dismissButton = {
             TextButton(
-                onClick = onDismiss,
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    onDismiss()
+                },
                 content = { Text(text = stringResource(R.string.ui_main_alarms_edit_group_titleinput_cancelaction)) },
             )
         },
         confirmButton = {
             FilledTonalButton(
                 onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
                     val newTitle = textFieldState.text
                     onSubmit(if (newTitle.isEmpty()) null else newTitle.toString())
                 },

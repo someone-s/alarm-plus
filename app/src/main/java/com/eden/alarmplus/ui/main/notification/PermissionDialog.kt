@@ -10,12 +10,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.eden.alarmplus.R
 
 @Composable
 fun PermissionDialog(onDismiss: () -> Unit, onClick: () -> Unit) {
+
+    val hapticFeedback = LocalHapticFeedback.current
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -24,10 +28,22 @@ fun PermissionDialog(onDismiss: () -> Unit, onClick: () -> Unit) {
         AlertDialog(
             onDismissRequest = onDismiss,
             dismissButton = {
-                TextButton(onDismiss) { Text(stringResource(R.string.ui_main_notification_permissiondialog_ignoreaction)) }
+                TextButton(
+                    onClick = {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        onDismiss()
+                    },
+                    content = { Text(stringResource(R.string.ui_main_notification_permissiondialog_ignoreaction)) }
+                )
             },
             confirmButton = {
-                Button(onClick) { Text(stringResource(R.string.ui_main_notification_permissiondialog_grantaction)) }
+                Button(
+                    onClick = {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        onClick()
+                    },
+                    content = { Text(stringResource(R.string.ui_main_notification_permissiondialog_grantaction)) }
+                )
             },
             icon = {
                 Icon(
