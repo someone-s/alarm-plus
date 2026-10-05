@@ -142,7 +142,7 @@ fun GroupItem(
         content = {
             Surface(
                 shape = shapes.shape,
-                color = MaterialTheme.colorScheme.secondaryContainer,
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 modifier = Modifier.animateContentSize(),
             ) {
                 Column {
@@ -221,7 +221,7 @@ fun GroupItem(
                                     selectedContainerColor = Color.Transparent,
                                     draggedContainerColor = Color.Transparent,
                                     disabledContainerColor = Color.Transparent,
-                                    trailingContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    trailingContentColor = MaterialTheme.colorScheme.onSurface,
                                 ),
                                 content = {},
                                 trailingContent = {
