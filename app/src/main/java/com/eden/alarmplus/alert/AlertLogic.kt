@@ -54,8 +54,6 @@ class AlertLogic(
 
         const val ACTION_SNOOZE = "${BuildConfig.APPLICATION_ID}.ACTION_SNOOZE"
         const val ACTION_DISMISS = "${BuildConfig.APPLICATION_ID}.ACTION_DISMISS"
-
-        const val EXTRA_NOTIFICATION_ID = "${BuildConfig.APPLICATION_ID}.EXTRA_NOTIFICATION_ID"
         const val EXTRA_GROUP_UUID = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_UUID"
 
         private val FOREGROUND_SERVICE_TYPE = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
