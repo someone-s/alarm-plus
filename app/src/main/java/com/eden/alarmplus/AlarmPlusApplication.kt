@@ -1,16 +1,16 @@
 package com.eden.alarmplus
 
 import android.app.Application
-import androidx.core.content.ContextCompat
-import com.eden.alarmplus.alert.hapticaudio.HapticAudioScope
+import android.content.Context
+import android.content.Intent
+import com.eden.alarmplus.alert.AlertLogic.Companion.ACTION_DISMISS
+import com.eden.alarmplus.alert.AlertLogic.Companion.EXTRA_GROUP_UUID
+import com.eden.alarmplus.alert.AlertScope
+import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.AppContainer
 import com.eden.alarmplus.data.AppDataContainer
-import com.eden.alarmplus.logic.StateProcessor
-import com.eden.alarmplus.logic.WakeScheduler
-import com.eden.alarmplus.alert.notification.ChannelContainer
-import com.eden.alarmplus.alert.notification.NotificationScope
-import com.eden.alarmplus.alert.vibration.VibrationScope
-import com.eden.alarmplus.logic.LocalStateProcessor
+import com.eden.alarmplus.logic.LogicScope
+import com.eden.alarmplus.logic.access.LogicListener
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.toJavaDuration
@@ -25,32 +25,29 @@ class AlarmPlusApplication: Application() {
 
     lateinit var container: AppContainer
 
-    val stateProcessor: StateProcessor by lazy {
+    val logicScope: LogicScope by lazy {
         assert(this::container.isInitialized)
-        LocalStateProcessor(this, container.stateRepository, wakeScheduler, DISMISS_WINDOW)
-    }
+        LogicScope(
+            context = this,
+            container = container,
+            listener = object : LogicListener {
+                override fun onInitialize(context: Context) {}
 
-    private val wakeScheduler: WakeScheduler by lazy {
-        assert(this::container.isInitialized)
-        WakeScheduler(this, container.stateRepository, DISMISS_WINDOW)
-    }
+                override fun onDismiss(context: Context, groupUuid: Uuid) {
+                    context.startService(
+                        Intent(context, AlertService::class.java).apply {
+                            action = ACTION_DISMISS
+                            putExtra(EXTRA_GROUP_UUID, groupUuid)
+                        }
+                    )
+                }
 
-    val notificationScope: NotificationScope by lazy {
-        NotificationScope(this, channelContainer)
-    }
-
-    val hapticAudioPlayer: HapticAudioScope by lazy {
-        HapticAudioScope(
-            ContextCompat.createAttributionContext(this, ATTRIBUTION_TAG_PLAY_AUDIBLE_ALARM)
+            }
         )
     }
-
-    val vibrationScope: VibrationScope by lazy {
-        VibrationScope(this)
-    }
-
-    val channelContainer: ChannelContainer by lazy {
-        ChannelContainer(this)
+    
+    val alertScope: AlertScope by lazy {
+        AlertScope(this)
     }
 
     override fun onCreate() {
@@ -59,11 +56,11 @@ class AlarmPlusApplication: Application() {
             context = this,
             groupAlarmListener = object : AppDataContainer.GroupAlarmListener {
                 override suspend fun onUpdate(groupUuid: Uuid) {
-                    stateProcessor.initializeState(LocalDateTime.now())
+                    logicScope.stateHookProvider.initializeState(LocalDateTime.now())
                 }
 
                 override suspend fun onDelete(groupUuid: Uuid) {
-                    stateProcessor.initializeState(LocalDateTime.now())
+                    logicScope.stateHookProvider.initializeState(LocalDateTime.now())
                 }
             })
     }

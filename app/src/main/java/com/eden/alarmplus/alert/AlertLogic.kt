@@ -21,14 +21,12 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
-import com.eden.alarmplus.logic.StateProcessor
-import kotlinx.coroutines.runBlocking
+import com.eden.alarmplus.logic.access.DismissReceiver
 import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.Uuid
 
 class AlertLogic(
     private val service: AlertService,
-    private val stateProcessor: StateProcessor,
     private val notificationScope: NotificationScope,
     private val hapticAudioScope: HapticAudioScope,
     private val vibrationScope: VibrationScope,
@@ -81,9 +79,8 @@ class AlertLogic(
      *      - [EXTRA_ALARM_DATA]
      *      - [EXTRA_IS_LAST_IN_GROUP]
      *  - [ACTION_SNOOZE]
-     *      - [EXTRA_NOTIFICATION_ID]
+     *      - [EXTRA_GROUP_UUID]
      *  - [ACTION_DISMISS]
-     *      - [EXTRA_NOTIFICATION_ID]
      *      - [EXTRA_GROUP_UUID]
      */
     fun processRequest(startId: Int, intent: Intent) {
@@ -104,15 +101,12 @@ class AlertLogic(
             )
             ACTION_SNOOZE -> processSnooze(
                 serviceStartId = startId,
-                notificationId = intent.getIntExtra(
-                    EXTRA_NOTIFICATION_ID, -1
-                ).also { if (it < 0) throw IllegalArgumentException("Intent missing notification id.") }
+                groupUuid = IntentCompat.getSerializableExtra(
+                    intent, EXTRA_GROUP_UUID, Uuid::class.java
+                ) ?: throw IllegalArgumentException("Intent missing group uuid."),
             )
             ACTION_DISMISS -> processDismiss(
                 serviceStartId = startId,
-                notificationId = intent.getIntExtra(
-                    EXTRA_NOTIFICATION_ID, -1
-                ).also { if (it < 0) throw IllegalArgumentException("Intent missing notification id.") },
                 groupUuid = IntentCompat.getSerializableExtra(
                     intent, EXTRA_GROUP_UUID, Uuid::class.java
                 ) ?: throw IllegalArgumentException("Intent missing group uuid."),
@@ -144,13 +138,7 @@ class AlertLogic(
 
             startNotification(notificationId, groupInfo, alarmData, isLastInGroup, notificationManager)
 
-            // Cancel previous notifications from the same group
-            val currentCopy = activeQueue
-                .filter { it.groupUuid == groupInfo.uuid }
-                .filter { it.notificationId != notificationId }
-                .toList()
-
-            currentCopy.forEach { cancelNotification(serviceStartId, it.notificationId, notificationManager) }
+            cancelNotification(serviceStartId, groupInfo.uuid, notificationId, notificationManager)
         }
     }
 
@@ -178,20 +166,18 @@ class AlertLogic(
                             notificationId,
                             Intent(service, AlertService::class.java).apply {
                                 action = ACTION_SNOOZE
-                                putExtra(EXTRA_NOTIFICATION_ID, notificationId)
+                                putExtra(EXTRA_GROUP_UUID, groupInfo.uuid)
                             },
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
                     )
 
                 addDismissIntent(
-                    PendingIntent.getService(
+                    PendingIntent.getBroadcast(
                         service,
                         notificationId,
-                        Intent(service, AlertService::class.java).apply {
-                            action = ACTION_DISMISS
-                            putExtra(EXTRA_NOTIFICATION_ID, notificationId)
-                            putExtra(EXTRA_GROUP_UUID, groupInfo.uuid)
+                        Intent(service, DismissReceiver::class.java).apply {
+                            putExtra(DismissReceiver.EXTRA_GROUP_UUID, groupInfo.uuid)
                         },
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
@@ -233,20 +219,26 @@ class AlertLogic(
 
     private fun cancelNotification(
         serviceStartId: Int,
-        notificationId: Int,
+        groupUuid: Uuid,
+        exceptionNotificationId: Int? = null,
         notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(service),
     ) {
-        // last notification is most recent notification
-        val isLastNotification = notificationId == (activeQueue.lastOrNull()?.notificationId)
+        val statesToCancel = activeQueue
+            .filter { it.groupUuid == groupUuid }
+            .filter { it.notificationId != exceptionNotificationId }
+            .toList()
 
-        if (isLastNotification) {
+        // last notification is most recent notification
+        val anyLastNotification = statesToCancel.any { it.notificationId == (activeQueue.lastOrNull()?.notificationId) }
+
+        if (anyLastNotification) {
             hapticAudioScope.stopIfExist()
 
             vibrationScope.stopIfExist()
         }
 
         // Remove notification from list
-        activeQueue.removeIf { it.notificationId == notificationId }
+        activeQueue.removeAll(statesToCancel)
 
         if (activeQueue.isEmpty()) {
 
@@ -259,36 +251,32 @@ class AlertLogic(
             service.stopSelf(serviceStartId)
         }
         else {
-            if (isLastNotification)
+            if (anyLastNotification)
                 // Bind new last notification, notification pushed again
                 playNotification(activeQueue.last())
 
             // Cancel notification
             with(notificationManager) {
-                cancel(notificationId)
+                statesToCancel.forEach { cancel(it.notificationId) }
             }
         }
     }
 
     private fun processSnooze(
         serviceStartId: Int,
-        notificationId: Int
+        groupUuid: Uuid
     ) {
         synchronized(this@AlertLogic) {
-            cancelNotification(serviceStartId, notificationId)
+            cancelNotification(serviceStartId, groupUuid)
         }
     }
 
     private fun processDismiss(
         serviceStartId: Int,
-        notificationId: Int,
         groupUuid: Uuid
     ) {
-        runBlocking {
-            stateProcessor.dismissGroup(groupUuid)
-        }
         synchronized(this@AlertLogic) {
-            cancelNotification(serviceStartId, notificationId)
+            cancelNotification(serviceStartId, groupUuid)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.eden.alarmplus.logic
+package com.eden.alarmplus.logic.internal
 
 import android.app.AlarmManager
 import android.app.PendingIntent

@@ -55,10 +55,9 @@ class AlertService: LifecycleService() {
         super.onCreate()
         alertLogic = AlertLogic(
             this,
-            (application as AlarmPlusApplication).stateProcessor,
-            (application as AlarmPlusApplication).notificationScope,
-            (application as AlarmPlusApplication).hapticAudioPlayer,
-            (application as AlarmPlusApplication).vibrationScope,
+            (application as AlarmPlusApplication).alertScope.notificationScope,
+            (application as AlarmPlusApplication).alertScope.hapticAudioPlayer,
+            (application as AlarmPlusApplication).alertScope.vibrationScope,
         )
 
         HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_DISPLAY).apply {

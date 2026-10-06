@@ -14,7 +14,7 @@ object GroupAlarmViewModelProvider {
             GroupAlarmViewModel(
                 container.groupAlarmsRepository,
                 container.timeTickRepository,
-                application.stateProcessor,
+                application.logicScope.stateHookProvider,
             )
         }
     }

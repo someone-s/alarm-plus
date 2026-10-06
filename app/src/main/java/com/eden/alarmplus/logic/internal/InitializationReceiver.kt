@@ -1,4 +1,4 @@
-package com.eden.alarmplus.logic
+package com.eden.alarmplus.logic.internal
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -21,7 +21,7 @@ class InitializationReceiver: BroadcastReceiver() {
         }
 
         val application = context.applicationContext as AlarmPlusApplication
-        val stateProcessor = application.stateProcessor
+        val stateProcessor = application.logicScope.stateProcessor
 
         val pendingResult = goAsync()
         @OptIn(DelicateCoroutinesApi::class)

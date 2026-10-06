@@ -1,4 +1,4 @@
-package com.eden.alarmplus.logic
+package com.eden.alarmplus.logic.internal
 
 import android.content.Context
 import android.content.Intent
@@ -16,12 +16,12 @@ import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
-class LocalStateProcessor(
+class StateProcessor(
     private val context: Context,
     private val stateRepository: StateRepository,
     private val wakeScheduler: WakeScheduler,
     private val dismissWindow: Duration
-): StateProcessor {
+) {
 
     companion object {
 
@@ -106,7 +106,7 @@ class LocalStateProcessor(
             }
 
 
-            fun isValid(handle: Handle) = synchronized(this@Lock) { Lock.isValidImplementation(handle) }
+            fun isValid(handle: Handle) = synchronized(this@Lock) { isValidImplementation(handle) }
         }
     }
 
@@ -116,7 +116,7 @@ class LocalStateProcessor(
      * Use when state is not guaranteed (i.e. time zone changes or from restart)
      * @param dateTime the lower bound exclusive to process
      */
-    override suspend fun initializeState(dateTime: LocalDateTime) {
+    suspend fun initializeState(dateTime: LocalDateTime) {
         var handle: Lock.Handle
         while (true) {
             val result = Lock.tryGetInitHandle()
@@ -145,7 +145,7 @@ class LocalStateProcessor(
      * Assume time zone remains unchanged, within time zone jump is acceptable (i.e. summer to winter)
      * @param dateTime to process
      */
-    override suspend fun iterateState(dateTime: LocalDateTime) {
+    suspend fun iterateState(dateTime: LocalDateTime) {
 
         val handle = Lock.tryGetIterateHandle()
         if (handle == null) {
@@ -167,7 +167,7 @@ class LocalStateProcessor(
 
     }
 
-    override suspend fun dismissGroup(groupUuid: Uuid) {
+    suspend fun dismissGroup(groupUuid: Uuid) {
         var handle: Lock.Handle
         while (true) {
             val result = Lock.tryGetDismissHandle()

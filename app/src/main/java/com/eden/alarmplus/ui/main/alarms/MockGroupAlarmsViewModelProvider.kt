@@ -1,5 +1,6 @@
 package com.eden.alarmplus.ui.main.alarms
 
+import android.app.PendingIntent
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
@@ -9,7 +10,7 @@ import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
-import com.eden.alarmplus.logic.StateProcessor
+import com.eden.alarmplus.logic.access.StateHookProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
@@ -85,12 +86,10 @@ object MockGroupAlarmViewModelProvider {
                         return flowOf(ZonedDateTime.of(2026, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault()))
                     }
                 },
-                stateProcessor = object : StateProcessor {
-                    override suspend fun initializeState(dateTime: LocalDateTime) {}
+                stateHookProvider = object : StateHookProvider {
+                    override fun initializeState(dateTime: LocalDateTime) {}
 
-                    override suspend fun iterateState(dateTime: LocalDateTime) {}
-
-                    override suspend fun dismissGroup(groupUuid: Uuid) {}
+                    override fun dismissGroup(groupUuid: Uuid) {}
                 }
             )
         }

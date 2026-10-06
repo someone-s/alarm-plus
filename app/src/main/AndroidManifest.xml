@@ -71,7 +71,15 @@
             android:exported="false"
             android:foregroundServiceType="systemExempted" />
         <receiver
-            android:name=".logic.InitializationReceiver"
+            android:name=".logic.access.InitializeReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name=".logic.access.DismissReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name=".logic.internal.InitializationReceiver"
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true">
@@ -81,7 +89,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".logic.WakeReceiver"
+            android:name=".logic.internal.WakeReceiver"
             android:enabled="true"
             android:exported="false" />
         <meta-data
