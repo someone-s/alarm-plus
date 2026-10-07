@@ -8,7 +8,7 @@ import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface GroupsWithAlarmsInternalDao: GroupsWithAlarmsDao {
+interface GroupsInternalDao: GroupsDao {
     /**
      * Combined transaction to prevent race conditions.
      * [androidx.room3.Transaction] annotation added to ensure underlying action are run together or rolled back together.
@@ -16,7 +16,7 @@ interface GroupsWithAlarmsInternalDao: GroupsWithAlarmsDao {
      * @param alarms belonging to the group
      */
     @Transaction
-    override suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>) {
+    override suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>, dayOfWeek: DayOfWeekEntity) {
         delete(group.uuid.upperUuid, group.uuid.lowerUuid)
         internalInsert(group, alarms, StateEntity(group.uuid))
     }
@@ -72,5 +72,5 @@ interface GroupsWithAlarmsInternalDao: GroupsWithAlarmsDao {
             FROM groups
         """
     )
-    override fun getAll(): Flow<List<GroupWithAlarms>>
+    override fun getAll(): Flow<List<GroupWithAll>>
 }

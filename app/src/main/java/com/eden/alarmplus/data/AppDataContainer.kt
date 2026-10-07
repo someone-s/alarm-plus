@@ -23,7 +23,7 @@ class AppDataContainer(
 
     override val groupAlarmsRepository: GroupAlarmsRepository by lazy {
         OfflineGroupAlarmsRepository(
-            groupsWithAlarmsDao = AlarmsDatabase.getDatabase(context).groupsWithAlarmsDao(),
+            groupsDao = AlarmsDatabase.getDatabase(context).groupsDao(),
             notificationListener = notificationListener,
         )
     }

@@ -2,13 +2,13 @@ package com.eden.alarmplus.data.alarms.database
 
 import kotlinx.coroutines.flow.Flow
 
-interface GroupsWithAlarmsDao {
-    suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>)
+interface GroupsDao {
+    suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>, dayOfWeek: DayOfWeekEntity)
 
     suspend fun toggle(groupUpperUuid: Long, groupLowerUuid: Long, enabled: Boolean)
 
     suspend fun delete(groupUpperUuid: Long, groupLowerUuid: Long)
 
-    fun getAll(): Flow<List<GroupWithAlarms>>
+    fun getAll(): Flow<List<GroupWithAll>>
 }
 

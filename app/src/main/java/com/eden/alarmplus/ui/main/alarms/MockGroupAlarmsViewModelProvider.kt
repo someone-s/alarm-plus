@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
@@ -52,7 +53,12 @@ object MockGroupAlarmViewModelProvider {
                                         ),
                                         features = emptyList(),
                                     ),
-                                )
+                                ),
+                                dayOfWeekFlags = DayOfWeekFlags.merge(
+                                    DayOfWeekFlags.MONDAY,
+                                    DayOfWeekFlags.TUESDAY,
+                                    DayOfWeekFlags.WEDNESDAY
+                                ),
                             ),
                             StateData(Uuid.random(), StateData.Type.ACTIVE)
                         ),
@@ -75,7 +81,8 @@ object MockGroupAlarmViewModelProvider {
                                         ),
                                         features = emptyList(),
                                     ),
-                                )
+                                ),
+                                dayOfWeekFlags = DayOfWeekFlags.ALL,
                             ),
                             StateData(Uuid.random(), StateData.Type.IDLE)
                         ),

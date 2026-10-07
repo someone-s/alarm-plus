@@ -44,6 +44,7 @@ class GroupSectionState(
 ) {
     var info by mutableStateOf(initialGroup.info)
     val sortedAlarms = initialGroup.alarms.toMutableStateList()
+    var dayOfWeekFlags by mutableStateOf(initialGroup.dayOfWeekFlags)
     var modified by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
 
@@ -112,6 +113,7 @@ class GroupSectionState(
         get() = GroupData(
             info = this.info,
             alarms = this.sortedAlarms.toList(),
+            dayOfWeekFlags = this.dayOfWeekFlags,
         )
 }
 

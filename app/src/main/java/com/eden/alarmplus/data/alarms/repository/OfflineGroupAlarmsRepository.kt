@@ -1,6 +1,7 @@
 package com.eden.alarmplus.data.alarms.repository
 
-import com.eden.alarmplus.data.alarms.database.GroupsWithAlarmsDao
+import com.eden.alarmplus.data.alarms.database.GroupsDao
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.common.repository.toUuidLongs
@@ -13,7 +14,7 @@ import kotlin.collections.map
 import kotlin.uuid.Uuid
 
 class OfflineGroupAlarmsRepository(
-    private val groupsWithAlarmsDao: GroupsWithAlarmsDao,
+    private val groupsDao: GroupsDao,
     private val notificationListener: NotificationListener,
 ): GroupAlarmsRepository {
 
@@ -23,11 +24,13 @@ class OfflineGroupAlarmsRepository(
 
     override suspend fun insertOrReplace(group: GroupData) {
         withContext(NonCancellable) {
-            groupsWithAlarmsDao.insertOrReplace(
+            groupsDao.insertOrReplace(
                 group = group.info.toGroupEntity(),
                 alarms = group.alarms.mapIndexed { index, alarm ->
                     alarm.toAlarmEntity(index, group.info.uuid)
-                })
+                },
+                dayOfWeek = group.dayOfWeekFlags.toDayOfWeekEntity(group.info.uuid)
+            )
             super.insertOrReplace(group)
         }
     }
@@ -35,7 +38,7 @@ class OfflineGroupAlarmsRepository(
     override suspend fun toggle(groupUuid: Uuid, enabled: Boolean) {
         withContext(NonCancellable) {
             val longs = groupUuid.toUuidLongs()
-            groupsWithAlarmsDao.toggle(longs.upperUuid, longs.lowerUuid, enabled)
+            groupsDao.toggle(longs.upperUuid, longs.lowerUuid, enabled)
             super.toggle(groupUuid, enabled)
         }
     }
@@ -43,7 +46,7 @@ class OfflineGroupAlarmsRepository(
     override suspend fun delete(groupUuid: Uuid) {
         withContext(NonCancellable) {
             val longs = groupUuid.toUuidLongs()
-            groupsWithAlarmsDao.delete(longs.upperUuid, longs.lowerUuid)
+            groupsDao.delete(longs.upperUuid, longs.lowerUuid)
             super.delete(groupUuid)
         }
     }
@@ -53,18 +56,19 @@ class OfflineGroupAlarmsRepository(
     }
 
     override fun getAllGroupsStream(): Flow<List<Pair<GroupData, StateData>>> {
-        return groupsWithAlarmsDao.getAll()
-            .map { groupsWithAlarms ->
-                groupsWithAlarms
-                    .map { groupWithAlarms ->
+        return groupsDao.getAll()
+            .map { groupWithAlls ->
+                groupWithAlls
+                    .map { groupWithAll ->
                         Pair(
                             GroupData(
-                                info = groupWithAlarms.group.toGroupInfo(),
-                                alarms = groupWithAlarms.unorderedAlarms
+                                info = groupWithAll.group.toGroupInfo(),
+                                alarms = groupWithAll.unorderedAlarms
                                     .sortedBy { alarm -> alarm.sortValue }
                                     .map { alarm -> alarm.toAlarmData() },
+                                dayOfWeekFlags = groupWithAll.dayOfWeekEntity?.toDayOfWeekFlags() ?: DayOfWeekFlags.ALL,
                             ),
-                            groupWithAlarms.state.toStateData()
+                            groupWithAll.state.toStateData()
                         )
                     }
                     .sortedBy { pair ->

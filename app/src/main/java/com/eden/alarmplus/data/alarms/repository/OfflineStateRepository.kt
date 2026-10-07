@@ -1,10 +1,12 @@
 package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.StateDao
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.common.repository.toUuid
 import com.eden.alarmplus.data.common.repository.toUuidLongs
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalTime
 import kotlin.uuid.Uuid
@@ -13,20 +15,35 @@ class OfflineStateRepository(
     private val stateDao: StateDao
 ): StateRepository {
 
-    override suspend fun findNextTimeAfter(time: LocalTime, window: Duration): LocalTime? {
+    private fun DayOfWeek.toFlags() = when (this) {
+        DayOfWeek.MONDAY -> DayOfWeekFlags.MONDAY.mask
+        DayOfWeek.TUESDAY -> DayOfWeekFlags.TUESDAY.mask
+        DayOfWeek.WEDNESDAY -> DayOfWeekFlags.WEDNESDAY.mask
+        DayOfWeek.THURSDAY -> DayOfWeekFlags.THURSDAY.mask
+        DayOfWeek.FRIDAY -> DayOfWeekFlags.FRIDAY.mask
+        DayOfWeek.SATURDAY -> DayOfWeekFlags.SATURDAY.mask
+        DayOfWeek.SUNDAY -> DayOfWeekFlags.SUNDAY.mask
+    }
+
+    override suspend fun findNextTimeAfter(day: DayOfWeek, time: LocalTime, window: Duration): LocalTime? {
         val fromTimestamp = time.hour * 60 + time.minute
-        val nextTimestamp = stateDao.findNextTimestampAfter(fromTimestamp, window.toMinutes().toInt()) ?: return null
+        val nextTimestamp = stateDao.findNextTimestampAfter(
+            day = day.toFlags(),
+            timestamp = fromTimestamp,
+            window = window.toMinutes().toInt()
+        ) ?: return null
         return LocalTime.of(nextTimestamp / 60, nextTimestamp % 60)
     }
 
     override suspend fun getAllGroups(): List<GroupData> {
-        return stateDao.getAllGroupsWithAlarms()
-            .map { groupWithAlarms ->
+        return stateDao.getAllGroups()
+            .map { groupWithAll ->
                 GroupData(
-                    info = groupWithAlarms.group.toGroupInfo(),
-                    alarms = groupWithAlarms.unorderedAlarms
+                    info = groupWithAll.group.toGroupInfo(),
+                    alarms = groupWithAll.unorderedAlarms
                         .sortedBy { alarm -> alarm.sortValue }
                         .map { alarm -> alarm.toAlarmData() },
+                    dayOfWeekFlags = groupWithAll.dayOfWeekEntity?.toDayOfWeekFlags() ?: DayOfWeekFlags.ALL,
                 )
             }
             .sortedBy { groupData ->
@@ -35,9 +52,13 @@ class OfflineStateRepository(
             }
     }
 
-    override suspend fun getAlarmsAtTime(time: LocalTime, window: Duration): List<StateRepository.AlarmsAtTime> {
+    override suspend fun getAlarmsAtTime(day: DayOfWeek, time: LocalTime, window: Duration): List<StateRepository.AlarmsAtTime> {
         val timestamp = time.hour * 60 + time.minute
-        return stateDao.getAlarmsWithGroupsAtTimestamp(timestamp, window.toMinutes().toInt())
+        return stateDao.getAlarmsWithGroupsAtTimestamp(
+            day = day.toFlags(),
+            timestamp = timestamp,
+            window = window.toMinutes().toInt()
+        )
             .map { alarmAtTimestamp ->
                 StateRepository.AlarmsAtTime(
                     alarm = alarmAtTimestamp.alarm.toAlarmData(),
@@ -48,9 +69,13 @@ class OfflineStateRepository(
             }
     }
 
-    override suspend fun getPrimedAtTime(time: LocalTime, window: Duration): List<Uuid> {
+    override suspend fun getPrimedAtTime(day: DayOfWeek, time: LocalTime, window: Duration): List<Uuid> {
         val timestamp = time.hour * 60 + time.minute
-        return stateDao.getPrimedAtTimestamp(timestamp, window.toMinutes().toInt())
+        return stateDao.getPrimedAtTimestamp(
+            day = day.toFlags(),
+            timestamp = timestamp,
+            window = window.toMinutes().toInt()
+        )
             .map { it.groupUuid.toUuid() }
     }
 

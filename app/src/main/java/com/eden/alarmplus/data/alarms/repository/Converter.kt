@@ -1,11 +1,13 @@
 package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.AlarmEntity
+import com.eden.alarmplus.data.alarms.database.DayOfWeekEntity
 import com.eden.alarmplus.data.alarms.database.GroupEntity
 import com.eden.alarmplus.data.alarms.database.StateEntity
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.formatter
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
@@ -54,6 +56,15 @@ fun AlarmEntity.toAlarmData(): AlarmData {
         features = features,
     )
 }
+
+fun DayOfWeekFlags.toDayOfWeekEntity(group: Uuid) = DayOfWeekEntity(
+    groupUuid = group.toUuidLongs(),
+    mask = this.mask
+)
+
+fun DayOfWeekEntity.toDayOfWeekFlags() = DayOfWeekFlags(
+    mask = this.mask
+)
 
 fun StateData.toStateEntity() = StateEntity(
     groupUuid = this.groupUuid.toUuidLongs(),

@@ -1,6 +1,7 @@
 package com.eden.alarmplus.data.alarms.database
 
 import android.content.Context
+import androidx.room3.AutoMigration
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
@@ -9,13 +10,17 @@ import androidx.room3.RoomDatabase
     entities = [
         GroupEntity::class,
         AlarmEntity::class,
+        DayOfWeekEntity::class,
         StateEntity::class,
     ],
-    version = 2,
+    version = 3,
+    autoMigrations = [
+        AutoMigration(2, 3),
+    ]
 )
 abstract class AlarmsDatabase: RoomDatabase() {
-    protected abstract fun groupWithAlarmsInternalDao(): GroupsWithAlarmsInternalDao
-    fun groupsWithAlarmsDao() = groupWithAlarmsInternalDao() as GroupsWithAlarmsDao
+    protected abstract fun groupsInternalDao(): GroupsInternalDao
+    fun groupsDao() = groupsInternalDao() as GroupsDao
     abstract fun stateDao(): StateDao
 
     companion object {

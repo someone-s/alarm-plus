@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.ui.main.MainActivity
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -34,7 +35,11 @@ class WakeScheduler(
     private suspend fun getNextDateTime(fromDateTime: LocalDateTime): LocalDateTime? {
 
         val fromTime = fromDateTime.toLocalTime()
-        val nextTime = stateRepository.findNextTimeAfter(fromTime, dismissWindow) ?: return null
+        val nextTime = stateRepository.findNextTimeAfter(
+            fromDateTime.dayOfWeek,
+            fromTime,
+            dismissWindow
+        ) ?: return null
 
         val nextDate = if (nextTime.isAfter(fromTime))
             fromDateTime.toLocalDate()

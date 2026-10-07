@@ -262,8 +262,9 @@ class StateProcessor(
     private suspend fun processCurrent(handle: Lock.Handle, dateTime: LocalDateTime) {
         if (!Lock.isValid(handle)) throw InvalidatedStateException()
 
+        val day = dateTime.dayOfWeek
         val time = dateTime.toLocalTime()
-        val alarmsAtTime = stateRepository.getAlarmsAtTime(time, dismissWindow)
+        val alarmsAtTime = stateRepository.getAlarmsAtTime(day, time, dismissWindow)
 
         for (alarmAtTime in alarmsAtTime) {
 
@@ -319,7 +320,7 @@ class StateProcessor(
             stateRepository.updateState(newState)
         }
 
-        val primedAtTime = stateRepository.getPrimedAtTime(time, dismissWindow)
+        val primedAtTime = stateRepository.getPrimedAtTime(day, time, dismissWindow)
 
         for (groupUuid in primedAtTime) {
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
