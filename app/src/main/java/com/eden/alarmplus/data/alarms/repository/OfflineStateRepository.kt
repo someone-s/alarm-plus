@@ -15,20 +15,10 @@ class OfflineStateRepository(
     private val stateDao: StateDao
 ): StateRepository {
 
-    private fun DayOfWeek.toFlags() = when (this) {
-        DayOfWeek.MONDAY -> DayOfWeekFlags.MONDAY.mask
-        DayOfWeek.TUESDAY -> DayOfWeekFlags.TUESDAY.mask
-        DayOfWeek.WEDNESDAY -> DayOfWeekFlags.WEDNESDAY.mask
-        DayOfWeek.THURSDAY -> DayOfWeekFlags.THURSDAY.mask
-        DayOfWeek.FRIDAY -> DayOfWeekFlags.FRIDAY.mask
-        DayOfWeek.SATURDAY -> DayOfWeekFlags.SATURDAY.mask
-        DayOfWeek.SUNDAY -> DayOfWeekFlags.SUNDAY.mask
-    }
-
     override suspend fun findNextTimeAfter(day: DayOfWeek, time: LocalTime, window: Duration): LocalTime? {
         val fromTimestamp = time.hour * 60 + time.minute
         val nextTimestamp = stateDao.findNextTimestampAfter(
-            day = day.toFlags(),
+            day = DayOfWeekFlags.from(day).mask,
             timestamp = fromTimestamp,
             window = window.toMinutes().toInt()
         ) ?: return null
@@ -55,7 +45,7 @@ class OfflineStateRepository(
     override suspend fun getAlarmsAtTime(day: DayOfWeek, time: LocalTime, window: Duration): List<StateRepository.AlarmsAtTime> {
         val timestamp = time.hour * 60 + time.minute
         return stateDao.getAlarmsWithGroupsAtTimestamp(
-            day = day.toFlags(),
+            day = DayOfWeekFlags.from(day).mask,
             timestamp = timestamp,
             window = window.toMinutes().toInt()
         )
@@ -72,7 +62,7 @@ class OfflineStateRepository(
     override suspend fun getPrimedAtTime(day: DayOfWeek, time: LocalTime, window: Duration): List<Uuid> {
         val timestamp = time.hour * 60 + time.minute
         return stateDao.getPrimedAtTimestamp(
-            day = day.toFlags(),
+            day = DayOfWeekFlags.from(day).mask,
             timestamp = timestamp,
             window = window.toMinutes().toInt()
         )

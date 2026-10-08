@@ -3,6 +3,17 @@ package com.eden.alarmplus.data.alarms.structure.dayofweek
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
+import java.time.DayOfWeek
+
+fun DayOfWeek.toFlags() = when (this) {
+    DayOfWeek.MONDAY -> DayOfWeekFlags.MONDAY.mask
+    DayOfWeek.TUESDAY -> DayOfWeekFlags.TUESDAY.mask
+    DayOfWeek.WEDNESDAY -> DayOfWeekFlags.WEDNESDAY.mask
+    DayOfWeek.THURSDAY -> DayOfWeekFlags.THURSDAY.mask
+    DayOfWeek.FRIDAY -> DayOfWeekFlags.FRIDAY.mask
+    DayOfWeek.SATURDAY -> DayOfWeekFlags.SATURDAY.mask
+    DayOfWeek.SUNDAY -> DayOfWeekFlags.SUNDAY.mask
+}
 
 @Immutable
 @Parcelize
@@ -26,11 +37,28 @@ data class DayOfWeekFlags(
             }
             return DayOfWeekFlags(mergedMask)
         }
+
+        fun from(dayOfWeek: DayOfWeek): DayOfWeekFlags = when (dayOfWeek) {
+            DayOfWeek.MONDAY -> MONDAY
+            DayOfWeek.TUESDAY -> TUESDAY
+            DayOfWeek.WEDNESDAY -> WEDNESDAY
+            DayOfWeek.THURSDAY -> THURSDAY
+            DayOfWeek.FRIDAY -> FRIDAY
+            DayOfWeek.SATURDAY -> SATURDAY
+            DayOfWeek.SUNDAY -> SUNDAY
+        }
     }
 
-    fun any(flag: DayOfWeekFlags): Boolean =
-        (mask and flag.mask) > 0
+    fun any(flags: DayOfWeekFlags): Boolean =
+        (mask and flags.mask) > 0
+
+    fun any(day: DayOfWeek): Boolean =
+        (mask and from(day).mask) > 0
     
     fun all(flags: DayOfWeekFlags): Boolean =
         (mask and flags.mask) == flags.mask
+
+    fun copyClear(flags: DayOfWeekFlags): DayOfWeekFlags =
+        DayOfWeekFlags(mask and (flags.mask.inv()))
+
 }

@@ -209,20 +209,30 @@ class StateProcessor(
      * @throws InvalidatedStateException when handle is found to be out of date
      */
     private suspend fun constructState(handle: Lock.Handle, dateTime: LocalDateTime) {
+        val day = dateTime.dayOfWeek
         val time = dateTime.toLocalTime()
-        for (group in stateRepository.getAllGroups()) {
+        for ((info, alarms, dayOfWeekFlags) in stateRepository.getAllGroups()) {
 
-            val inDuration: Boolean = isTimeWithinTimeSpan(group.alarms.map { it.info.time }, time)
-            val inDismissableWindow: Boolean = if (group.alarms.isNotEmpty())
-                isTimeRightBeforeAndNotAnchor(group.alarms.first().info.time, dismissWindow, time)
-            else false
+            val inDuration: Boolean = isTimeWithinTimeSpan(
+                alarms.map { it.info.time },
+                time,
+                allowToday = dayOfWeekFlags.any(day),
+                allowYesterday = dayOfWeekFlags.any(day.minus(1)),
+            )
+            val inDismissableWindow: Boolean = alarms.isNotEmpty() && isTimeRightBeforeAndNotAnchor(
+                alarms.first().info.time,
+                dismissWindow,
+                time,
+                allowToday = dayOfWeekFlags.any(day),
+                allowTomorrow = dayOfWeekFlags.any(day.plus(1)),
+            )
 
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
             // return if null (invalidated by changes, a new run should be triggered)
-            val currentState = stateRepository.getState(group.info.uuid) ?: throw InvalidatedStateException()
+            val currentState = stateRepository.getState(info.uuid) ?: throw InvalidatedStateException()
 
             val newState =
-                if (group.info.enabled) {
+                if (info.enabled) {
                     val intermediateState = when (currentState.type) {
                         StateData.Type.ACTIVE -> if (inDuration) currentState else currentState.toIdle()
                         StateData.Type.DISMISSED -> if (inDuration) currentState else currentState.toIdle()

@@ -65,4 +65,11 @@
     <string name="ui_main_alarms_edit_alarm_alarmsection_option_pinstart">Pin as start</string>
     <string name="ui_main_alarms_edit_group_alarmitem_feature_pinstart">Pinned as start</string>
     <string name="ui_main_alarms_overview_groupitem_dismiss">Dismiss</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_monday">M</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_tuesday">T</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_wednesday">W</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_thursday">T</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_friday">F</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_saturday">S</string>
+    <string name="ui_main_alarms_edit_group_dayofweekgroup_sunday">S</string>
 </resources>

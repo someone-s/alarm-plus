@@ -2,7 +2,9 @@ package com.eden.alarmplus.ui.main.alarms.edit.group
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -132,58 +134,60 @@ fun GroupSection(
     onDelete: () -> Unit,
     onBack: () -> Unit,
 ) {
-    LazyColumn(
+    Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+        GroupTitle(
+            title = state.info.name,
+            setTitle = { newName ->
+                state.info = state.info.shallowCopy(newName)
+                state.modified = true
+            }
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        DayOfWeekGroup(
+            flags = state.dayOfWeekFlags,
+            onToggle = { flags, checked ->
+                state.dayOfWeekFlags =
+                    if (checked) DayOfWeekFlags.merge(state.dayOfWeekFlags, flags)
+                    else state.dayOfWeekFlags.copyClear(flags)
+                state.modified = true
+            }
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            itemsIndexed(state.sortedAlarms) { index, alarm ->
+                AlarmItem(
+                    modifier = Modifier.animateItem(),
+                    shapes = ListItemDefaults.segmentedShapes(
+                        index,
+                        state.sortedAlarms.size + 1,
+                    ),
+                    alarm = alarm,
+                    onSelect = onSelectAlarm,
+                    onDelete = onDeleteAlarm,
+                )
+            }
         }
-        item {
-            GroupTitle(
-                title = state.info.name,
-                setTitle = { newName ->
-                    state.info = state.info.shallowCopy(newName)
-                    state.modified = true
-                }
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-        itemsIndexed(state.sortedAlarms) { index, alarm ->
-            AlarmItem(
-                modifier = Modifier.animateItem(),
-                shapes = ListItemDefaults.segmentedShapes(
-                    index,
-                    state.sortedAlarms.size + 1,
-                ),
-                alarm = alarm,
-                onSelect = onSelectAlarm,
-                onDelete = onDeleteAlarm,
-            )
-        }
-        item {
-            AddButton(
-                shapes = ListItemDefaults.segmentedShapes(1, 2),
-                onClick = { onAddAlarm() }
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        item {
-            NavigateGroup(
-                onBack = {
-                    onBack()
-                },
-                onDelete = {
-                    state.showDeleteDialog = true
-                },
-            )
-        }
+        AddButton(
+            shapes = ListItemDefaults.segmentedShapes(1, 2),
+            onClick = { onAddAlarm() }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        NavigateGroup(
+            onBack = {
+                onBack()
+            },
+            onDelete = {
+                state.showDeleteDialog = true
+            },
+        )
     }
 
     if (state.showDeleteDialog)
