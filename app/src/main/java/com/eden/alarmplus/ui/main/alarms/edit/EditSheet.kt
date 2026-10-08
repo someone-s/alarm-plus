@@ -1,8 +1,10 @@
 package com.eden.alarmplus.ui.main.alarms.edit
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
@@ -12,11 +14,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.tooling.preview.Preview
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
+import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.emptyGroupData
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.main.alarms.edit.alarm.AlarmSection
@@ -27,13 +34,22 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 @Composable
-fun rememberEditSheetState(): EditSheetState {
-    return remember { EditSheetState() }
+fun rememberEditSheetState(
+    initialShowSheet: Boolean = false,
+    initialGroup: GroupData = getUniqueGroupData(),
+): EditSheetState {
+    return remember { EditSheetState(
+        initialShowSheet = initialShowSheet,
+        initialGroup = initialGroup,
+    ) }
 }
 @Stable
-class EditSheetState {
-    var showSheet by mutableStateOf(false)
-    var group by mutableStateOf(getUniqueGroupData())
+class EditSheetState(
+    initialShowSheet: Boolean = false,
+    initialGroup: GroupData = getUniqueGroupData(),
+) {
+    var showSheet by mutableStateOf(initialShowSheet)
+    var group by mutableStateOf(initialGroup)
     var modified by mutableStateOf(false)
 
     fun showSheet(
@@ -66,7 +82,10 @@ fun EditSheet(
     onBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+    val sheetState = rememberBottomSheetState(
+        if (state.showSheet) SheetValue.Expanded
+        else SheetValue.Hidden
+    )
 
     val groupSectionState = rememberGroupSectionState(
         group = state.group,

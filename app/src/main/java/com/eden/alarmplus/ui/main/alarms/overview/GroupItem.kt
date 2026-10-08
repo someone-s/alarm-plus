@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,11 +45,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.LocalFormat
 
 object GroupItemDefaults {
 
@@ -101,7 +98,6 @@ fun GroupItem(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     shapes: ListItemShapes = ListItemDefaults.segmentedShapes(0, 1),
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
     textStyles: GroupItemTextStyle = GroupItemDefaults.textStyles()
 ) {
     val firstTime = group.alarms.firstOrNull()?.info?.time
@@ -114,9 +110,8 @@ fun GroupItem(
         )
     }
 
-    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
-
     val hapticFeedback = LocalHapticFeedback.current
+    val timeFormatter = LocalFormat.current.timeFormatter
 
 
     var loaded by remember(group) { mutableStateOf(false) }
@@ -196,7 +191,7 @@ fun GroupItem(
                                     modifier = Modifier.height(textStyles.titleComputedHeight),
                                 )
                                 Text(
-                                    text = if (firstTime != null) currentFormatUiState.timeFormatter.format(
+                                    text = if (firstTime != null) timeFormatter.format(
                                         firstTime
                                     ) else "--:--",
                                     fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Light,
@@ -213,7 +208,7 @@ fun GroupItem(
                                     Spacer(modifier = Modifier.height(textStyles.remainingTimesComputedHeight))
                                     times.forEach { remainingTime ->
                                         Text(
-                                            text = currentFormatUiState.timeFormatter.format(
+                                            text = timeFormatter.format(
                                                 remainingTime
                                             ),
                                             fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Normal,

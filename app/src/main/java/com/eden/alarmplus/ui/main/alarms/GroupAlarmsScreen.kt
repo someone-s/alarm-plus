@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,9 +53,6 @@ import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.ui.main.navigation.CommonBottomBar
 import com.eden.alarmplus.ui.main.navigation.CommonBottomBarState
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
-import com.eden.alarmplus.ui.common.MockFormatViewModelProvider
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
@@ -67,11 +62,9 @@ import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import kotlinx.coroutines.launch
 import kotlin.collections.listOf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupAlarmScreen(
     viewModel: GroupAlarmViewModel = viewModel(factory = GroupAlarmViewModelProvider.Factory),
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
     sharedContentKey: String,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -251,7 +244,6 @@ fun GroupAlarmScreen(
                                 viewModel.dismissGroupAlarm(groupUuid)
                             }
                         },
-                        formatViewModel = formatViewModel,
                     )
                     Spacer(Modifier.height(8.dp))
                 }
@@ -286,7 +278,6 @@ fun GroupAlarmScreenPreview() {
                 composable<AlarmsRoute> {
                     GroupAlarmScreen(
                         viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory),
-                        formatViewModel = viewModel(factory = MockFormatViewModelProvider.Factory),
                         sharedContentKey = "SCAFFOLD",
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this,

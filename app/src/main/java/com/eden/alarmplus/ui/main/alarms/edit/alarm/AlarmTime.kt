@@ -15,8 +15,6 @@ import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,11 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.LocalFormat
 import com.eden.alarmplus.ui.theme.PolygonShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -40,12 +36,11 @@ import com.eden.alarmplus.ui.theme.PolygonShape
 fun AlarmTime(
     alarm: AlarmData,
     onClick: () -> Unit,
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory)
 ) {
-    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
     val clip = remember { PolygonShape(MaterialShapes.Cookie6Sided) }
 
     val hapticFeedback = LocalHapticFeedback.current
+    val timeFormatter = LocalFormat.current.timeFormatter
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -53,7 +48,7 @@ fun AlarmTime(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = currentFormatUiState.timeFormatter.format(alarm.info.time),
+            text = timeFormatter.format(alarm.info.time),
             fontWeight = FontWeight.SemiBold,
             style = MaterialTheme.typography.displaySmall,
             maxLines = 1,

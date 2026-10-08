@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,14 +30,12 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.LocalFormat
 
 @Composable
 fun AlarmItem(
@@ -47,11 +44,7 @@ fun AlarmItem(
     onDelete: (AlarmData) -> Unit,
     modifier: Modifier = Modifier,
     shapes: ListItemShapes = ListItemDefaults.shapes(),
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
-
-    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
-
     val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
     val dismissBoxState = remember(alarm) {
         SwipeToDismissBoxState(
@@ -61,6 +54,7 @@ fun AlarmItem(
     }
 
     val hapticFeedback = LocalHapticFeedback.current
+    val timeFormatter = LocalFormat.current.timeFormatter
 
 
     var loaded by remember(alarm) { mutableStateOf(false) }
@@ -106,7 +100,7 @@ fun AlarmItem(
                 shapes = shapes,
                 content = {
                     Text(
-                        text = currentFormatUiState.timeFormatter.format(alarm.info.time),
+                        text = timeFormatter.format(alarm.info.time),
                         maxLines = 1,
                         style = MaterialTheme.typography.titleLarge,
                     )

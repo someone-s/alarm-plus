@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -17,12 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
@@ -117,7 +113,6 @@ class GroupSectionState(
         )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun GroupSection(
     state: GroupSectionState,
@@ -126,7 +121,6 @@ fun GroupSection(
     onDeleteAlarm: (AlarmData) -> Unit,
     onDelete: () -> Unit,
     onBack: () -> Unit,
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
     LazyColumn(
         modifier = Modifier
@@ -159,7 +153,6 @@ fun GroupSection(
                 alarm = alarm,
                 onSelect = onSelectAlarm,
                 onDelete = onDeleteAlarm,
-                formatViewModel = formatViewModel,
             )
         }
         item {
