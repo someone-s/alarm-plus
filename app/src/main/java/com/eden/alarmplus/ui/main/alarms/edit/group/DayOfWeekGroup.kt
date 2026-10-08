@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
@@ -29,6 +31,8 @@ fun DayOfWeekGroup(
         Pair(DayOfWeekFlags.SUNDAY,     stringResource(R.string.ui_main_alarms_edit_group_dayofweekgroup_sunday))
     )
 
+    val hapticFeedback = LocalHapticFeedback.current
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -38,7 +42,13 @@ fun DayOfWeekGroup(
             Box(Modifier.weight(1f)) {
                 ToggleButton(
                     checked = flags.any(flag),
-                    onCheckedChange = { onToggle(flag, it) },
+                    onCheckedChange = {
+                        hapticFeedback.performHapticFeedback(
+                            if (it) HapticFeedbackType.ToggleOn
+                            else HapticFeedbackType.ToggleOff
+                        )
+                        onToggle(flag, it)
+                    },
                     content = { Text(text) },
                     modifier = Modifier.aspectRatio(1f),
                 )
