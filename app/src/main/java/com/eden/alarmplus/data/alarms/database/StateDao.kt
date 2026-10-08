@@ -237,10 +237,11 @@ interface StateDao {
             WITH
                 $DAY_BEFORE_CTE,
                 $GROUP_START_TIMESTAMP_CTE,
-                last_alarms_cte AS (
+                last_timestamps_cte AS (
                     SELECT
-                        alarm_upper_uuid,
-                        alarm_lower_uuid
+                        group_upper_uuid,
+                        group_lower_uuid,
+                        timestamp
                     FROM (
                         SELECT
                             *,
@@ -279,11 +280,13 @@ interface StateDao {
                 CASE
                     WHEN EXISTS (
                         SELECT *
-                        FROM last_alarms_cte
+                        FROM last_timestamps_cte
                         WHERE
-                            alarms.alarm_upper_uuid = last_alarms_cte.alarm_upper_uuid
+                            alarms.group_upper_uuid = last_timestamps_cte.group_upper_uuid
                             AND
-                            alarms.alarm_lower_uuid = last_alarms_cte.alarm_lower_uuid
+                            alarms.group_lower_uuid = last_timestamps_cte.group_lower_uuid
+                            AND
+                            alarms.timestamp = last_timestamps_cte.timestamp
                     )
                     THEN true
                     ELSE false
