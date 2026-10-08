@@ -197,3 +197,35 @@ fun EditSheet(
 
         }
 }
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Preview(widthDp = 500, heightDp = 300, showSystemUi = true)
+@Composable
+fun EditSheetPreview() {
+
+    val editSheetState = rememberEditSheetState(
+        initialShowSheet = true,
+        initialGroup = GroupData(
+            info = GroupInfo(
+                name = "Morning Alarm",
+                enabled = true,
+            ),
+            alarms = listOf(
+                getUniqueAlarmData(),
+                getUniqueAlarmData(),
+            ),
+            dayOfWeekFlags = DayOfWeekFlags.merge(
+                DayOfWeekFlags.WEDNESDAY,
+                DayOfWeekFlags.FRIDAY
+            ),
+        )
+    )
+
+    Scaffold {
+        EditSheet(
+            state = editSheetState,
+            onDelete = {},
+            onBack = {},
+        )
+    }
+}

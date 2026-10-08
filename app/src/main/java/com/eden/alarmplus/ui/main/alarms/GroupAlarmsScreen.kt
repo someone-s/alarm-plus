@@ -277,7 +277,7 @@ fun GroupAlarmScreenPreview() {
             NavHost(navController, startDestination = AlarmsRoute) {
                 composable<AlarmsRoute> {
                     GroupAlarmScreen(
-                        viewModel = viewModel(factory = MockGroupAlarmViewModelProvider.Factory),
+                        viewModel = mockGroupAlarmViewModel,
                         sharedContentKey = "SCAFFOLD",
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this,

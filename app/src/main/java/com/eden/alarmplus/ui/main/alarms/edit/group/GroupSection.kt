@@ -1,12 +1,18 @@
 package com.eden.alarmplus.ui.main.alarms.edit.group
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -15,10 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
+import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
@@ -186,4 +196,45 @@ fun GroupSection(
                 state.showDeleteDialog = false
             },
         )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Preview(widthDp = 500, heightDp = 300, showSystemUi = true)
+@Composable
+fun GroupSectionPreview() {
+    val sheetState = rememberBottomSheetState(SheetValue.Expanded)
+    val groupSectionState = rememberGroupSectionState(
+        GroupData(
+            info = GroupInfo(
+                name = "Morning Alarm",
+                enabled = true,
+            ),
+            alarms = listOf(
+                getUniqueAlarmData(),
+                getUniqueAlarmData(),
+            ),
+            dayOfWeekFlags = DayOfWeekFlags.merge(
+                DayOfWeekFlags.WEDNESDAY,
+                DayOfWeekFlags.FRIDAY
+            ),
+        )
+    )
+
+    Scaffold {
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {},
+        ) {
+            GroupSection(
+                state = groupSectionState,
+                onAddAlarm = {},
+                onSelectAlarm = {},
+                onDeleteAlarm = {},
+                onDelete = {},
+                onBack = {},
+            )
+        }
+    }
 }
