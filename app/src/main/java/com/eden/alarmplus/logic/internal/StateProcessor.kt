@@ -7,12 +7,14 @@ import androidx.core.content.ContextCompat
 import com.eden.alarmplus.alert.AlertLogic
 import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
@@ -274,13 +276,39 @@ class StateProcessor(
 
         val day = dateTime.dayOfWeek
         val time = dateTime.toLocalTime()
-        val alarmsAtTime = stateRepository.getAlarmsAtTime(day, time, dismissWindow)
 
-        for (alarmAtTime in alarmsAtTime) {
+        for ((info, alarms, dayOfWeekFlags) in stateRepository.getAllGroups()
+            .filter { it.info.enabled }
+            .filter { it.alarms.isNotEmpty() }
+        ) {
+
+            val allowYesterday = dayOfWeekFlags.any(day.minus(1))
+            val allowToday = dayOfWeekFlags.any(day)
+            val allowTomorrow = dayOfWeekFlags.any(day.plus(1))
+            val groupStartTime = alarms.first().info.time
+
+            fun AlarmData.filterByDayOfWeek(groupStartTime: LocalTime): AlarmData? =
+                if (allowYesterday && allowToday) this
+                else if (allowYesterday) { if (this.info.time < groupStartTime) this else null }
+                else if (allowToday)  { if (this.info.time >= groupStartTime) this else null }
+                else null
+
+            val alarmAtTime = alarms
+                .lastOrNull { it.info.time == time }
+                ?.filterByDayOfWeek(alarms.first().info.time) ?: continue
+
+            val inDismissableWindow = isTimeRightBeforeAndNotAnchor(
+                groupStartTime,
+                dismissWindow,
+                time,
+                allowToday,
+                allowTomorrow
+            )
+            val isLastInGroup = alarms.last().info.time == time
 
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
             // return if null (invalidated by changes, a new run should be triggered)
-            val currentState = stateRepository.getState(alarmAtTime.group.uuid) ?: throw InvalidatedStateException()
+            val currentState = stateRepository.getState(info.uuid) ?: throw InvalidatedStateException()
 
             val shouldNotify = when (currentState.type) {
                 StateData.Type.ACTIVE -> true
@@ -288,29 +316,29 @@ class StateProcessor(
                 StateData.Type.IDLE -> true
                 StateData.Type.PRIMED -> true
                 StateData.Type.UNDEFINED -> {
-                    Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
+                    Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
                     true
                 }
             }
 
             val intermediateState = when (currentState.type) {
-                StateData.Type.ACTIVE -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
-                StateData.Type.DISMISSED -> if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState
-                StateData.Type.IDLE -> if (alarmAtTime.isLastInGroup) currentState else currentState.toPrimed().toActive()
-                StateData.Type.PRIMED -> if (alarmAtTime.isLastInGroup) currentState.toActive().toIdle() else currentState.toActive()
+                StateData.Type.ACTIVE -> if (isLastInGroup) currentState.toIdle() else currentState
+                StateData.Type.DISMISSED -> if (isLastInGroup) currentState.toIdle() else currentState
+                StateData.Type.IDLE -> if (isLastInGroup) currentState else currentState.toPrimed().toActive()
+                StateData.Type.PRIMED -> if (isLastInGroup) currentState.toActive().toIdle() else currentState.toActive()
                 StateData.Type.UNDEFINED -> {
-                    Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
-                    if (alarmAtTime.isLastInGroup) currentState.toIdle() else currentState.toActive()
+                    Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
+                    if (isLastInGroup) currentState.toIdle() else currentState.toActive()
                 }
             }
 
             val newState = when (intermediateState.type) {
                 StateData.Type.ACTIVE -> intermediateState
                 StateData.Type.DISMISSED -> intermediateState
-                StateData.Type.IDLE -> if (alarmAtTime.inDismissableWindow) intermediateState.toPrimed() else intermediateState
+                StateData.Type.IDLE -> if (inDismissableWindow) intermediateState.toPrimed() else intermediateState
                 StateData.Type.PRIMED -> intermediateState
                 StateData.Type.UNDEFINED -> {
-                    Log.w("$javaClass", "Updating group ${alarmAtTime.group.uuid} with existing state Undefined.")
+                    Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
                     intermediateState
                 }
             }
@@ -320,33 +348,12 @@ class StateProcessor(
                 ContextCompat.startForegroundService(context,
                     Intent(context, AlertService::class.java).apply {
                         action = AlertLogic.ACTION_ALERT
-                        putExtra(AlertLogic.EXTRA_GROUP_INFO, alarmAtTime.group)
-                        putExtra(AlertLogic.EXTRA_ALARM_DATA, alarmAtTime.alarm)
-                        putExtra(AlertLogic.EXTRA_IS_LAST_IN_GROUP, alarmAtTime.isLastInGroup)
+                        putExtra(AlertLogic.EXTRA_GROUP_INFO, info)
+                        putExtra(AlertLogic.EXTRA_ALARM_DATA, alarmAtTime)
+                        putExtra(AlertLogic.EXTRA_IS_LAST_IN_GROUP, isLastInGroup)
                     }
                 )
 
-            if (!Lock.isValid(handle)) throw InvalidatedStateException()
-            stateRepository.updateState(newState)
-        }
-
-        val primedAtTime = stateRepository.getPrimedAtTime(day, time, dismissWindow)
-
-        for (groupUuid in primedAtTime) {
-            if (!Lock.isValid(handle)) throw InvalidatedStateException()
-            // return if null (invalidated by changes, a new run should be triggered)
-            val currentState = stateRepository.getState(groupUuid) ?: throw InvalidatedStateException()
-
-            val newState = when (currentState.type) {
-                StateData.Type.ACTIVE -> currentState
-                StateData.Type.DISMISSED -> currentState
-                StateData.Type.IDLE -> currentState.toPrimed()
-                StateData.Type.PRIMED -> currentState
-                StateData.Type.UNDEFINED -> {
-                    Log.w("$javaClass", "Updating group ${groupUuid} with existing state Undefined.")
-                    currentState
-                }
-            }
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
             stateRepository.updateState(newState)
         }

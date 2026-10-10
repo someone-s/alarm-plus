@@ -7,10 +7,10 @@ import android.content.Intent
 import android.os.Build
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.ui.main.MainActivity
-import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters
 
 class WakeScheduler(
     private val context: Context,
@@ -34,21 +34,78 @@ class WakeScheduler(
 
     private suspend fun getNextDateTime(fromDateTime: LocalDateTime): LocalDateTime? {
 
+        val fromDate = fromDateTime.toLocalDate()
+        val fromDateAfter = fromDate.plusDays(1)
         val fromTime = fromDateTime.toLocalTime()
-        val nextTime = stateRepository.findNextTimeAfter(
-            fromDateTime.dayOfWeek,
-            fromTime,
-            dismissWindow
-        ) ?: return null
+        val fromDayInWeek = fromDateTime.dayOfWeek
+        val fromDayBeforeInWeek = fromDayInWeek.minus(1)
+        val fromDayAfterInWeek = fromDayInWeek.plus(1)
 
-        val nextDate = if (nextTime.isAfter(fromTime))
-            fromDateTime.toLocalDate()
-        else
-            fromDateTime.toLocalDate().plusDays(1)
+        return stateRepository.getAllGroups()
+            .filter { it.info.enabled }
+            .mapNotNull { group ->
+                val allowYesterday = group.dayOfWeekFlags.any(fromDayBeforeInWeek)
+                val allowToday = group.dayOfWeekFlags.any(fromDayInWeek)
+                val allowTomorrow = group.dayOfWeekFlags.any(fromDayAfterInWeek)
 
-        val nextDateTime = LocalDateTime.of(nextDate, nextTime)
+                val nextAlarmDateTime = if (allowYesterday && allowToday) {
+                    group.alarms.map { it.info.time }
+                        .firstOrNull { it > fromTime }
+                        ?.let { LocalDateTime.of(fromDate, it) }
+                }
+                else if (allowYesterday) {
+                    group.alarms.map { it.info.time }
+                        .filter { it < group.alarms.first().info.time }
+                        .firstOrNull { it > fromTime }
+                        ?.let { LocalDateTime.of(fromDate, it) }
+                }
+                else if (allowToday) {
+                    group.alarms.map { it.info.time }
+                        .filter { it >= group.alarms.first().info.time }
+                        .firstOrNull { it > fromTime }
+                        ?.let { LocalDateTime.of(fromDate, it) }
+                }
+                else {
+                    val nextStartDate = group.dayOfWeekFlags.toDayOfWeeks()
+                        .map { fromDate.with(TemporalAdjusters.next(it)) }
+                        .minByOrNull { it }
+                    if (nextStartDate != null)
+                        group.alarms.firstOrNull()
+                            ?.let { LocalDateTime.of(nextStartDate, it.info.time) }
+                    else null
+                }
 
-        return nextDateTime
+                group.alarms.firstOrNull()?.info?.time?.minus(dismissWindow)
+
+                var nextDismissDateTime: LocalDateTime? = null
+                if (allowToday)
+                    group.alarms.firstOrNull()
+                        ?.let { LocalDateTime.of(fromDate, it.info.time) }
+                        ?.minus(dismissWindow)
+                        ?.also { if (it > fromDateTime) nextDismissDateTime = it }
+
+                if (nextDismissDateTime == null && allowTomorrow)
+                    group.alarms.firstOrNull()
+                        ?.let { LocalDateTime.of(fromDateAfter, it.info.time) }
+                        ?.minus(dismissWindow)
+                        ?.also { if (it > fromDateTime) nextDismissDateTime = it }
+
+                if (nextDismissDateTime == null) {
+                    val nextDismissDate = group.dayOfWeekFlags.toDayOfWeeks()
+                        .map { fromDateAfter.with(TemporalAdjusters.next(it)) }
+                        .minByOrNull { it }
+                    if (nextDismissDate != null)
+                        group.alarms.firstOrNull()
+                            ?.let { LocalDateTime.of(nextDismissDate, it.info.time) }
+                            ?.minus(dismissWindow)
+                            ?.also { nextDismissDateTime = it }
+                }
+
+                if (nextAlarmDateTime != null && nextDismissDateTime != null)
+                    minOf(nextAlarmDateTime, nextDismissDateTime)
+                else nextAlarmDateTime ?: nextDismissDateTime
+            }
+            .minOrNull()
     }
 
     private fun createReceiverIntent(dateTime: LocalDateTime?) = PendingIntent.getBroadcast(

@@ -61,4 +61,14 @@ data class DayOfWeekFlags(
     fun copyClear(flags: DayOfWeekFlags): DayOfWeekFlags =
         DayOfWeekFlags(mask and (flags.mask.inv()))
 
+    fun toDayOfWeeks(): List<DayOfWeek> = buildList {
+        if (mask and MONDAY.mask > 0) add(DayOfWeek.MONDAY)
+        if (mask and TUESDAY.mask > 0) add(DayOfWeek.TUESDAY)
+        if (mask and WEDNESDAY.mask > 0) add(DayOfWeek.WEDNESDAY)
+        if (mask and THURSDAY.mask > 0) add(DayOfWeek.THURSDAY)
+        if (mask and FRIDAY.mask > 0) add(DayOfWeek.FRIDAY)
+        if (mask and SATURDAY.mask > 0) add(DayOfWeek.SATURDAY)
+        if (mask and SUNDAY.mask > 0) add(DayOfWeek.SUNDAY)
+    }
+
 }
