@@ -6,6 +6,7 @@ import androidx.media3.common.AudioAttributes
 import android.media.audiofx.HapticGenerator
 import android.os.Build
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.media3.common.C.AUDIO_CONTENT_TYPE_UNKNOWN
 import androidx.media3.common.C.USAGE_ALARM
@@ -29,6 +30,7 @@ class HapticAudioScope(
      * @return if haptics are played with this audio
      */
     @OptIn(UnstableApi::class)
+    @MainThread
     fun start(
         data: AudioData,
         tryIncludeHaptic: Boolean
@@ -89,6 +91,7 @@ class HapticAudioScope(
         return@synchronized vibrationEnabled
     }
 
+    @MainThread
     fun stopIfExist() = synchronized(this) {
         player?.release()
     }

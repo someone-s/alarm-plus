@@ -209,10 +209,18 @@ class AlertLogic(
         )
 
         if (alertState.audioData != null)
-            hapticAudioScope.start(alertState.audioData, alertState.vibrateEnabled)
+            try {
+                hapticAudioScope.start(alertState.audioData, alertState.vibrateEnabled)
+            } catch (exception: Exception) {
+                Log.e("$javaClass", exception.message, exception)
+            }
 
         if (alertState.vibrateEnabled)
-            vibrationScope.start(service.lifecycleScope)
+            try {
+                vibrationScope.start(service.lifecycleScope)
+            } catch (exception: Exception) {
+                Log.e("$javaClass", exception.message, exception)
+            }
     }
 
     private fun cancelNotification(
@@ -230,9 +238,17 @@ class AlertLogic(
         val anyLastNotification = statesToCancel.any { it.notificationId == (activeQueue.lastOrNull()?.notificationId) }
 
         if (anyLastNotification) {
-            hapticAudioScope.stopIfExist()
+            try {
+                hapticAudioScope.stopIfExist()
+            } catch (exception: Exception) {
+                Log.e("$javaClass", exception.message, exception)
+            }
 
-            vibrationScope.stopIfExist()
+            try {
+                vibrationScope.stopIfExist()
+            } catch (exception: Exception) {
+                Log.e("$javaClass", exception.message, exception)
+            }
         }
 
         // Remove notification from list
