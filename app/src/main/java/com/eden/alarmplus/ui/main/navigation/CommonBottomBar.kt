@@ -1,10 +1,8 @@
 package com.eden.alarmplus.ui.main.navigation
 
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -12,8 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
@@ -21,18 +17,18 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 
 @Composable
-fun rememberCommonBottomBarState(
+fun rememberRouteState(
     initialTopLevelRoutes: List<TopLevelRoute<*>>,
-): CommonBottomBarState {
+): CommonRouteState {
     return remember {
-        CommonBottomBarState(
+        CommonRouteState(
             initialTopLevelRoutes
         )
     }
 }
 
 @Stable
-class CommonBottomBarState(
+class CommonRouteState(
     initialTopLevelRoutes: List<TopLevelRoute<*>>,
 ) {
     var currentDestination by mutableStateOf<NavDestination?>(null)
@@ -40,33 +36,25 @@ class CommonBottomBarState(
     var targetRoute by mutableStateOf<TopLevelRoute<*>?>(null)
 }
 
-@Composable
-fun CommonBottomBar(
-    state: CommonBottomBarState,
-)  {
-    val hapticFeedback = LocalHapticFeedback.current
+fun CommonRouteState.populateScope(scope: NavigationSuiteScope, onBeforeNavigate: (() -> Unit)? = null): Unit = with(scope) {
 
-    NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-        state.topLevelRoutes.forEach { topLevelRoute ->
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        painter = painterResource(
-                            if (state.currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true)
-                                topLevelRoute.selectedIcon
-                            else
-                                topLevelRoute.unselectedIcon
-                        ),
-                        contentDescription = null
-                    )
-                },
-                label = { Text(stringResource(topLevelRoute.name)) },
-                selected = state.currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
-                onClick = {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
-                    state.targetRoute = topLevelRoute
-                },
-            )
-        }
+    topLevelRoutes.forEach { topLevelRoute ->
+        val selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true
+        item(
+            selected = selected,
+            onClick = {
+                onBeforeNavigate?.invoke()
+                targetRoute = topLevelRoute
+            },
+            icon = {
+                Icon(
+                    painter = painterResource(if (selected) topLevelRoute.selectedIcon else topLevelRoute.unselectedIcon),
+                    contentDescription = null,
+                )
+            },
+            label = {
+                Text(stringResource(topLevelRoute.name))
+            }
+        )
     }
 }

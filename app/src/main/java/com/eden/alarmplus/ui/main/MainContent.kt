@@ -16,7 +16,7 @@ import com.eden.alarmplus.ui.common.Format
 import com.eden.alarmplus.ui.common.FormatViewModel
 import com.eden.alarmplus.ui.common.FormatViewModelProvider
 import com.eden.alarmplus.ui.common.LocalFormat
-import com.eden.alarmplus.ui.main.navigation.rememberCommonBottomBarState
+import com.eden.alarmplus.ui.main.navigation.rememberRouteState
 import com.eden.alarmplus.ui.main.navigation.AboutRoute
 import com.eden.alarmplus.ui.main.about.AboutScreen
 import com.eden.alarmplus.ui.main.navigation.AlarmsRoute
@@ -37,7 +37,7 @@ fun MainContent(
 
         val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-        val bottomBarState = rememberCommonBottomBarState(topLevelRoutes)
+        val bottomBarState = rememberRouteState(topLevelRoutes)
 
         LaunchedEffect(navBackStackEntry) {
             bottomBarState.currentDestination = navBackStackEntry?.destination

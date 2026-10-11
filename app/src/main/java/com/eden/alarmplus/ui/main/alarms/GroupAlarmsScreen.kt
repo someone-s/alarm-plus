@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.LargeFlexibleTopAppBar
@@ -25,6 +27,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,13 +54,13 @@ import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
-import com.eden.alarmplus.ui.main.navigation.CommonBottomBar
-import com.eden.alarmplus.ui.main.navigation.CommonBottomBarState
+import com.eden.alarmplus.ui.main.navigation.CommonRouteState
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
 import com.eden.alarmplus.ui.main.alarms.edit.rememberEditSheetState
 import com.eden.alarmplus.ui.main.alarms.overview.GroupItem
 import com.eden.alarmplus.ui.main.navigation.AlarmsRoute
+import com.eden.alarmplus.ui.main.navigation.populateScope
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
 import kotlinx.coroutines.launch
 import kotlin.collections.listOf
@@ -68,7 +71,7 @@ fun GroupAlarmScreen(
     sharedContentKey: String,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    bottomBarState: CommonBottomBarState,
+    bottomBarState: CommonRouteState,
 ) = with(sharedTransitionScope) {
 
     val groupAlarmUiState by viewModel.groupAlarmsUiState.collectAsState()
@@ -138,131 +141,136 @@ fun GroupAlarmScreen(
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    Scaffold(
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .sharedElement(
-                sharedContentState = rememberSharedContentState(sharedContentKey),
-                animatedVisibilityScope = animatedVisibilityScope
-            ),
-        topBar = {
-            LargeFlexibleTopAppBar(
-                title = {
-                    val textStyle = LocalTextStyle.current
-                    val imageSize = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+    NavigationSuiteScaffold(
+        navigationSuiteItems = { bottomBarState.populateScope(this, onBeforeNavigate = {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+        }) },
+        modifier = Modifier.sharedElement(
+            sharedContentState = rememberSharedContentState(sharedContentKey),
+            animatedVisibilityScope = animatedVisibilityScope
+        ),
+    ) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                LargeFlexibleTopAppBar(
+                    title = {
+                        val textStyle = LocalTextStyle.current
+                        val imageSize = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+                                painter = painterResource(R.drawable.alarm),
+                                contentDescription = null,
+                                modifier = Modifier.size(imageSize)
+                            )
+                            Spacer(Modifier.width(imageSize * 0.25f))
+                            Text(
+                                text = stringResource(R.string.ui_main_alarms_alarmscreen_title),
+                                fontWeight = FontWeight.SemiBold,
+                                style = textStyle,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.width(imageSize * 0.4f))
+                        }
+                    },
+                    titleHorizontalAlignment = Alignment.CenterHorizontally,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                    ),
+                    scrollBehavior = scrollBehavior,
+                )
+            },
+            floatingActionButton = {
+                AddButton(
+                    onClick = {
+                        editSheetState.showSheet(
+                            group = getUniqueGroupData(),
+                            initialModified = true,
+                        )
+                    }
+                )
+            },
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                )
+            },
+            content = { paddingValues ->
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(
+                        top = 16.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 72.dp
+                    ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+
                     ) {
-                        Image(
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-                            painter = painterResource(R.drawable.alarm),
-                            contentDescription = null,
-                            modifier = Modifier.size(imageSize)
+                    items(items = groupAlarmUiState.groupAndStateList, key = { it.first.info.uuid }) { groupAndState ->
+                        val group = groupAndState.first
+                        val state = groupAndState.second
+
+                        GroupItem(
+                            modifier = Modifier
+                                .widthIn(max = 480.dp)
+                                .animateItem(),
+                            group = group,
+                            dismissable = when (state.type) {
+                                StateData.Type.ACTIVE -> true
+                                StateData.Type.UNDEFINED -> false
+                                StateData.Type.DISMISSED -> false
+                                StateData.Type.IDLE -> false
+                                StateData.Type.PRIMED -> true
+                            },
+                            onSelect = {
+                                editSheetState.showSheet(group)
+                            },
+                            onToggle = { enabled ->
+                                val groupUuid = group.info.uuid
+                                scope.launch {
+                                    viewModel.toggleGroupAlarm(groupUuid, enabled)
+                                }
+                            },
+                            onDelete = {
+                                showRevertGroupDeleteSnackbar(group)
+                            },
+                            onDismiss = {
+                                val groupUuid = group.info.uuid
+                                scope.launch {
+                                    viewModel.dismissGroupAlarm(groupUuid)
+                                }
+                            },
                         )
-                        Spacer(Modifier.width(imageSize * 0.25f))
-                        Text(
-                            text = stringResource(R.string.ui_main_alarms_alarmscreen_title),
-                            fontWeight = FontWeight.SemiBold,
-                            style = textStyle,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.width(imageSize * 0.4f))
+                        Spacer(Modifier.height(8.dp))
                     }
-                },
-                titleHorizontalAlignment = Alignment.CenterHorizontally,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent,
-                ),
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        bottomBar = {
-            CommonBottomBar(state = bottomBarState)
-        },
-        floatingActionButton = {
-            AddButton(
-                onClick = {
-                    editSheetState.showSheet(
-                        group = getUniqueGroupData(),
-                        initialModified = true,
-                    )
                 }
-            )
-        },
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-            )
-        },
-        content = { paddingValues ->
 
-            LazyColumn(
-                modifier = Modifier
-                    .width(480.dp)
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(
-                    top = 32.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 72.dp
-                ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-
-            ) {
-                items(items = groupAlarmUiState.groupAndStateList, key = { it.first.info.uuid }) { groupAndState ->
-                    val group = groupAndState.first
-                    val state = groupAndState.second
-
-                    GroupItem(
-                        modifier = Modifier.animateItem(),
-                        group = group,
-                        dismissable = when (state.type) {
-                            StateData.Type.ACTIVE -> true
-                            StateData.Type.UNDEFINED -> false
-                            StateData.Type.DISMISSED -> false
-                            StateData.Type.IDLE -> false
-                            StateData.Type.PRIMED -> true
-                        },
-                        onSelect = {
-                            editSheetState.showSheet(group)
-                        },
-                        onToggle = { enabled ->
-                            val groupUuid = group.info.uuid
-                            scope.launch {
-                                viewModel.toggleGroupAlarm(groupUuid, enabled)
-                            }
-                        },
-                        onDelete = {
-                            showRevertGroupDeleteSnackbar(group)
-                        },
-                        onDismiss = {
-                            val groupUuid = group.info.uuid
-                            scope.launch {
-                                viewModel.dismissGroupAlarm(groupUuid)
-                            }
-                        },
-                    )
-                    Spacer(Modifier.height(8.dp))
-                }
+                EditSheet(
+                    state = editSheetState,
+                    onDelete = {
+                        showRevertGroupDeleteSnackbar(editSheetState.group)
+                    },
+                    onBack = {
+                        if (editSheetState.modified) {
+                            val editGroup = editSheetState.group
+                            showRevertGroupUpdateSnackbar(editGroup)
+                        }
+                    }
+                )
             }
+        )
+    }
 
-            EditSheet(
-                state = editSheetState,
-                onDelete = {
-                    showRevertGroupDeleteSnackbar(editSheetState.group)
-                },
-                onBack = {
-                    if (editSheetState.modified) {
-                        val editGroup = editSheetState.group
-                        showRevertGroupUpdateSnackbar(editGroup)
-                    }
-                }
-            )
-        }
-    )
 }
 
 
@@ -281,7 +289,7 @@ fun GroupAlarmScreenPreview() {
                         sharedContentKey = "SCAFFOLD",
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this,
-                        bottomBarState = CommonBottomBarState(listOf()),
+                        bottomBarState = CommonRouteState(listOf()),
                     )
                 }
             }
