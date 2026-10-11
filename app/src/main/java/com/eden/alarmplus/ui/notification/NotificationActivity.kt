@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.IntentCompat
 import com.eden.alarmplus.BuildConfig
 import com.eden.alarmplus.ui.theme.AlarmPlusTheme
+import java.time.LocalTime
 
 
 class NotificationActivity: ComponentActivity() {
@@ -29,6 +30,18 @@ class NotificationActivity: ComponentActivity() {
          * Can be canceled when used
          */
         const val EXTRA_DISMISS_PENDING_INTENT = "${BuildConfig.APPLICATION_ID}.EXTRA_DISMISS_PENDING_INTENT"
+
+        /**
+         * Extra of type [String];
+         * Required
+         */
+        const val EXTRA_GROUP_NAME = "${BuildConfig.APPLICATION_ID}.EXTRA_GROUP_NAME"
+
+        /**
+         * Extra of type [Serializable] that is a [java.time.LocalTime];
+         * Required
+         */
+        const val EXTRA_ALARM_TIME = "${BuildConfig.APPLICATION_ID}.EXTRA_ALARM_TIME"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +52,11 @@ class NotificationActivity: ComponentActivity() {
 
         val dismissPendingIntent = IntentCompat.getParcelableExtra(
             intent, EXTRA_DISMISS_PENDING_INTENT, PendingIntent::class.java)
+
+        val groupName = intent.getStringExtra(EXTRA_GROUP_NAME)
+
+        val alarmTime = IntentCompat.getSerializableExtra(
+            intent, EXTRA_ALARM_TIME, LocalTime::class.java)
 
         fun PendingIntent.createCallback(): () -> Unit = {
             try {
@@ -55,6 +73,8 @@ class NotificationActivity: ComponentActivity() {
             AlarmPlusTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NotificationContent(
+                        title = groupName,
+                        time = alarmTime,
                         onSnooze = snoozePendingIntent?.createCallback(),
                         onDismiss =  dismissPendingIntent?.createCallback(),
                     )

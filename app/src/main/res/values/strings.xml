@@ -72,4 +72,5 @@
     <string name="ui_main_alarms_edit_group_dayofweekgroup_friday">F</string>
     <string name="ui_main_alarms_edit_group_dayofweekgroup_saturday">S</string>
     <string name="ui_main_alarms_edit_group_dayofweekgroup_sunday">S</string>
+    <string name="ui_notification_infosection_placeholder">Unnamed</string>
 </resources>

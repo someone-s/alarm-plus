@@ -29,9 +29,7 @@ fun MainContent(
     formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
 ) {
     val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
-    val format = Format(
-        timeFormatter = currentFormatUiState.timeFormatter
-    )
+    val format = Format(timeFormatter = currentFormatUiState.timeFormatter)
 
     CompositionLocalProvider(LocalFormat provides format) {
 

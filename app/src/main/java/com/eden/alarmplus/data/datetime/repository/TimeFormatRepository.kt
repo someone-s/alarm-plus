@@ -4,7 +4,10 @@ import kotlinx.coroutines.flow.Flow
 import java.time.format.DateTimeFormatter
 
 interface TimeFormatRepository {
-    fun is24Formatted(): Flow<Boolean>
+    data class Values(
+        val is24Formatted: Boolean,
+        val timeFormatter: DateTimeFormatter,
+    )
 
-    fun currentTimeFormat(): Flow<DateTimeFormatter>
+    fun currentTimeFormat(): Flow<Values>
 }

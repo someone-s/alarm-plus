@@ -154,7 +154,7 @@ class AlertLogic(
             )
 
         val notification = with(notificationManager) {
-            notificationScope.Builder(groupInfo).apply {
+            notificationScope.Builder(groupInfo, alarmData).apply {
                 addTimeout(10.minutes.inWholeMilliseconds)
 
                 if (!isLastInGroup)

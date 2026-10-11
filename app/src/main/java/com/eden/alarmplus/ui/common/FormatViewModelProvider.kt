@@ -16,7 +16,8 @@ object FormatViewModelProvider {
             val container = application.container
             FormatViewModel(
                 CurrentFormatUiState(
-                    DateTimeFormatter.ofPattern(
+                    is24Formatted = DateFormat.is24HourFormat(application),
+                    timeFormatter = DateTimeFormatter.ofPattern(
                         (DateFormat.getTimeFormat(application) as SimpleDateFormat).toPattern()
                     ),
                 ),

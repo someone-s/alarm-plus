@@ -15,7 +15,7 @@ class FormatViewModel(initialFormat: CurrentFormatUiState, timeFormatRepository:
     val currentFormatUiState: StateFlow<CurrentFormatUiState> =
         timeFormatRepository.currentTimeFormat()
             .map {
-                CurrentFormatUiState(it)
+                CurrentFormatUiState(it.is24Formatted, it.timeFormatter)
             }
             .stateIn(
                 scope = viewModelScope,
@@ -30,5 +30,6 @@ class FormatViewModel(initialFormat: CurrentFormatUiState, timeFormatRepository:
 
 @Immutable
 data class CurrentFormatUiState(
+    val is24Formatted: Boolean,
     val timeFormatter: DateTimeFormatter
 )

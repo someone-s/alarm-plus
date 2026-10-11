@@ -8,6 +8,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.eden.alarmplus.R
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.ui.notification.NotificationActivity
 
@@ -16,12 +17,14 @@ class NotificationScope(
     private val channelContainer: ChannelContainer,
 ) {
 
-    private data class FullScreenInfo(val notificationId: Int,
+    private data class FullScreenInfo(
+        val notificationId: Int,
         val fullScreenRequestCode: Int,
     )
 
     inner class Builder(
         private val group: GroupInfo,
+        private val alarm: AlarmData,
     ) {
         private var snoozeIntent: PendingIntent? = null
         private var dismissIntent: PendingIntent? = null
@@ -46,6 +49,8 @@ class NotificationScope(
                     putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozeIntent)
                 if (dismissIntent != null)
                     putExtra(NotificationActivity.EXTRA_DISMISS_PENDING_INTENT, dismissIntent)
+                putExtra(NotificationActivity.EXTRA_GROUP_NAME, group.name)
+                putExtra(NotificationActivity.EXTRA_ALARM_TIME, alarm.info.time)
 
                 addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)

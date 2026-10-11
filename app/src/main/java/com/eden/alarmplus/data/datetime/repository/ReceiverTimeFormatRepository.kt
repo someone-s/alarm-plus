@@ -13,14 +13,12 @@ class ReceiverTimeFormatRepository(
     private val timeChangeReceiver: TimeChangeReceiver,
 ): TimeFormatRepository {
 
-    override fun is24Formatted(): Flow<Boolean> {
-        return timeChangeReceiver.timeChanged.map { DateFormat.is24HourFormat(context) }
-    }
-
-    override fun currentTimeFormat(): Flow<DateTimeFormatter> {
+    override fun currentTimeFormat(): Flow<TimeFormatRepository.Values> {
         return timeChangeReceiver.timeChanged.map {
-            DateTimeFormatter.ofPattern(
-                (DateFormat.getTimeFormat(context) as SimpleDateFormat).toPattern()
+            TimeFormatRepository.Values(
+                is24Formatted = DateFormat.is24HourFormat(context),
+                timeFormatter = DateTimeFormatter.ofPattern(
+                    (DateFormat.getTimeFormat(context) as SimpleDateFormat).toPattern())
             )
         }
     }
