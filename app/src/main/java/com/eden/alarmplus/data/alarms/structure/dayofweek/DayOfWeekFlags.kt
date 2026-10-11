@@ -6,13 +6,13 @@ import kotlinx.parcelize.Parcelize
 import java.time.DayOfWeek
 
 fun DayOfWeek.toFlags() = when (this) {
-    DayOfWeek.MONDAY -> DayOfWeekFlags.MONDAY.mask
-    DayOfWeek.TUESDAY -> DayOfWeekFlags.TUESDAY.mask
-    DayOfWeek.WEDNESDAY -> DayOfWeekFlags.WEDNESDAY.mask
-    DayOfWeek.THURSDAY -> DayOfWeekFlags.THURSDAY.mask
-    DayOfWeek.FRIDAY -> DayOfWeekFlags.FRIDAY.mask
-    DayOfWeek.SATURDAY -> DayOfWeekFlags.SATURDAY.mask
-    DayOfWeek.SUNDAY -> DayOfWeekFlags.SUNDAY.mask
+    DayOfWeek.MONDAY ->     DayOfWeekFlags.MONDAY.mask
+    DayOfWeek.TUESDAY ->    DayOfWeekFlags.TUESDAY.mask
+    DayOfWeek.WEDNESDAY ->  DayOfWeekFlags.WEDNESDAY.mask
+    DayOfWeek.THURSDAY ->   DayOfWeekFlags.THURSDAY.mask
+    DayOfWeek.FRIDAY ->     DayOfWeekFlags.FRIDAY.mask
+    DayOfWeek.SATURDAY ->   DayOfWeekFlags.SATURDAY.mask
+    DayOfWeek.SUNDAY ->     DayOfWeekFlags.SUNDAY.mask
 }
 
 @Immutable
@@ -21,14 +21,14 @@ data class DayOfWeekFlags(
     val mask: Int
 ) : Parcelable {
     companion object {
-        val MONDAY = DayOfWeekFlags(0b1000000)
-        val TUESDAY = DayOfWeekFlags(0b0100000)
-        val WEDNESDAY = DayOfWeekFlags(0b0010000)
-        val THURSDAY = DayOfWeekFlags(0b0001000)
-        val FRIDAY = DayOfWeekFlags(0b0000100)
-        val SATURDAY = DayOfWeekFlags(0b0000010)
-        val SUNDAY = DayOfWeekFlags(0b0000001)
-        val ALL = DayOfWeekFlags(0b1111111)
+        val MONDAY =    DayOfWeekFlags(1 shl 6)
+        val TUESDAY =   DayOfWeekFlags(1 shl 5)
+        val WEDNESDAY = DayOfWeekFlags(1 shl 4)
+        val THURSDAY =  DayOfWeekFlags(1 shl 3)
+        val FRIDAY =    DayOfWeekFlags(1 shl 2)
+        val SATURDAY =  DayOfWeekFlags(1 shl 1)
+        val SUNDAY =    DayOfWeekFlags(1 shl 0)
+        val ALL =       DayOfWeekFlags.merge(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
         fun merge(vararg flags: DayOfWeekFlags): DayOfWeekFlags {
             var mergedMask = 0
@@ -39,13 +39,13 @@ data class DayOfWeekFlags(
         }
 
         fun from(dayOfWeek: DayOfWeek): DayOfWeekFlags = when (dayOfWeek) {
-            DayOfWeek.MONDAY -> MONDAY
-            DayOfWeek.TUESDAY -> TUESDAY
-            DayOfWeek.WEDNESDAY -> WEDNESDAY
-            DayOfWeek.THURSDAY -> THURSDAY
-            DayOfWeek.FRIDAY -> FRIDAY
-            DayOfWeek.SATURDAY -> SATURDAY
-            DayOfWeek.SUNDAY -> SUNDAY
+            DayOfWeek.MONDAY ->     MONDAY
+            DayOfWeek.TUESDAY ->    TUESDAY
+            DayOfWeek.WEDNESDAY ->  WEDNESDAY
+            DayOfWeek.THURSDAY ->   THURSDAY
+            DayOfWeek.FRIDAY ->     FRIDAY
+            DayOfWeek.SATURDAY ->   SATURDAY
+            DayOfWeek.SUNDAY ->     SUNDAY
         }
     }
 
@@ -62,13 +62,13 @@ data class DayOfWeekFlags(
         DayOfWeekFlags(mask and (flags.mask.inv()))
 
     fun toDayOfWeeks(): List<DayOfWeek> = buildList {
-        if (mask and MONDAY.mask > 0) add(DayOfWeek.MONDAY)
-        if (mask and TUESDAY.mask > 0) add(DayOfWeek.TUESDAY)
-        if (mask and WEDNESDAY.mask > 0) add(DayOfWeek.WEDNESDAY)
-        if (mask and THURSDAY.mask > 0) add(DayOfWeek.THURSDAY)
-        if (mask and FRIDAY.mask > 0) add(DayOfWeek.FRIDAY)
-        if (mask and SATURDAY.mask > 0) add(DayOfWeek.SATURDAY)
-        if (mask and SUNDAY.mask > 0) add(DayOfWeek.SUNDAY)
+        if ((mask and MONDAY.mask) > 0)     add(DayOfWeek.MONDAY)
+        if ((mask and TUESDAY.mask) > 0)    add(DayOfWeek.TUESDAY)
+        if ((mask and WEDNESDAY.mask) > 0)  add(DayOfWeek.WEDNESDAY)
+        if ((mask and THURSDAY.mask) > 0)   add(DayOfWeek.THURSDAY)
+        if ((mask and FRIDAY.mask) > 0)     add(DayOfWeek.FRIDAY)
+        if ((mask and SATURDAY.mask) > 0)   add(DayOfWeek.SATURDAY)
+        if ((mask and SUNDAY.mask) > 0)     add(DayOfWeek.SUNDAY)
     }
 
 }

@@ -50,19 +50,19 @@ class WakeScheduler(
 
                 val nextAlarmDateTime = if (allowYesterday && allowToday) {
                     group.alarms.map { it.info.time }
-                        .firstOrNull { it > fromTime }
+                        .firstOrNull { it.isAfter(fromTime) }
                         ?.let { LocalDateTime.of(fromDate, it) }
                 }
                 else if (allowYesterday) {
                     group.alarms.map { it.info.time }
-                        .filter { it < group.alarms.first().info.time }
-                        .firstOrNull { it > fromTime }
+                        .filter { it.isBefore(group.alarms.first().info.time) }
+                        .firstOrNull { it.isAfter(fromTime) }
                         ?.let { LocalDateTime.of(fromDate, it) }
                 }
                 else if (allowToday) {
                     group.alarms.map { it.info.time }
-                        .filter { it >= group.alarms.first().info.time }
-                        .firstOrNull { it > fromTime }
+                        .filter { !it.isBefore(group.alarms.first().info.time) }
+                        .firstOrNull { it.isAfter(fromTime) }
                         ?.let { LocalDateTime.of(fromDate, it) }
                 }
                 else {
@@ -75,20 +75,18 @@ class WakeScheduler(
                     else null
                 }
 
-                group.alarms.firstOrNull()?.info?.time?.minus(dismissWindow)
-
                 var nextDismissDateTime: LocalDateTime? = null
                 if (allowToday)
                     group.alarms.firstOrNull()
                         ?.let { LocalDateTime.of(fromDate, it.info.time) }
                         ?.minus(dismissWindow)
-                        ?.also { if (it > fromDateTime) nextDismissDateTime = it }
+                        ?.also { if (it.isAfter(fromDateTime)) nextDismissDateTime = it }
 
                 if (nextDismissDateTime == null && allowTomorrow)
                     group.alarms.firstOrNull()
                         ?.let { LocalDateTime.of(fromDateAfter, it.info.time) }
                         ?.minus(dismissWindow)
-                        ?.also { if (it > fromDateTime) nextDismissDateTime = it }
+                        ?.also { if (it.isAfter(fromDateTime)) nextDismissDateTime = it }
 
                 if (nextDismissDateTime == null) {
                     val nextDismissDate = group.dayOfWeekFlags.toDayOfWeeks()
@@ -115,7 +113,7 @@ class WakeScheduler(
             if (dateTime != null)
                 putExtra(WakeReceiver.EXTRA_TO_DATE_TIME, dateTime.toString())
         },
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT,
     )
 
     private fun clearWakeAlarm() {
