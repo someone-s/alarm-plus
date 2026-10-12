@@ -5,10 +5,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.eden.alarmplus.ui.common.Format
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
-import com.eden.alarmplus.ui.common.LocalFormat
+import com.eden.alarmplus.ui.common.format.Format
+import com.eden.alarmplus.ui.common.format.FormatViewModel
+import com.eden.alarmplus.ui.common.format.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.format.LocalFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 

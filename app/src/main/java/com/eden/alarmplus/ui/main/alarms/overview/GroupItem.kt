@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.ui.common.LocalFormat
+import com.eden.alarmplus.ui.common.format.LocalFormat
 
 object GroupItemDefaults {
 

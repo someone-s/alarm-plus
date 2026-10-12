@@ -1,4 +1,4 @@
-package com.eden.alarmplus.ui.common
+package com.eden.alarmplus.ui.common.format
 
 import com.eden.alarmplus.data.datetime.repository.TimeFormatRepository
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package com.eden.alarmplus.ui.common
+package com.eden.alarmplus.ui.common.format
 
 import android.text.format.DateFormat
 import androidx.lifecycle.ViewModelProvider

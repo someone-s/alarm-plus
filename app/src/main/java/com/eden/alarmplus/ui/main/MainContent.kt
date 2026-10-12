@@ -12,10 +12,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.eden.alarmplus.ui.common.Format
-import com.eden.alarmplus.ui.common.FormatViewModel
-import com.eden.alarmplus.ui.common.FormatViewModelProvider
-import com.eden.alarmplus.ui.common.LocalFormat
+import com.eden.alarmplus.ui.common.format.Format
+import com.eden.alarmplus.ui.common.format.FormatViewModel
+import com.eden.alarmplus.ui.common.format.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.format.LocalFormat
 import com.eden.alarmplus.ui.main.navigation.rememberRouteState
 import com.eden.alarmplus.ui.main.navigation.AboutRoute
 import com.eden.alarmplus.ui.main.about.AboutScreen

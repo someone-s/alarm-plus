@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.ui.common.LocalFormat
+import com.eden.alarmplus.ui.common.format.LocalFormat
 import java.time.LocalTime
 
 @Composable

@@ -35,7 +35,7 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
-import com.eden.alarmplus.ui.common.LocalFormat
+import com.eden.alarmplus.ui.common.format.LocalFormat
 
 @Composable
 fun AlarmItem(

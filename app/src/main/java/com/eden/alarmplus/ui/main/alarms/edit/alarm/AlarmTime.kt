@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
-import com.eden.alarmplus.ui.common.LocalFormat
+import com.eden.alarmplus.ui.common.format.LocalFormat
 import com.eden.alarmplus.ui.theme.PolygonShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
