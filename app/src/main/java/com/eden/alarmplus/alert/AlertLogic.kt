@@ -254,6 +254,10 @@ class AlertLogic(
         // Remove notification from list
         activeQueue.removeAll(statesToCancel)
 
+        fun List<AlertState>.cancelAll(): Unit = forEach {
+            notificationScope.cancelNotificationAndFullScreen(it.notificationId, notificationManager)
+        }
+
         if (activeQueue.isEmpty()) {
 
             // Stop foreground also cancel notification
@@ -261,6 +265,9 @@ class AlertLogic(
                 service,
                 ServiceCompat.STOP_FOREGROUND_REMOVE
             )
+
+            // Cancel notification
+            statesToCancel.cancelAll()
 
             service.stopSelf(serviceStartId)
         }
@@ -270,9 +277,7 @@ class AlertLogic(
                 playNotification(activeQueue.last())
 
             // Cancel notification
-            with(notificationManager) {
-                statesToCancel.forEach { cancel(it.notificationId) }
-            }
+            statesToCancel.cancelAll()
         }
     }
 

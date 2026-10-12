@@ -17,6 +17,16 @@ class NotificationScope(
     private val channelContainer: ChannelContainer,
 ) {
 
+    fun cancelNotificationAndFullScreen(
+        notificationId: Int,
+        notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(context)
+    ): Unit = with(notificationManager) {
+        cancel(notificationId)
+        context.sendBroadcast(Intent(NotificationActivity.ACTION_CANCEL).apply {
+            putExtra(NotificationActivity.EXTRA_ID, notificationId)
+        })
+    }
+
     private data class FullScreenInfo(
         val notificationId: Int,
         val fullScreenRequestCode: Int,
@@ -45,6 +55,10 @@ class NotificationScope(
             context,
             info.fullScreenRequestCode,
             Intent(context, NotificationActivity::class.java).apply {
+                action = NotificationActivity.ACTION_DISPLAY
+
+                putExtra(NotificationActivity.EXTRA_ID, info.notificationId)
+
                 if (snoozeIntent != null)
                     putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozeIntent)
                 if (dismissIntent != null)
@@ -59,7 +73,7 @@ class NotificationScope(
                 addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
             },
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         fun addTimeout(timeoutMs: Long) { this.timeoutMs = timeoutMs }
