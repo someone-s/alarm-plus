@@ -6,6 +6,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -19,6 +21,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
 import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
 import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
@@ -75,6 +78,7 @@ class EditSheetState(
 @Composable
 fun EditSheet(
     state: EditSheetState,
+    windowInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2(),
     onDelete: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -85,9 +89,12 @@ fun EditSheet(
 
     val hapticFeedback = LocalHapticFeedback.current
 
+    val useSideSheet = windowInfo.windowSizeClass.isAtLeastBreakpoint(
+        widthDpBreakpoint = WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+        heightDpBreakpoint = WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND
+    )
 
-
-    if (true) {
+    if (useSideSheet) {
         val sideState = rememberSideSheetState(
             if (state.showSheet) SideSheetValue.EXPANDED
             else SideSheetValue.HIDDEN
