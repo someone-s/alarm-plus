@@ -120,7 +120,8 @@ fun EditSheet(
                 }
             ) {
                 EditContent(
-                    editContentState,
+                    editContentState = editContentState,
+                    maximise = true,
                     onDelete = {
                         if (editContentState.modified)
                             state.modifyGroup(editContentState.group)
@@ -163,7 +164,8 @@ fun EditSheet(
                 sheetState = bottomState,
             ) {
                 EditContent(
-                    editContentState,
+                    editContentState = editContentState,
+                    maximise = false,
                     onDelete = {
                         if (editContentState.modified)
                             state.modifyGroup(editContentState.group)

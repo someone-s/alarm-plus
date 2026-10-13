@@ -6,8 +6,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemDefaults
@@ -66,6 +69,7 @@ class AlarmSectionState {
 @Composable
 fun AlarmSection(
     state: AlarmSectionState,
+    maximise: Boolean = false,
     onBack: () -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -132,24 +136,44 @@ fun AlarmSection(
 
     Column(
         modifier = Modifier
+            .let {
+                if (maximise) it.fillMaxSize()
+                else it
+            }
             .padding(horizontal = 16.dp)
             .padding(bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.Bottom,
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        AlarmTime(
-            alarm = state.value,
-            onClick = { showTimePicker = true }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        options.forEachIndexed { index, option ->
-            AlarmOption(
-                shapes = ListItemDefaults.segmentedShapes(
-                    index,
-                    options.size,
-                ),
-                option = option,
-            )
+        LazyColumn(
+            modifier = Modifier
+                .let {
+                    if (maximise) it.weight(1f)
+                    else it
+                },
+            verticalArrangement = Arrangement.Center,
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
+                AlarmTime(
+                    alarm = state.value,
+                    onClick = { showTimePicker = true }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(22.dp))
+            }
+            itemsIndexed(options) { index, option ->
+                Spacer(modifier = Modifier.height(2.dp))
+                AlarmOption(
+                    shapes = ListItemDefaults.segmentedShapes(
+                        index,
+                        options.size,
+                    ),
+                    option = option,
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         NavigateGroup(
@@ -159,6 +183,7 @@ fun AlarmSection(
             },
         )
     }
+
 
     if (showTimePicker)
         TimePicker(

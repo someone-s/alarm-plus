@@ -42,6 +42,7 @@ class EditContentState(
 @Composable
 fun EditContent(
     editContentState: EditContentState,
+    maximise: Boolean = false,
     onDelete: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -57,6 +58,7 @@ fun EditContent(
         when (animatedState) {
             EditMode.LIST -> GroupSection(
                 state = groupSectionState,
+                maximise = maximise,
                 onAddAlarm = {
                     alarmSectionState.setAlarmDraft(
                         AlarmData(
@@ -86,6 +88,7 @@ fun EditContent(
 
             EditMode.ITEM -> AlarmSection(
                 state = alarmSectionState,
+                maximise = maximise,
                 onBack = {
                     if (alarmSectionState.modified)
                         groupSectionState.addOrUpdateAlarm(alarmSectionState.value)

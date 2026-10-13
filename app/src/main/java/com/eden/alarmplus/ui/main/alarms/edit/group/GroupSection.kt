@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -128,6 +128,7 @@ class GroupSectionState(
 @Composable
 fun GroupSection(
     state: GroupSectionState,
+    maximise: Boolean = false,
     onAddAlarm: () -> Unit,
     onSelectAlarm: (AlarmData) -> Unit,
     onDeleteAlarm: (AlarmData) -> Unit,
@@ -136,32 +137,51 @@ fun GroupSection(
 ) {
     Column(
         modifier = Modifier
+            .let {
+                if (maximise) it.fillMaxSize()
+                else it
+            }
             .padding(horizontal = 16.dp)
             .padding(bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.Bottom,
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        GroupTitle(
-            title = state.info.name,
-            setTitle = { newName ->
-                state.info = state.info.shallowCopy(newName)
-                state.modified = true
-            }
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        DayOfWeekGroup(
-            flags = state.dayOfWeekFlags,
-            onToggle = { flags, checked ->
-                state.dayOfWeekFlags =
-                    if (checked) DayOfWeekFlags.merge(state.dayOfWeekFlags, flags)
-                    else state.dayOfWeekFlags.copyClear(flags)
-                state.modified = true
-            }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
         LazyColumn(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .let {
+                    if (maximise) it.weight(1f)
+                    else it
+                },
+            verticalArrangement = Arrangement.Center,
         ) {
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
+                GroupTitle(
+                    title = state.info.name,
+                    setTitle = { newName ->
+                        state.info = state.info.shallowCopy(newName)
+                        state.modified = true
+                    }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+            item {
+                DayOfWeekGroup(
+                    flags = state.dayOfWeekFlags,
+                    onToggle = { flags, checked ->
+                        state.dayOfWeekFlags =
+                            if (checked) DayOfWeekFlags.merge(state.dayOfWeekFlags, flags)
+                            else state.dayOfWeekFlags.copyClear(flags)
+                        state.modified = true
+                    }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
             itemsIndexed(state.sortedAlarms) { index, alarm ->
                 AlarmItem(
                     modifier = Modifier.animateItem(),
@@ -173,12 +193,15 @@ fun GroupSection(
                     onSelect = onSelectAlarm,
                     onDelete = onDeleteAlarm,
                 )
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+            item {
+                AddButton(
+                    shapes = ListItemDefaults.segmentedShapes(1, 2),
+                    onClick = { onAddAlarm() }
+                )
             }
         }
-        AddButton(
-            shapes = ListItemDefaults.segmentedShapes(1, 2),
-            onClick = { onAddAlarm() }
-        )
         Spacer(modifier = Modifier.height(16.dp))
         NavigateGroup(
             onBack = {
