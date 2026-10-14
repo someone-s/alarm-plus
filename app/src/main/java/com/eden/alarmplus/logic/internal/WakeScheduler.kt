@@ -20,10 +20,10 @@ class WakeScheduler(
 
     suspend fun tryScheduleWake(fromDateTime: LocalDateTime = LocalDateTime.now()): Boolean {
 
-        val nextDateTime = getNextDateTime(fromDateTime)
+        val nextDateTimeInfo = getNextDateTime(fromDateTime)
 
-        if (nextDateTime != null) {
-            setWakeAlarm(nextDateTime)
+        if (nextDateTimeInfo != null) {
+            setWakeAlarm(nextDateTimeInfo.localDateTime, nextDateTimeInfo.hasAlarmAtTime)
             return true
         }
         else {
@@ -32,7 +32,12 @@ class WakeScheduler(
         }
     }
 
-    private suspend fun getNextDateTime(fromDateTime: LocalDateTime): LocalDateTime? {
+    private data class NextDateTimeInfo(
+        val localDateTime: LocalDateTime,
+        val hasAlarmAtTime: Boolean,
+    )
+
+    private suspend fun getNextDateTime(fromDateTime: LocalDateTime): NextDateTimeInfo? {
 
         val fromDate = fromDateTime.toLocalDate()
         val fromDateAfter = fromDate.plusDays(1)
@@ -99,11 +104,28 @@ class WakeScheduler(
                             ?.also { nextDismissDateTime = it }
                 }
 
-                if (nextAlarmDateTime != null && nextDismissDateTime != null)
-                    minOf(nextAlarmDateTime, nextDismissDateTime)
-                else nextAlarmDateTime ?: nextDismissDateTime
+                if (nextAlarmDateTime != null && nextDismissDateTime != null) {
+                    val nextDateTime = minOf(nextAlarmDateTime, nextDismissDateTime)
+                    Pair(nextDateTime, nextDateTime.isEqual(nextAlarmDateTime))
+                }
+                else if (nextAlarmDateTime != null)
+                    Pair(nextAlarmDateTime, true)
+                else if (nextDismissDateTime != null)
+                    Pair(nextDismissDateTime, false)
+                else
+                    null
             }
-            .minOrNull()
+            .groupBy(
+                keySelector = { it.first },
+                valueTransform = { it.second }
+            )
+            .minByOrNull { it.key }
+            ?.let { NextDateTimeInfo(
+                localDateTime = it.key,
+                hasAlarmAtTime = it.value.any { isAlarm -> isAlarm }
+            ) }
+
+
     }
 
     private fun createReceiverIntent(dateTime: LocalDateTime?) = PendingIntent.getBroadcast(
@@ -123,7 +145,7 @@ class WakeScheduler(
         alarmManager.cancel(createReceiverIntent(null))
     }
 
-    private fun setWakeAlarm(dateTime: LocalDateTime) {
+    private fun setWakeAlarm(dateTime: LocalDateTime, hasAlarmAtTime: Boolean) {
 
         val alarmManager = context.getSystemService(AlarmManager::class.java)
             ?: throw NoAlarmManagerException()
@@ -133,28 +155,40 @@ class WakeScheduler(
                 throw CannotScheduleExactAlarmException()
         }
 
-        val showIntent = PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
-        )
-
         val zonedToDateTime = dateTime.atZone(ZoneId.systemDefault())
         val triggerTime = zonedToDateTime.toInstant().toEpochMilli()
 
-        val alarmClockInfo = AlarmManager.AlarmClockInfo(
-            triggerTime,
-            showIntent,
-        )
+        val receiverIntent = createReceiverIntent(dateTime)
 
-        // as the receiverIntent is exactly the same
-        // (extras are not considered by comparing),
-        // previously set alarm will be overwritten
-        alarmManager.setAlarmClock(
-            alarmClockInfo,
-            createReceiverIntent(dateTime),
-        )
+        if (hasAlarmAtTime) {
+            val showIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+            )
+
+            // as the receiverIntent is exactly the same
+            // (extras are not considered by comparing),
+            // previously set alarm will be overwritten
+            alarmManager.setAlarmClock(
+                AlarmManager.AlarmClockInfo(
+                    triggerTime,
+                    showIntent,
+                ),
+                receiverIntent
+            )
+        }
+        else {
+            // as the receiverIntent is exactly the same
+            // (extras are not considered by comparing),
+            // previously set alarm will be overwritten
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                receiverIntent
+            )
+        }
     }
 
     class NoAlarmManagerException: RuntimeException("No alarm manager found")
