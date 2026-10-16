@@ -201,16 +201,29 @@ fun GroupSection(
                     onClick = { onAddAlarm() }
                 )
             }
+            if (!maximise) item {
+                Spacer(modifier = Modifier.height(16.dp))
+                NavigateGroup(
+                    onBack = {
+                        onBack()
+                    },
+                    onDelete = {
+                        state.showDeleteDialog = true
+                    },
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        NavigateGroup(
-            onBack = {
-                onBack()
-            },
-            onDelete = {
-                state.showDeleteDialog = true
-            },
-        )
+        if (maximise) {
+            Spacer(modifier = Modifier.height(16.dp))
+            NavigateGroup(
+                onBack = {
+                    onBack()
+                },
+                onDelete = {
+                    state.showDeleteDialog = true
+                },
+            )
+        }
     }
 
     if (state.showDeleteDialog)

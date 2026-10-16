@@ -174,14 +174,25 @@ fun AlarmSection(
                     option = option,
                 )
             }
+            if (!maximise) item {
+                Spacer(modifier = Modifier.height(16.dp))
+                NavigateGroup(
+                    onBack = onBack,
+                    onDelete = {
+                        showDeleteDialog = true
+                    },
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        NavigateGroup(
-            onBack = onBack,
-            onDelete = {
-                showDeleteDialog = true
-            },
-        )
+        if (maximise) {
+            Spacer(modifier = Modifier.height(16.dp))
+            NavigateGroup(
+                onBack = onBack,
+                onDelete = {
+                    showDeleteDialog = true
+                },
+            )
+        }
     }
 
 
