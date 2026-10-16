@@ -11,7 +11,7 @@ class ChannelContainer(
 ) {
     companion object {
         const val ALARM_CHANNEL_ID = "${BuildConfig.APPLICATION_ID}.ALARM_CHANNEL"
-        const val SERVICE_CHANNEL_ID = "${BuildConfig.APPLICATION_ID}.SERVICE_CHANNEL"
+        const val FOREWARN_CHANNEL_ID = "${BuildConfig.APPLICATION_ID}.FOREWARN_CHANNEL"
     }
 
     val alarmChannel by lazy {
@@ -23,10 +23,10 @@ class ChannelContainer(
         }.build()
     }
 
-    val serviceChannel by lazy {
-        NotificationChannelCompat.Builder(SERVICE_CHANNEL_ID, NotificationManager.IMPORTANCE_LOW).apply {
-            setName(context.getString(R.string.notifications_servicechannel_name))
-            setDescription(context.getString(R.string.notifications_servicechannel_description))
+    val forewarnChannel by lazy {
+        NotificationChannelCompat.Builder(FOREWARN_CHANNEL_ID, NotificationManager.IMPORTANCE_LOW).apply {
+            setName(context.getString(R.string.notifications_forewarnchannel_name))
+            setDescription(context.getString(R.string.notifications_forewarnchannel_description))
             setSound(null, null)
             setVibrationEnabled(false)
         }.build()

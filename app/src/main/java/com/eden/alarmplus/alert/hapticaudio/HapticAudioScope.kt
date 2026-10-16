@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.audiofx.AudioEffect
 import androidx.media3.common.AudioAttributes
 import android.media.audiofx.HapticGenerator
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.MainThread
@@ -15,7 +16,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
-import com.eden.alarmplus.data.alarms.structure.audio.AudioData
 
 class HapticAudioScope(
     private val attributionContext: Context
@@ -25,14 +25,14 @@ class HapticAudioScope(
 
     /**
      * Cancel previous audio and play new audio
-     * @param data audio data to start
+     * @param audioUri audio to start
      * @param tryIncludeHaptic whether to try to include haptic
      * @return if haptics are played with this audio
      */
     @OptIn(UnstableApi::class)
     @MainThread
     fun start(
-        data: AudioData,
+        audioUri: Uri,
         tryIncludeHaptic: Boolean
     ): Boolean = synchronized(this) {
 
@@ -52,7 +52,7 @@ class HapticAudioScope(
         player = ExoPlayer.Builder(attributionContext).build().apply {
 
             audioSessionId = Util.generateAudioSessionId(attributionContext)
-            setMediaItem(MediaItem.fromUri(data.uri))
+            setMediaItem(MediaItem.fromUri(audioUri))
             prepare()
 
             repeatMode = Player.REPEAT_MODE_ONE

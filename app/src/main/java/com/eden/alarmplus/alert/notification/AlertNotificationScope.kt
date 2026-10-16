@@ -11,8 +11,9 @@ import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.ui.notification.NotificationActivity
+import java.time.LocalTime
 
-class NotificationScope(
+class AlertNotificationScope(
     private val context: Context,
     private val channelContainer: ChannelContainer,
 ) {
@@ -29,25 +30,26 @@ class NotificationScope(
 
     private data class FullScreenInfo(
         val notificationId: Int,
+        val displayedTime: LocalTime,
         val fullScreenRequestCode: Int,
     )
 
-    inner class Builder(
-        private val group: GroupInfo,
-        private val alarm: AlarmData,
-    ) {
+    inner class Builder {
+        private var title: String? = null
         private var snoozeIntent: PendingIntent? = null
         private var dismissIntent: PendingIntent? = null
         private var fullScreenInfo: FullScreenInfo? = null
         private var timeoutMs: Long? = null
 
+        fun setTitle(value: String?) { title = value }
 
         fun addSnoozeIntent(pendingIntent: PendingIntent) { snoozeIntent = pendingIntent }
 
         fun addDismissIntent(pendingIntent: PendingIntent) { dismissIntent = pendingIntent }
 
-        fun addFullScreen(notificationId: Int, fullScreenRequestCode: Int = notificationId) { fullScreenInfo = FullScreenInfo(
+        fun addFullScreen(notificationId: Int, displayedTime: LocalTime, fullScreenRequestCode: Int = notificationId) { fullScreenInfo = FullScreenInfo(
             notificationId = notificationId,
+            displayedTime = displayedTime,
             fullScreenRequestCode = fullScreenRequestCode,
         ) }
 
@@ -63,8 +65,8 @@ class NotificationScope(
                     putExtra(NotificationActivity.EXTRA_SNOOZE_PENDING_INTENT, snoozeIntent)
                 if (dismissIntent != null)
                     putExtra(NotificationActivity.EXTRA_DISMISS_PENDING_INTENT, dismissIntent)
-                putExtra(NotificationActivity.EXTRA_GROUP_NAME, group.name)
-                putExtra(NotificationActivity.EXTRA_ALARM_TIME, alarm.info.time)
+                putExtra(NotificationActivity.EXTRA_GROUP_NAME, title)
+                putExtra(NotificationActivity.EXTRA_ALARM_TIME, info.displayedTime)
 
                 addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)
@@ -93,7 +95,7 @@ class NotificationScope(
                 setVibrate(null)
 
                 setSmallIcon(R.drawable.icon_full)
-                setContentTitle(group.name ?: context.getString(R.string.alert_notification_alarmnotificationbuilder_placeholder))
+                setContentTitle(title ?: context.getString(R.string.notifications_emptygroupname))
 
                 val capturedTimeoutMs = timeoutMs
                 if (capturedTimeoutMs != null)

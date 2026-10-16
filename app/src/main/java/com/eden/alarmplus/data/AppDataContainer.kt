@@ -14,6 +14,9 @@ import com.eden.alarmplus.data.datetime.repository.ReceiverTimeFormatRepository
 import com.eden.alarmplus.data.datetime.repository.ReceiverTimeTickRepository
 import com.eden.alarmplus.data.datetime.repository.TimeFormatRepository
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
+import com.eden.alarmplus.data.notifications.database.NotificationDatabase
+import com.eden.alarmplus.data.notifications.repository.NotificationRepository
+import com.eden.alarmplus.data.notifications.repository.OfflineNotificationRepository
 import kotlin.uuid.Uuid
 
 class AppDataContainer(
@@ -47,6 +50,10 @@ class AppDataContainer(
 
     override val stateRepository: StateRepository by lazy {
         OfflineStateRepository(AlarmsDatabase.getDatabase(context).stateDao())
+    }
+
+    override val notificationRepository: NotificationRepository by lazy {
+        OfflineNotificationRepository(NotificationDatabase.getDatabase(context).notificationDao())
     }
 
     override val timeFormatRepository: TimeFormatRepository by lazy {

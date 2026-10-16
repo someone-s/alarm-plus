@@ -5,18 +5,23 @@ import androidx.core.content.ContextCompat
 import com.eden.alarmplus.AlarmPlusApplication.Companion.ATTRIBUTION_TAG_PLAY_AUDIBLE_ALARM
 import com.eden.alarmplus.alert.hapticaudio.HapticAudioScope
 import com.eden.alarmplus.alert.notification.ChannelContainer
-import com.eden.alarmplus.alert.notification.NotificationScope
+import com.eden.alarmplus.alert.notification.AlertNotificationScope
+import com.eden.alarmplus.alert.notification.ForewarnNotificationScope
 import com.eden.alarmplus.alert.vibration.VibrationScope
 
 class AlertScope(
     context: Context
 ) {
 
-    val notificationScope: NotificationScope by lazy {
-        NotificationScope(context, channelContainer)
+    val alertNotificationScope: AlertNotificationScope by lazy {
+        AlertNotificationScope(context, channelContainer)
     }
 
-    val hapticAudioPlayer: HapticAudioScope by lazy {
+    val forewarnNotificationScope: ForewarnNotificationScope by lazy {
+        ForewarnNotificationScope(context, channelContainer)
+    }
+
+    val hapticAudioScope: HapticAudioScope by lazy {
         HapticAudioScope(
             ContextCompat.createAttributionContext(context, ATTRIBUTION_TAG_PLAY_AUDIBLE_ALARM)
         )

@@ -14,8 +14,10 @@ class AlertService: LifecycleService() {
         super.onCreate()
         alertLogic = AlertLogic(
             this,
-            (application as AlarmPlusApplication).alertScope.notificationScope,
-            (application as AlarmPlusApplication).alertScope.hapticAudioPlayer,
+            (application as AlarmPlusApplication).container.notificationRepository,
+            (application as AlarmPlusApplication).alertScope.alertNotificationScope,
+            (application as AlarmPlusApplication).alertScope.forewarnNotificationScope,
+            (application as AlarmPlusApplication).alertScope.hapticAudioScope,
             (application as AlarmPlusApplication).alertScope.vibrationScope,
         )
     }

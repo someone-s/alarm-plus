@@ -80,7 +80,7 @@
             android:enabled="true"
             android:exported="false" />
         <receiver
-            android:name=".logic.internal.InitializationReceiver"
+            android:name=".logic.internal.SystemReceiver"
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true">

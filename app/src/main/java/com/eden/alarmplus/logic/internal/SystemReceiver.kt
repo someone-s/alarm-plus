@@ -9,7 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-class InitializationReceiver: BroadcastReceiver() {
+class SystemReceiver: BroadcastReceiver() {
 
     class InvalidActionException: RuntimeException()
 
@@ -21,12 +21,14 @@ class InitializationReceiver: BroadcastReceiver() {
         }
 
         val application = context.applicationContext as AlarmPlusApplication
+        val notificationRepository = application.container.notificationRepository
         val stateProcessor = application.logicScope.stateProcessor
 
         val pendingResult = goAsync()
         @OptIn(DelicateCoroutinesApi::class)
         GlobalScope.launch {
             try {
+                notificationRepository.reset()
                 stateProcessor.initializeState(LocalDateTime.now())
                 pendingResult.resultCode = 0
             }

@@ -59,7 +59,7 @@
     <string name="ui_notification_notificationcontent_dismissaction">Dismiss</string>
     <string name="notifications_servicechannel_name">Alert Service</string>
     <string name="notifications_servicechannel_description">Notify when the app is displaying alarms.</string>
-    <string name="alert_notification_alarmnotificationbuilder_placeholder">Untitled Alarm</string>
+    <string name="notifications_emptygroupname">Untitled Alarm</string>
     <string name="ui_main_alarms_edit_alarm_alarmsection_option_sound">Sound</string>
     <string name="ui_main_alarms_edit_alarm_alarmsection_option_vibrate">Vibrate</string>
     <string name="ui_main_alarms_edit_alarm_alarmsection_option_pinstart">Pin as start</string>
@@ -74,4 +74,7 @@
     <string name="ui_main_alarms_edit_group_dayofweekgroup_sunday">S</string>
     <string name="ui_notification_infosection_placeholder">Unnamed</string>
     <string name="ui_common_components_modalsidesheet_scrimaction">Dismiss sheet</string>
+    <string name="notifications_forewarnchannel_name">Upcoming</string>
+    <string name="notifications_forewarnchannel_description">Notify when upcoming alarm is dismissable</string>
+    <string name="notifications_forewarnnotification_title">Upcoming Alarm</string>
 </resources>

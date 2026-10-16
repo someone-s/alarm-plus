@@ -8,6 +8,7 @@ import com.eden.alarmplus.alert.AlertLogic
 import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
@@ -211,6 +212,9 @@ class StateProcessor(
      * @throws InvalidatedStateException when handle is found to be out of date
      */
     private suspend fun constructState(handle: Lock.Handle, dateTime: LocalDateTime) {
+
+        val forewarnGroups = mutableListOf<GroupInfo>()
+
         val day = dateTime.dayOfWeek
         val time = dateTime.toLocalTime()
         for ((info, alarms, dayOfWeekFlags) in stateRepository.getAllGroups()) {
@@ -259,10 +263,26 @@ class StateProcessor(
                         StateData.Type.UNDEFINED -> currentState.toIdle()
                     }
 
-
+            if (inDismissableWindow && !inDuration)
+                forewarnGroups.add(info)
 
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
             stateRepository.updateState(newState)
+        }
+
+        context.startService(
+            Intent(context, AlertService::class.java).apply {
+                action = AlertLogic.ACTION_CLEAR_FOREWARN
+            }
+        )
+
+        for (info in forewarnGroups) {
+            context.startService(
+                Intent(context, AlertService::class.java).apply {
+                    action = AlertLogic.ACTION_FOREWARN
+                    putExtra(AlertLogic.EXTRA_GROUP_INFO, info)
+                }
+            )
         }
     }
 
@@ -294,6 +314,17 @@ class StateProcessor(
                 // return if null (invalidated by changes, a new run should be triggered)
                 val currentState = stateRepository.getState(info.uuid) ?: throw InvalidatedStateException()
 
+                val shouldNotify = when (currentState.type) {
+                    StateData.Type.ACTIVE -> false
+                    StateData.Type.DISMISSED -> false
+                    StateData.Type.IDLE -> true
+                    StateData.Type.PRIMED -> false
+                    StateData.Type.UNDEFINED -> {
+                        Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
+                        false
+                    }
+                }
+
                 val newState = when (currentState.type) {
                     StateData.Type.ACTIVE -> currentState
                     StateData.Type.DISMISSED -> currentState
@@ -304,6 +335,15 @@ class StateProcessor(
                         currentState
                     }
                 }
+
+                if (shouldNotify)
+                    context.startService(
+                        Intent(context, AlertService::class.java).apply {
+                            action = AlertLogic.ACTION_FOREWARN
+                            putExtra(AlertLogic.EXTRA_GROUP_INFO, info)
+                        }
+                    )
+
                 if (!Lock.isValid(handle)) throw InvalidatedStateException()
                 stateRepository.updateState(newState)
             }
