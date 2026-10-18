@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.eden.alarmplus.data.alarms.repository.StateRepository
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import com.eden.alarmplus.ui.main.MainActivity
 import java.time.Duration
 import java.time.LocalDateTime
@@ -49,9 +51,11 @@ class WakeScheduler(
         return stateRepository.getAllGroups()
             .filter { it.info.enabled }
             .mapNotNull { group ->
-                val allowYesterday = group.dayOfWeekFlags.any(fromDayBeforeInWeek)
-                val allowToday = group.dayOfWeekFlags.any(fromDayInWeek)
-                val allowTomorrow = group.dayOfWeekFlags.any(fromDayAfterInWeek)
+                val dayOfWeekFlags = group.info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
+
+                val allowYesterday = dayOfWeekFlags.any(fromDayBeforeInWeek)
+                val allowToday = dayOfWeekFlags.any(fromDayInWeek)
+                val allowTomorrow = dayOfWeekFlags.any(fromDayAfterInWeek)
 
                 val nextAlarmDateTime = if (allowYesterday && allowToday) {
                     group.alarms.map { it.info.time }
@@ -71,7 +75,7 @@ class WakeScheduler(
                         ?.let { LocalDateTime.of(fromDate, it) }
                 }
                 else {
-                    val nextStartDate = group.dayOfWeekFlags.toDayOfWeeks()
+                    val nextStartDate = dayOfWeekFlags.toDayOfWeeks()
                         .map { fromDate.with(TemporalAdjusters.next(it)) }
                         .minByOrNull { it }
                     if (nextStartDate != null)
@@ -94,7 +98,7 @@ class WakeScheduler(
                         ?.also { if (it.isAfter(fromDateTime)) nextDismissDateTime = it }
 
                 if (nextDismissDateTime == null) {
-                    val nextDismissDate = group.dayOfWeekFlags.toDayOfWeeks()
+                    val nextDismissDate = dayOfWeekFlags.toDayOfWeeks()
                         .map { fromDateAfter.with(TemporalAdjusters.next(it)) }
                         .minByOrNull { it }
                     if (nextDismissDate != null)

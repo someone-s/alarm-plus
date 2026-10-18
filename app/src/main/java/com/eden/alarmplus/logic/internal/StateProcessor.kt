@@ -8,7 +8,9 @@ import com.eden.alarmplus.alert.AlertLogic
 import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
@@ -217,7 +219,9 @@ class StateProcessor(
 
         val day = dateTime.dayOfWeek
         val time = dateTime.toLocalTime()
-        for ((info, alarms, dayOfWeekFlags) in stateRepository.getAllGroups()) {
+        for ((info, alarms) in stateRepository.getAllGroups()) {
+
+            val dayOfWeekFlags = info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
 
             val inDuration: Boolean = isTimeWithinTimeSpan(
                 alarms.map { it.info.time },
@@ -297,10 +301,11 @@ class StateProcessor(
         val day = dateTime.dayOfWeek
         val time = dateTime.toLocalTime()
 
-        for ((info, alarms, dayOfWeekFlags) in stateRepository.getAllGroups()
+        for ((info, alarms) in stateRepository.getAllGroups()
             .filter { it.info.enabled }
             .filter { it.alarms.isNotEmpty() }
         ) {
+            val dayOfWeekFlags = info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
 
             val allowYesterday = dayOfWeekFlags.any(day.minus(1))
             val allowToday = dayOfWeekFlags.any(day)

@@ -16,9 +16,9 @@ interface GroupsInternalDao: GroupsDao {
      * @param alarms belonging to the group
      */
     @Transaction
-    override suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>, dayOfWeek: DayOfWeekEntity) {
+    override suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>) {
         delete(group.uuid.upperUuid, group.uuid.lowerUuid)
-        internalInsert(group, alarms, dayOfWeek, StateEntity(group.uuid))
+        internalInsert(group, alarms, StateEntity(group.uuid))
     }
 
     /**
@@ -26,7 +26,7 @@ interface GroupsInternalDao: GroupsDao {
      * [Transaction] is already inherit-ly implemented with [androidx.room3.Insert]
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun internalInsert(group: GroupEntity, alarms: List<AlarmEntity>, dayOfWeek: DayOfWeekEntity, state: StateEntity)
+    suspend fun internalInsert(group: GroupEntity, alarms: List<AlarmEntity>, state: StateEntity)
 
     /**
      * [Transaction] annotation added to reiterate this is a write operation.

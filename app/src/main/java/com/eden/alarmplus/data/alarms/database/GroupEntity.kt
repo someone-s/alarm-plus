@@ -17,4 +17,6 @@ data class GroupEntity(
     val name: String?,
     @ColumnInfo(name = "enabled")
     val enabled: Boolean,
+    @ColumnInfo(name = "features")
+    val features: String,
 )

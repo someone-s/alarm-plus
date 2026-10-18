@@ -6,6 +6,7 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
 import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.logic.access.StateHookProvider
@@ -27,6 +28,13 @@ val mockGroupAlarmViewModel = GroupAlarmViewModel(
                     info = GroupInfo(
                         name = "Morning alarms",
                         enabled = true,
+                        features = listOf(
+                            DayOfWeekFeature(DayOfWeekFlags.merge(
+                                DayOfWeekFlags.MONDAY,
+                                DayOfWeekFlags.TUESDAY,
+                                DayOfWeekFlags.WEDNESDAY
+                            ))
+                        ),
                     ),
                     alarms = listOf(
                         AlarmData(
@@ -48,11 +56,6 @@ val mockGroupAlarmViewModel = GroupAlarmViewModel(
                             features = emptyList(),
                         ),
                     ),
-                    dayOfWeekFlags = DayOfWeekFlags.merge(
-                        DayOfWeekFlags.MONDAY,
-                        DayOfWeekFlags.TUESDAY,
-                        DayOfWeekFlags.WEDNESDAY
-                    ),
                 ),
                 StateData(Uuid.random(), StateData.Type.ACTIVE)
             ),
@@ -61,6 +64,7 @@ val mockGroupAlarmViewModel = GroupAlarmViewModel(
                     info = GroupInfo(
                         name = "Lunch alerts",
                         enabled = false,
+                        features = emptyList(),
                     ),
                     alarms = listOf(
                         AlarmData(
@@ -76,7 +80,6 @@ val mockGroupAlarmViewModel = GroupAlarmViewModel(
                             features = emptyList(),
                         ),
                     ),
-                    dayOfWeekFlags = DayOfWeekFlags.ALL,
                 ),
                 StateData(Uuid.random(), StateData.Type.IDLE)
             ),

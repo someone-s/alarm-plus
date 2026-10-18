@@ -27,6 +27,7 @@ import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.emptyGroupData
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.common.components.ModalSideSheet
 import com.eden.alarmplus.ui.common.components.SideSheetValue
@@ -195,14 +196,16 @@ fun EditSheetPreview() {
             info = GroupInfo(
                 name = "Morning Alarm",
                 enabled = true,
+                features = listOf(
+                    DayOfWeekFeature(DayOfWeekFlags.merge(
+                        DayOfWeekFlags.WEDNESDAY,
+                        DayOfWeekFlags.FRIDAY
+                    ))
+                )
             ),
             alarms = listOf(
                 getUniqueAlarmData(),
                 getUniqueAlarmData(),
-            ),
-            dayOfWeekFlags = DayOfWeekFlags.merge(
-                DayOfWeekFlags.WEDNESDAY,
-                DayOfWeekFlags.FRIDAY
             ),
         )
     )

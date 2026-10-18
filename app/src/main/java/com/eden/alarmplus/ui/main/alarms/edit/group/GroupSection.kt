@@ -31,6 +31,7 @@ import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
 import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
@@ -52,7 +53,6 @@ class GroupSectionState(
 ) {
     var info by mutableStateOf(initialGroup.info)
     val sortedAlarms = initialGroup.alarms.toMutableStateList()
-    var dayOfWeekFlags by mutableStateOf(initialGroup.dayOfWeekFlags)
     var modified by mutableStateOf(false)
     var showDeleteDialog by mutableStateOf(false)
 
@@ -121,7 +121,6 @@ class GroupSectionState(
         get() = GroupData(
             info = this.info,
             alarms = this.sortedAlarms.toList(),
-            dayOfWeekFlags = this.dayOfWeekFlags,
         )
 }
 
@@ -169,12 +168,16 @@ fun GroupSection(
                 Spacer(modifier = Modifier.height(32.dp))
             }
             item {
+                val dayOfWeekFlags = remember(state.info) {
+                    state.info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
+                }
                 DayOfWeekGroup(
-                    flags = state.dayOfWeekFlags,
+                    flags = dayOfWeekFlags,
                     onToggle = { flags, checked ->
-                        state.dayOfWeekFlags =
-                            if (checked) DayOfWeekFlags.merge(state.dayOfWeekFlags, flags)
-                            else state.dayOfWeekFlags.copyClear(flags)
+                        state.info = state.info.shallowCopyReplaceFeature(DayOfWeekFeature(
+                            if (checked) DayOfWeekFlags.merge(dayOfWeekFlags, flags)
+                            else dayOfWeekFlags.copyClear(flags)
+                        ))
                         state.modified = true
                     }
                 )
@@ -250,14 +253,16 @@ fun GroupSectionPreview() {
             info = GroupInfo(
                 name = "Morning Alarm",
                 enabled = true,
+                features = listOf(
+                    DayOfWeekFeature(DayOfWeekFlags.merge(
+                        DayOfWeekFlags.WEDNESDAY,
+                        DayOfWeekFlags.FRIDAY
+                    ))
+                )
             ),
             alarms = listOf(
                 getUniqueAlarmData(),
                 getUniqueAlarmData(),
-            ),
-            dayOfWeekFlags = DayOfWeekFlags.merge(
-                DayOfWeekFlags.WEDNESDAY,
-                DayOfWeekFlags.FRIDAY
             ),
         )
     )

@@ -3,6 +3,14 @@ package com.eden.alarmplus.data.alarms.structure.dayofweek
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.time.DayOfWeek
 
 fun DayOfWeek.toFlags() = when (this) {
@@ -15,8 +23,23 @@ fun DayOfWeek.toFlags() = when (this) {
     DayOfWeek.SUNDAY ->     DayOfWeekFlags.SUNDAY.mask
 }
 
+class DayOfWeekFlagsSerializer : KSerializer<DayOfWeekFlags> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor(DayOfWeekFlags::class.java.name, PrimitiveKind.STRING)
+
+
+    override fun serialize(encoder: Encoder, value: DayOfWeekFlags) {
+        encoder.encodeInt(value.mask)
+    }
+
+    override fun deserialize(decoder: Decoder) = DayOfWeekFlags(decoder.decodeInt())
+
+}
+
 @Immutable
 @Parcelize
+@SerialName("day-of-week-flags")
+@Serializable(with = DayOfWeekFlagsSerializer::class)
 data class DayOfWeekFlags(
     val mask: Int
 ) : Parcelable {
@@ -28,7 +51,7 @@ data class DayOfWeekFlags(
         val FRIDAY =    DayOfWeekFlags(1 shl 2)
         val SATURDAY =  DayOfWeekFlags(1 shl 1)
         val SUNDAY =    DayOfWeekFlags(1 shl 0)
-        val ALL =       DayOfWeekFlags.merge(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
+        val ALL =       merge(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
         fun merge(vararg flags: DayOfWeekFlags): DayOfWeekFlags {
             var mergedMask = 0

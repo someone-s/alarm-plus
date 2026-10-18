@@ -13,26 +13,58 @@ data class GroupInfo(
     val uuid: Uuid = Uuid.random(),
     val name: String?,
     val enabled: Boolean,
+    val features: List<GroupFeature>,
 ) : Parcelable {
     fun shallowCopy(name: String?) = GroupInfo(
         uuid = this.uuid,
         name = name,
         enabled = this.enabled,
+        features = this.features,
     )
 
     fun shallowCopy(active: Boolean) = GroupInfo(
         uuid = this.uuid,
         name = this.name,
         enabled = active,
+        features = this.features,
     )
+
+
+    fun shallowCopyAddFeature(feature: GroupFeature) = GroupInfo(
+        uuid = this.uuid,
+        name = this.name,
+        enabled = this.enabled,
+        features = this.features + feature
+    )
+
+    inline fun <reified T: GroupFeature> shallowCopyRemoveFeature() = GroupInfo(
+        uuid = this.uuid,
+        name = this.name,
+        enabled = this.enabled,
+        features = this.features.filter { it !is T }
+    )
+
+    inline fun <reified T: GroupFeature> shallowCopyReplaceFeature(feature: T) = GroupInfo(
+        uuid = this.uuid,
+        name = this.name,
+        enabled = this.enabled,
+        features = this.features.filter { it !is T } + feature
+    )
+
+    inline fun <reified T: GroupFeature> getFeature(): T? {
+        return features.firstOrNull { it is T } as? T
+    }
+
 }
 
 val emptyGroupInfo = GroupInfo(
     name = null,
     enabled = true,
+    features = emptyList(),
 )
 
 fun getUniqueGroupInfo() = GroupInfo(
     name = null,
     enabled = true,
+    features = emptyList(),
 )

@@ -15,10 +15,5 @@ data class GroupWithAll(
         parentColumns = ["group_upper_uuid", "group_lower_uuid"],
         entityColumns = ["group_upper_uuid", "group_lower_uuid"],
     )
-    val dayOfWeekEntity: DayOfWeekEntity?,
-    @Relation(
-        parentColumns = ["group_upper_uuid", "group_lower_uuid"],
-        entityColumns = ["group_upper_uuid", "group_lower_uuid"],
-    )
     val state: StateEntity,
 )

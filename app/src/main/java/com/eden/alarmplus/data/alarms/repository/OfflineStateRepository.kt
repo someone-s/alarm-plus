@@ -1,7 +1,6 @@
 package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.StateDao
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.common.repository.toUuidLongs
@@ -20,7 +19,6 @@ class OfflineStateRepository(
                     alarms = groupWithAll.unorderedAlarms
                         .sortedBy { alarm -> alarm.sortValue }
                         .map { alarm -> alarm.toAlarmData() },
-                    dayOfWeekFlags = groupWithAll.dayOfWeekEntity?.toDayOfWeekFlags() ?: DayOfWeekFlags.ALL,
                 )
             }
             .sortedBy { groupData ->
