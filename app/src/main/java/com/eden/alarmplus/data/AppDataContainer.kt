@@ -10,6 +10,8 @@ import com.eden.alarmplus.data.alarms.repository.OfflineStateRepository
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.datetime.receiver.TimeChangeReceiver
 import com.eden.alarmplus.data.datetime.receiver.TimeTickReceiver
+import com.eden.alarmplus.data.datetime.repository.DateFormatRepository
+import com.eden.alarmplus.data.datetime.repository.ReceiverDateFormatRepository
 import com.eden.alarmplus.data.datetime.repository.ReceiverTimeFormatRepository
 import com.eden.alarmplus.data.datetime.repository.ReceiverTimeTickRepository
 import com.eden.alarmplus.data.datetime.repository.TimeFormatRepository
@@ -56,9 +58,17 @@ class AppDataContainer(
         OfflineNotificationRepository(NotificationDatabase.getDatabase(context).notificationDao())
     }
 
+    private val timeChangeReceiver: TimeChangeReceiver by lazy {
+        TimeChangeReceiver().also {
+            context.registerReceiver(it, IntentFilter(Intent.ACTION_TIME_CHANGED))
+        }
+    }
+
+    override val dateFormatRepository: DateFormatRepository by lazy {
+        ReceiverDateFormatRepository(context, timeChangeReceiver)
+    }
+
     override val timeFormatRepository: TimeFormatRepository by lazy {
-        val timeChangeReceiver = TimeChangeReceiver()
-        context.registerReceiver(timeChangeReceiver, IntentFilter(Intent.ACTION_TIME_CHANGED))
         ReceiverTimeFormatRepository(context, timeChangeReceiver)
     }
 

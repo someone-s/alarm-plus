@@ -6,8 +6,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.ui.common.format.Format
-import com.eden.alarmplus.ui.common.format.FormatViewModel
-import com.eden.alarmplus.ui.common.format.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.format.TimeFormatViewModel
+import com.eden.alarmplus.ui.common.format.TimeFormatViewModelProvider
 import com.eden.alarmplus.ui.common.format.LocalFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -19,13 +19,13 @@ fun NotificationContent(
     time: LocalTime?,
     onSnooze: (() -> Unit)?,
     onDismiss: (() -> Unit)?,
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
+    timeFormatViewModel: TimeFormatViewModel = viewModel(factory = TimeFormatViewModelProvider.Factory),
 ) {
-    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
+    val currentTimeFormatUiState by timeFormatViewModel.currentTimeFormatUiState.collectAsState()
     val format = Format(
-        timeFormatter = currentFormatUiState.timeFormatter,
+        timeFormatter = currentTimeFormatUiState.timeFormatter,
         largeHourFormatter = DateTimeFormatter.ofPattern(
-            if (currentFormatUiState.is24Formatted) "HH"
+            if (currentTimeFormatUiState.is24Formatted) "HH"
             else "hh"
         ),
     )

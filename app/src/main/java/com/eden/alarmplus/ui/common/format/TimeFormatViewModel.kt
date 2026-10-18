@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.format.DateTimeFormatter
 
-class FormatViewModel(initialFormat: CurrentFormatUiState, timeFormatRepository: TimeFormatRepository): ViewModel() {
+class TimeFormatViewModel(initialFormat: CurrentTimeFormatUiState, timeFormatRepository: TimeFormatRepository): ViewModel() {
 
-    val currentFormatUiState: StateFlow<CurrentFormatUiState> =
+    val currentTimeFormatUiState: StateFlow<CurrentTimeFormatUiState> =
         timeFormatRepository.currentTimeFormat()
             .map {
-                CurrentFormatUiState(it.is24Formatted, it.timeFormatter)
+                CurrentTimeFormatUiState(it.is24Formatted, it.timeFormatter)
             }
             .stateIn(
                 scope = viewModelScope,
@@ -29,7 +29,7 @@ class FormatViewModel(initialFormat: CurrentFormatUiState, timeFormatRepository:
 }
 
 @Immutable
-data class CurrentFormatUiState(
+data class CurrentTimeFormatUiState(
     val is24Formatted: Boolean,
     val timeFormatter: DateTimeFormatter
 )

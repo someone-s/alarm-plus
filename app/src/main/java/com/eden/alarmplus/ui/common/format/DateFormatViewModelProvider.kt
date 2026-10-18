@@ -9,19 +9,18 @@ import com.eden.alarmplus.AlarmPlusApplication
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 
-object FormatViewModelProvider {
+object DateFormatViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             val application = mainApplication()
             val container = application.container
-            FormatViewModel(
-                CurrentFormatUiState(
-                    is24Formatted = DateFormat.is24HourFormat(application),
-                    timeFormatter = DateTimeFormatter.ofPattern(
-                        (DateFormat.getTimeFormat(application) as SimpleDateFormat).toPattern()
+            DateFormatViewModel(
+                CurrentDateFormatUiState(
+                    dateFormatter = DateTimeFormatter.ofPattern(
+                        (DateFormat.getDateFormat(application) as SimpleDateFormat).toPattern()
                     ),
                 ),
-                container.timeFormatRepository,
+                container.dateFormatRepository,
             )
         }
     }

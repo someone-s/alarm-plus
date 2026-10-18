@@ -7,6 +7,7 @@ import java.time.format.FormatStyle
 
 @Immutable
 data class Format(
+    val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
     val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT),
     val largeHourFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH"),
     val largeMinuteFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("mm"),

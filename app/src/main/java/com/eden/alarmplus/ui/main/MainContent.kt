@@ -12,9 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.eden.alarmplus.ui.common.format.DateFormatViewModel
+import com.eden.alarmplus.ui.common.format.DateFormatViewModelProvider
 import com.eden.alarmplus.ui.common.format.Format
-import com.eden.alarmplus.ui.common.format.FormatViewModel
-import com.eden.alarmplus.ui.common.format.FormatViewModelProvider
+import com.eden.alarmplus.ui.common.format.TimeFormatViewModel
+import com.eden.alarmplus.ui.common.format.TimeFormatViewModelProvider
 import com.eden.alarmplus.ui.common.format.LocalFormat
 import com.eden.alarmplus.ui.main.navigation.rememberRouteState
 import com.eden.alarmplus.ui.main.navigation.AboutRoute
@@ -26,10 +28,15 @@ import com.eden.alarmplus.ui.main.navigation.topLevelRoutes
 
 @Composable
 fun MainContent(
-    formatViewModel: FormatViewModel = viewModel(factory = FormatViewModelProvider.Factory),
+    dateFormatViewModel: DateFormatViewModel = viewModel(factory = DateFormatViewModelProvider.Factory),
+    timeFormatViewModel: TimeFormatViewModel = viewModel(factory = TimeFormatViewModelProvider.Factory),
 ) {
-    val currentFormatUiState by formatViewModel.currentFormatUiState.collectAsState()
-    val format = Format(timeFormatter = currentFormatUiState.timeFormatter)
+    val currentDateFormatUiState by dateFormatViewModel.currentDateFormatUiState.collectAsState()
+    val currentTimeFormatUiState by timeFormatViewModel.currentTimeFormatUiState.collectAsState()
+    val format = Format(
+        dateFormatter = currentDateFormatUiState.dateFormatter,
+        timeFormatter = currentTimeFormatUiState.timeFormatter,
+    )
 
     CompositionLocalProvider(LocalFormat provides format) {
 
