@@ -2,14 +2,13 @@ package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.AlarmEntity
 import com.eden.alarmplus.data.alarms.database.GroupEntity
-import com.eden.alarmplus.data.alarms.database.StateEntity
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
 import com.eden.alarmplus.data.alarms.structure.formatter
 import com.eden.alarmplus.data.alarms.structure.group.GroupFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
-import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.alarms.structure.state.StateType
 import com.eden.alarmplus.data.common.repository.toUuid
 import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
@@ -22,8 +21,8 @@ fun GroupInfo.toGroupEntity(): GroupEntity {
     return GroupEntity(
         uuid = this.uuid.toUuidLongs(),
         name = this.name,
-        enabled = this.enabled,
         features = features,
+        state = this.state.toInt(),
     )
 }
 
@@ -33,8 +32,8 @@ fun GroupEntity.toGroupInfo(): GroupInfo {
     return GroupInfo(
         uuid = this.uuid.toUuid(),
         name = this.name,
-        enabled = this.enabled,
         features = features,
+        state = this.state.toStateType(),
     )
 }
 
@@ -67,22 +66,23 @@ fun AlarmEntity.toAlarmData(): AlarmData {
     )
 }
 
-fun StateData.toStateEntity() = StateEntity(
-    groupUuid = this.groupUuid.toUuidLongs(),
-    value = when(this.type) {
-        StateData.Type.ACTIVE -> StateEntity.ACTIVE_VALUE
-        StateData.Type.DISMISSED -> StateEntity.DISMISSED_VALUE
-        StateData.Type.IDLE -> StateEntity.IDLE_VALUE
-        StateData.Type.PRIMED -> StateEntity.PRIMED_VALUE
-        StateData.Type.UNDEFINED -> StateEntity.UNDEFINED_VALUE
-    }
-)
+fun StateType.toInt() = when(this) {
+    StateType.DISABLED -> GroupEntity.DISABLED_VALUE
+    StateType.ENABLED_PENDING -> GroupEntity.ENABLED_PENDING_VALUE
+    StateType.ENABLED_PRIMED -> GroupEntity.ENABLED_PRIMED_VALUE
+    StateType.ENABLED_ACTIVE -> GroupEntity.ENABLED_ACTIVE_VALUE
+    StateType.ENABLED_DISMISSED -> GroupEntity.ENABLED_DISMISSED_VALUE
+    StateType.ENABLED_IDLE -> GroupEntity.ENABLED_IDLE_VALUE
+    StateType.ENABLED_UNDEFINED -> GroupEntity.ENABLED_UNDEFINED_VALUE
+}
 
-fun StateEntity.toStateData() = when(this.value) {
-    StateEntity.ACTIVE_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.ACTIVE)
-    StateEntity.DISMISSED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.DISMISSED)
-    StateEntity.IDLE_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.IDLE)
-    StateEntity.PRIMED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.PRIMED)
-    StateEntity.UNDEFINED_VALUE -> StateData(this.groupUuid.toUuid(), StateData.Type.UNDEFINED)
-    else -> throw IllegalArgumentException("StateEntity.value is ${this.value}, not recognized.")
+fun Int.toStateType() = when(this) {
+    GroupEntity.DISABLED_VALUE -> StateType.DISABLED
+    GroupEntity.ENABLED_PENDING_VALUE -> StateType.ENABLED_PENDING
+    GroupEntity.ENABLED_PRIMED_VALUE -> StateType.ENABLED_PRIMED
+    GroupEntity.ENABLED_ACTIVE_VALUE -> StateType.ENABLED_ACTIVE
+    GroupEntity.ENABLED_DISMISSED_VALUE -> StateType.ENABLED_DISMISSED
+    GroupEntity.ENABLED_IDLE_VALUE -> StateType.ENABLED_IDLE
+    GroupEntity.ENABLED_UNDEFINED_VALUE -> StateType.ENABLED_UNDEFINED
+    else -> throw IllegalArgumentException("StateEntity.value is $this, not recognized.")
 }

@@ -2,7 +2,6 @@ package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.GroupsDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.common.repository.toUuidLongs
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +35,7 @@ class OfflineGroupAlarmsRepository(
     override suspend fun toggle(groupUuid: Uuid, enabled: Boolean) {
         withContext(NonCancellable) {
             val longs = groupUuid.toUuidLongs()
-            groupsDao.toggle(longs.upperUuid, longs.lowerUuid, enabled)
+            groupsDao.toggleResetState(longs.upperUuid, longs.lowerUuid, enabled)
             super.toggle(groupUuid, enabled)
         }
     }
@@ -53,24 +52,21 @@ class OfflineGroupAlarmsRepository(
         notificationListener.onNotification(notification)
     }
 
-    override fun getAllGroupsStream(): Flow<List<Pair<GroupData, StateData>>> {
+    override fun getAllGroupsStream(): Flow<List<GroupData>> {
         return groupsDao.getAll()
-            .map { groupWithAlls ->
-                groupWithAlls
-                    .map { groupWithAll ->
-                        Pair(
-                            GroupData(
-                                info = groupWithAll.group.toGroupInfo(),
-                                alarms = groupWithAll.unorderedAlarms
-                                    .sortedBy { alarm -> alarm.sortValue }
-                                    .map { alarm -> alarm.toAlarmData() },
-                            ),
-                            groupWithAll.state.toStateData()
+            .map { groupsWithAlarms ->
+                groupsWithAlarms
+                    .map { groupWithAlarms ->
+                        GroupData(
+                            info = groupWithAlarms.group.toGroupInfo(),
+                            alarms = groupWithAlarms.unorderedAlarms
+                                .sortedBy { alarm -> alarm.sortValue }
+                                .map { alarm -> alarm.toAlarmData() },
                         )
                     }
-                    .sortedBy { pair ->
-                        if (pair.first.alarms.isEmpty()) LocalTime.of(0, 0)
-                        else pair.first.alarms.minOf { a -> a.info.time }
+                    .sortedBy { groupWithAlarms ->
+                        if (groupWithAlarms.alarms.isEmpty()) LocalTime.of(0, 0)
+                        else groupWithAlarms.alarms.minOf { a -> a.info.time }
                     }
             }
     }

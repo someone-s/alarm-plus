@@ -15,8 +15,18 @@ data class GroupEntity(
     val uuid: UuidLongs,
     @ColumnInfo(name = "name")
     val name: String?,
-    @ColumnInfo(name = "enabled")
-    val enabled: Boolean,
     @ColumnInfo(name = "features")
     val features: String,
-)
+    @ColumnInfo("state")
+    var state: Int = ENABLED_UNDEFINED_VALUE,
+) {
+    companion object {
+        const val DISABLED_VALUE = 6
+        const val ENABLED_UNDEFINED_VALUE = 0
+        const val ENABLED_PENDING_VALUE = 5
+        const val ENABLED_PRIMED_VALUE = 4
+        const val ENABLED_ACTIVE_VALUE = 1
+        const val ENABLED_DISMISSED_VALUE = 2
+        const val ENABLED_IDLE_VALUE = 3
+    }
+}

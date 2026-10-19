@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.state.StateType
 import com.eden.alarmplus.ui.common.format.LocalFormat
 
 object GroupItemDefaults {
@@ -88,10 +89,15 @@ class GroupItemTextStyle(
     val dismissComputedHeight: Dp,
 )
 
+private enum class GroupItemMode {
+    DISMISSABLE,
+    CURRENT,
+    UNFOCUSED,
+}
+
 @Composable
 fun GroupItem(
     group: GroupData,
-    dismissable: Boolean,
     onSelect: () -> Unit,
     onToggle: (Boolean) -> Unit,
     onDelete: () -> Unit,
@@ -100,6 +106,16 @@ fun GroupItem(
     shapes: ListItemShapes = ListItemDefaults.segmentedShapes(0, 1),
     textStyles: GroupItemTextStyle = GroupItemDefaults.textStyles()
 ) {
+    val mode = when (group.info.state) {
+        StateType.DISABLED -> GroupItemMode.UNFOCUSED
+        StateType.ENABLED_UNDEFINED -> GroupItemMode.UNFOCUSED
+        StateType.ENABLED_PENDING -> GroupItemMode.UNFOCUSED
+        StateType.ENABLED_PRIMED -> GroupItemMode.DISMISSABLE
+        StateType.ENABLED_ACTIVE -> GroupItemMode.DISMISSABLE
+        StateType.ENABLED_DISMISSED -> GroupItemMode.CURRENT
+        StateType.ENABLED_IDLE -> GroupItemMode.CURRENT
+    }
+
     val firstTime = group.alarms.firstOrNull()?.info?.time
 
     val positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
@@ -159,21 +175,20 @@ fun GroupItem(
                 Column {
                     SegmentedListItem(
                         shapes = shapes,
-                        colors = if (dismissable)
-                            ListItemDefaults.colors(
+                        colors = when (mode) {
+                            GroupItemMode.DISMISSABLE -> ListItemDefaults.colors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
-                        else if (group.info.enabled)
-                            ListItemDefaults.colors(
+                            GroupItemMode.CURRENT -> ListItemDefaults.colors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
-                        else
-                            ListItemDefaults.colors(
+                            GroupItemMode.UNFOCUSED -> ListItemDefaults.colors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
                                 contentColor = MaterialTheme.colorScheme.onSurface,
-                            ),
+                            )
+                        },
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clickable {
@@ -185,7 +200,11 @@ fun GroupItem(
                             Column {
                                 Text(
                                     text = group.info.name ?: "",
-                                    fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Light,
+                                    fontWeight = when (mode) {
+                                        GroupItemMode.DISMISSABLE,
+                                        GroupItemMode.CURRENT -> FontWeight.SemiBold
+                                        GroupItemMode.UNFOCUSED -> FontWeight.Light
+                                    },
                                     style = textStyles.titleStyle,
                                     maxLines = 1,
                                     modifier = Modifier.height(textStyles.titleComputedHeight),
@@ -194,7 +213,11 @@ fun GroupItem(
                                     text = if (firstTime != null) timeFormatter.format(
                                         firstTime
                                     ) else "--:--",
-                                    fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Light,
+                                    fontWeight = when (mode) {
+                                        GroupItemMode.DISMISSABLE,
+                                        GroupItemMode.CURRENT -> FontWeight.SemiBold
+                                        GroupItemMode.UNFOCUSED -> FontWeight.Light
+                                    },
                                     style = textStyles.firstTimeStyle,
                                     maxLines = 1,
                                     modifier = Modifier.height(textStyles.firstTimeComputedHeight),
@@ -211,7 +234,11 @@ fun GroupItem(
                                             text = timeFormatter.format(
                                                 remainingTime
                                             ),
-                                            fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Normal,
+                                            fontWeight = when (mode) {
+                                                GroupItemMode.DISMISSABLE,
+                                                GroupItemMode.CURRENT -> FontWeight.SemiBold
+                                                GroupItemMode.UNFOCUSED -> FontWeight.Normal
+                                            },
                                             style = textStyles.remainingTimesStyle,
                                             maxLines = 1,
                                         )
@@ -222,7 +249,15 @@ fun GroupItem(
                         },
                         trailingContent = {
                             Switch(
-                                checked = group.info.enabled,
+                                checked = when (group.info.state) {
+                                    StateType.DISABLED -> false
+                                    StateType.ENABLED_UNDEFINED,
+                                    StateType.ENABLED_PENDING,
+                                    StateType.ENABLED_PRIMED,
+                                    StateType.ENABLED_ACTIVE,
+                                    StateType.ENABLED_DISMISSED,
+                                    StateType.ENABLED_IDLE -> true
+                                },
                                 onCheckedChange = {
                                     hapticFeedback.performHapticFeedback(
                                         if (it) HapticFeedbackType.ToggleOn
@@ -233,7 +268,10 @@ fun GroupItem(
                             )
                         },
                     )
-                    AnimatedVisibility(dismissable, modifier = Modifier.fillMaxWidth()) {
+                    AnimatedVisibility(
+                        visible = mode == GroupItemMode.DISMISSABLE,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Row(horizontalArrangement = Arrangement.End) {
                             ListItem(
                                 colors = ListItemDefaults.colors(
@@ -247,7 +285,11 @@ fun GroupItem(
                                 trailingContent = {
                                     Text(
                                         text = stringResource(R.string.ui_main_alarms_overview_groupitem_dismiss),
-                                        fontWeight = if (group.info.enabled) FontWeight.SemiBold else FontWeight.Normal,
+                                        fontWeight = when (mode) {
+                                            GroupItemMode.DISMISSABLE,
+                                            GroupItemMode.CURRENT -> FontWeight.SemiBold
+                                            GroupItemMode.UNFOCUSED -> FontWeight.Normal
+                                        },
                                         style = textStyles.dismissStyle,
                                         maxLines = 1,
                                         modifier = Modifier

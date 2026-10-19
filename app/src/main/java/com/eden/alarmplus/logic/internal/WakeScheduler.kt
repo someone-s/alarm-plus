@@ -10,6 +10,7 @@ import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
+import com.eden.alarmplus.data.alarms.structure.state.StateType
 import com.eden.alarmplus.ui.main.MainActivity
 import java.time.Duration
 import java.time.LocalDate
@@ -54,8 +55,12 @@ class WakeScheduler(
         val fromDayAfterInWeek = fromDayInWeek.plus(1)
 
         return stateRepository.getAllGroups()
-            .filter { it.info.enabled }
             .mapNotNull { group ->
+                when (group.info.state) {
+                    StateType.DISABLED -> return@mapNotNull null
+                    else -> {}
+                }
+
                 val dayOfWeekFlags = group.info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
 
                 val beginDate = group.info.getFeature<ScheduleBeginFeature>()?.date
@@ -140,7 +145,7 @@ class WakeScheduler(
                     val nextDismissDate = if (nextDismissAnchor != null)
                         dayOfWeekFlags.toDayOfWeeks()
                         .map { nextDismissAnchor.with(TemporalAdjusters.nextOrSame(it)) }
-                        .filter { !it.isAfter(endDate) }
+                        .filter { endDate == null || !it.isAfter(endDate) }
                         .minByOrNull { it }
                     else null
 

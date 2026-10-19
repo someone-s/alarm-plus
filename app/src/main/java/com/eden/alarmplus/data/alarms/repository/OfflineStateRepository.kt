@@ -2,7 +2,7 @@ package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.StateDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.alarms.structure.state.StateType
 import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
 import kotlin.uuid.Uuid
@@ -13,10 +13,10 @@ class OfflineStateRepository(
 
     override suspend fun getAllGroups(): List<GroupData> {
         return stateDao.getAllGroups()
-            .map { groupWithAll ->
+            .map { groupWithAlarms ->
                 GroupData(
-                    info = groupWithAll.group.toGroupInfo(),
-                    alarms = groupWithAll.unorderedAlarms
+                    info = groupWithAlarms.group.toGroupInfo(),
+                    alarms = groupWithAlarms.unorderedAlarms
                         .sortedBy { alarm -> alarm.sortValue }
                         .map { alarm -> alarm.toAlarmData() },
                 )
@@ -27,12 +27,13 @@ class OfflineStateRepository(
             }
     }
 
-    override suspend fun getState(groupUuid: Uuid): StateData? {
+    override suspend fun getState(groupUuid: Uuid): StateType? {
         val longs = groupUuid.toUuidLongs()
-        return stateDao.getState(longs.upperUuid, longs.lowerUuid)?.toStateData()
+        return stateDao.getState(longs.upperUuid, longs.lowerUuid)?.toStateType()
     }
 
-    override suspend fun updateState(state: StateData) {
-        stateDao.updateState(state.toStateEntity())
+    override suspend fun updateState(groupUuid: Uuid, state: StateType) {
+        val longs = groupUuid.toUuidLongs()
+        stateDao.updateState(longs.upperUuid, longs.lowerUuid, state.toInt())
     }
 }

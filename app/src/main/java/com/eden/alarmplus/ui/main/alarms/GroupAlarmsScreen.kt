@@ -39,7 +39,6 @@ import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
-import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.ui.main.navigation.CommonRouteState
 import com.eden.alarmplus.ui.main.alarms.overview.AddButton
 import com.eden.alarmplus.ui.main.alarms.edit.EditSheet
@@ -98,7 +97,7 @@ fun GroupAlarmScreen(
     val revertGroupUpdateAction = stringResource(R.string.ui_main_alarms_groupscreen_revertgroupupdateaction)
     fun showRevertGroupUpdateSnackbar(editGroup: GroupData) {
         val groupUuid = editGroup.info.uuid
-        val originalGroup = groupAlarmUiState.groupAndStateList.firstOrNull { it.first.info.uuid == groupUuid }?.first
+        val originalGroup = groupAlarmUiState.groupList.firstOrNull { it.info.uuid == groupUuid }
 
         scope.launch {
             viewModel.insertOrReplaceGroupAlarm(editGroup)
@@ -165,24 +164,15 @@ fun GroupAlarmScreen(
 
                         ) {
                         items(
-                            items = groupAlarmUiState.groupAndStateList,
-                            key = { it.first.info.uuid }
-                        ) { groupAndState ->
-                            val group = groupAndState.first
-                            val state = groupAndState.second
+                            items = groupAlarmUiState.groupList,
+                            key = { it.info.uuid }
+                        ) { group ->
 
                             GroupItem(
                                 modifier = Modifier
                                     .widthIn(max = 400.dp)
                                     .animateItem(),
                                 group = group,
-                                dismissable = when (state.type) {
-                                    StateData.Type.ACTIVE -> true
-                                    StateData.Type.UNDEFINED -> false
-                                    StateData.Type.DISMISSED -> false
-                                    StateData.Type.IDLE -> false
-                                    StateData.Type.PRIMED -> true
-                                },
                                 onSelect = {
                                     editSheetState.showSheet(group)
                                 },

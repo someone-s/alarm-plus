@@ -7,7 +7,7 @@ import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
-import com.eden.alarmplus.data.alarms.structure.state.StateData
+import com.eden.alarmplus.data.alarms.structure.state.StateType
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.logic.access.StateHookProvider
 import kotlinx.coroutines.flow.Flow
@@ -22,66 +22,60 @@ val mockGroupAlarmViewModel = GroupAlarmViewModel(
     groupAlarmsRepository = object : GroupAlarmsRepository {
         override suspend fun notify(notification: GroupAlarmsRepository.ChangeNotification) {}
 
-        override fun getAllGroupsStream():Flow<List<Pair<GroupData, StateData>>> = flowOf(listOf(
-            Pair(
-                GroupData(
-                    info = GroupInfo(
-                        name = "Morning alarms",
-                        enabled = true,
-                        features = listOf(
-                            DayOfWeekFeature(DayOfWeekFlags.merge(
-                                DayOfWeekFlags.MONDAY,
-                                DayOfWeekFlags.TUESDAY,
-                                DayOfWeekFlags.WEDNESDAY
-                            ))
-                        ),
+        override fun getAllGroupsStream():Flow<List<GroupData>> = flowOf(listOf(
+            GroupData(
+                info = GroupInfo(
+                    name = "Morning alarms",
+                    features = listOf(
+                        DayOfWeekFeature(DayOfWeekFlags.merge(
+                            DayOfWeekFlags.MONDAY,
+                            DayOfWeekFlags.TUESDAY,
+                            DayOfWeekFlags.WEDNESDAY
+                        ))
                     ),
-                    alarms = listOf(
-                        AlarmData(
-                            info = AlarmInfo(
-                                time = LocalTime.of(8, 30),
-                            ),
-                            features = emptyList(),
-                        ),
-                        AlarmData(
-                            info = AlarmInfo(
-                                time = LocalTime.of(9, 30),
-                            ),
-                            features = emptyList(),
-                        ),
-                        AlarmData(
-                            info = AlarmInfo(
-                                time = LocalTime.of(10, 30),
-                            ),
-                            features = emptyList(),
-                        ),
-                    ),
+                    state = StateType.ENABLED_ACTIVE,
                 ),
-                StateData(Uuid.random(), StateData.Type.ACTIVE)
-            ),
-            Pair(
-                GroupData(
-                    info = GroupInfo(
-                        name = "Lunch alerts",
-                        enabled = false,
+                alarms = listOf(
+                    AlarmData(
+                        info = AlarmInfo(
+                            time = LocalTime.of(8, 30),
+                        ),
                         features = emptyList(),
                     ),
-                    alarms = listOf(
-                        AlarmData(
-                            info = AlarmInfo(
-                                time = LocalTime.of(12, 30),
-                            ),
-                            features = emptyList(),
+                    AlarmData(
+                        info = AlarmInfo(
+                            time = LocalTime.of(9, 30),
                         ),
-                        AlarmData(
-                            info = AlarmInfo(
-                                time = LocalTime.of(13, 30),
-                            ),
-                            features = emptyList(),
+                        features = emptyList(),
+                    ),
+                    AlarmData(
+                        info = AlarmInfo(
+                            time = LocalTime.of(10, 30),
                         ),
+                        features = emptyList(),
                     ),
                 ),
-                StateData(Uuid.random(), StateData.Type.IDLE)
+            ),
+            GroupData(
+                info = GroupInfo(
+                    name = "Lunch alerts",
+                    features = emptyList(),
+                    state = StateType.DISABLED,
+                ),
+                alarms = listOf(
+                    AlarmData(
+                        info = AlarmInfo(
+                            time = LocalTime.of(12, 30),
+                        ),
+                        features = emptyList(),
+                    ),
+                    AlarmData(
+                        info = AlarmInfo(
+                            time = LocalTime.of(13, 30),
+                        ),
+                        features = emptyList(),
+                    ),
+                ),
             ),
         ))
     },

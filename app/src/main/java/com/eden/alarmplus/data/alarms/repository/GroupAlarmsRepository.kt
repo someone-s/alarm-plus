@@ -2,7 +2,6 @@ package com.eden.alarmplus.data.alarms.repository
 
 import androidx.annotation.CallSuper
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.data.alarms.structure.state.StateData
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
 
@@ -46,5 +45,5 @@ interface GroupAlarmsRepository {
         data class Delete(val groupUuid: Uuid): ChangeNotification()
     }
 
-    fun getAllGroupsStream(): Flow<List<Pair<GroupData, StateData>>>
+    fun getAllGroupsStream(): Flow<List<GroupData>>
 }

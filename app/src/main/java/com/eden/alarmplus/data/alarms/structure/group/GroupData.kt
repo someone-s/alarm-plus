@@ -3,6 +3,7 @@ package com.eden.alarmplus.data.alarms.structure.group
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.state.StateType
 import kotlinx.parcelize.Parcelize
 
 @Immutable

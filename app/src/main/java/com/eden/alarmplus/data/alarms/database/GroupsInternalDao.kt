@@ -18,7 +18,7 @@ interface GroupsInternalDao: GroupsDao {
     @Transaction
     override suspend fun insertOrReplace(group: GroupEntity, alarms: List<AlarmEntity>) {
         delete(group.uuid.upperUuid, group.uuid.lowerUuid)
-        internalInsert(group, alarms, StateEntity(group.uuid))
+        internalInsertFull(group, alarms)
     }
 
     /**
@@ -26,7 +26,7 @@ interface GroupsInternalDao: GroupsDao {
      * [Transaction] is already inherit-ly implemented with [androidx.room3.Insert]
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun internalInsert(group: GroupEntity, alarms: List<AlarmEntity>, state: StateEntity)
+    suspend fun internalInsertFull(group: GroupEntity, alarms: List<AlarmEntity>)
 
     /**
      * [Transaction] annotation added to reiterate this is a write operation.
@@ -36,14 +36,23 @@ interface GroupsInternalDao: GroupsDao {
         """
             UPDATE groups
             SET 
-                enabled = :enabled
+                state = :state
             WHERE
                 group_upper_uuid = :groupUpperUuid
                 AND
                 group_lower_uuid = :groupLowerUuid
         """
     )
-    override suspend fun toggle(groupUpperUuid: Long, groupLowerUuid: Long, enabled: Boolean)
+    suspend fun internalSetState(groupUpperUuid: Long, groupLowerUuid: Long, state: Int)
+
+    @Transaction
+    override suspend fun toggleResetState(groupUpperUuid: Long, groupLowerUuid: Long, enabled: Boolean) {
+        internalSetState(
+            groupUpperUuid,
+            groupLowerUuid,
+            if (enabled) GroupEntity.ENABLED_UNDEFINED_VALUE else GroupEntity.DISABLED_VALUE
+        )
+    }
 
     /**
      * Room only compares by primary key;
@@ -72,5 +81,5 @@ interface GroupsInternalDao: GroupsDao {
             FROM groups
         """
     )
-    override fun getAll(): Flow<List<GroupWithAll>>
+    override fun getAll(): Flow<List<GroupWithAlarms>>
 }

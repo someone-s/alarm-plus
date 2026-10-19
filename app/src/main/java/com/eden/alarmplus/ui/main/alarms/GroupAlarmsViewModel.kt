@@ -1,11 +1,11 @@
 package com.eden.alarmplus.ui.main.alarms
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.logic.access.StateHookProvider
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +33,10 @@ class GroupAlarmViewModel(
 
     val groupAlarmsUiState: StateFlow<GroupAlarmUiState> =
         groupAlarmsRepository.getAllGroupsStream()
-            .map { GroupAlarmUiState(it) }
+            .map {
+                Log.i("$javaClass", "AAAAA")
+                GroupAlarmUiState(it)
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -62,7 +65,7 @@ class GroupAlarmViewModel(
 }
 
 @Immutable
-data class GroupAlarmUiState(val groupAndStateList: List<Pair<GroupData, StateData>> = listOf())
+data class GroupAlarmUiState(val groupList: List<GroupData> = listOf())
 
 @Immutable
 data class CurrentTimeUiState(val localDateTime: LocalDateTime = LocalDateTime.now(), val localTime: LocalTime = LocalTime.now())

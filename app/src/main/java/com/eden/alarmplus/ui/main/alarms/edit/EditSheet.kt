@@ -195,7 +195,6 @@ fun EditSheetPreview() {
         initialGroup = GroupData(
             info = GroupInfo(
                 name = "Morning Alarm",
-                enabled = true,
                 features = listOf(
                     DayOfWeekFeature(DayOfWeekFlags.merge(
                         DayOfWeekFlags.WEDNESDAY,

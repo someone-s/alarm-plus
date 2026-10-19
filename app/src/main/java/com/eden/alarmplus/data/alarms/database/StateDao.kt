@@ -3,7 +3,6 @@ package com.eden.alarmplus.data.alarms.database
 import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Transaction
-import androidx.room3.Update
 
 @Dao
 interface StateDao {
@@ -18,23 +17,34 @@ interface StateDao {
             FROM groups
         """
     )
-    suspend fun getAllGroups(): List<GroupWithAll>
+    suspend fun getAllGroups(): List<GroupWithAlarms>
 
     @Query(
         """
-            SELECT *
-            FROM states
+            SELECT state
+            FROM groups
             WHERE
                 group_upper_uuid = :groupUpperUuid
                 AND
                 group_lower_uuid = :groupLowerUuid
         """
     )
-    suspend fun getState(groupUpperUuid: Long, groupLowerUuid: Long): StateEntity?
+    suspend fun getState(groupUpperUuid: Long, groupLowerUuid: Long): Int?
 
     /**
-     * Note as per update's guarantee, if primary key does not exist, no changes are made
+     * @param state defined by [GroupEntity.Companion]
      */
-    @Update
-    suspend fun updateState(state: StateEntity)
+    @Transaction
+    @Query(
+        """
+            UPDATE groups
+            SET 
+                state = :state
+            WHERE
+                group_upper_uuid = :groupUpperUuid
+                AND
+                group_lower_uuid = :groupLowerUuid
+        """
+    )
+    suspend fun updateState(groupUpperUuid: Long, groupLowerUuid: Long, state: Int)
 }

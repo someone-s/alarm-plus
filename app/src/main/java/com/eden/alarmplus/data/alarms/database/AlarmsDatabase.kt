@@ -9,9 +9,8 @@ import androidx.room3.RoomDatabase
     entities = [
         GroupEntity::class,
         AlarmEntity::class,
-        StateEntity::class,
     ],
-    version = 4,
+    version = 5,
 )
 abstract class AlarmsDatabase: RoomDatabase() {
     protected abstract fun groupsInternalDao(): GroupsInternalDao
