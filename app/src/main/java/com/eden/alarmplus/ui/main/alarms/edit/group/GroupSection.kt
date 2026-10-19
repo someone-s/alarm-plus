@@ -3,8 +3,10 @@ package com.eden.alarmplus.ui.main.alarms.edit.group
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +34,8 @@ import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
@@ -183,7 +187,39 @@ fun GroupSection(
                 )
             }
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                val scheduleBeginDate = remember(state.info) { state.info.getFeature<ScheduleBeginFeature>()?.date }
+                val scheduleEndDate = remember(state.info) { state.info.getFeature<ScheduleEndFeature>()?.date }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    ScheduleBeginButton(
+                        modifier = Modifier.weight(1f),
+                        date = scheduleBeginDate,
+                        onChange = { date ->
+                            state.info =
+                                if (date != null) state.info.shallowCopyReplaceFeature(ScheduleBeginFeature(date))
+                                else state.info.shallowCopyRemoveFeature<ScheduleBeginFeature>()
+                            state.modified = true
+                        },
+                    )
+                    ScheduleEndButton(
+                        modifier = Modifier.weight(1f),
+                        date = scheduleEndDate,
+                        onChange = { date ->
+                            state.info =
+                                if (date != null) state.info.shallowCopyReplaceFeature(ScheduleEndFeature(date))
+                                else state.info.shallowCopyRemoveFeature<ScheduleEndFeature>()
+                            state.modified = true
+                        },
+                    )
+                }
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
             }
             itemsIndexed(state.sortedAlarms) { index, alarm ->
                 AlarmItem(

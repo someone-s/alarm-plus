@@ -11,11 +11,14 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
 import com.eden.alarmplus.data.alarms.structure.state.StateData
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.milliseconds
@@ -218,23 +221,39 @@ class StateProcessor(
         val forewarnGroups = mutableListOf<GroupInfo>()
 
         val day = dateTime.dayOfWeek
+        val dayBefore = day.minus(1)
+        val dayAfter = day.plus(1)
+        val date = dateTime.toLocalDate()
+        val dateBefore = date.minusDays(1)
+        val dateAfter = date.plusDays(1)
         val time = dateTime.toLocalTime()
+
         for ((info, alarms) in stateRepository.getAllGroups()) {
 
             val dayOfWeekFlags = info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
 
+            val beginDate = info.getFeature<ScheduleBeginFeature>()?.date
+            val endDate = info.getFeature<ScheduleEndFeature>()?.date
+            fun LocalDate.allowed() =
+                (beginDate == null || !this.isBefore(beginDate)) &&
+                (endDate == null || !this.isAfter(endDate))
+
+            val allowYesterday = dayOfWeekFlags.any(dayBefore) && dateBefore.allowed()
+            val allowToday = dayOfWeekFlags.any(day) && date.allowed()
+            val allowTomorrow = dayOfWeekFlags.any(dayAfter) && dateAfter.allowed()
+
             val inDuration: Boolean = isTimeWithinTimeSpan(
                 alarms.map { it.info.time },
                 time,
-                allowToday = dayOfWeekFlags.any(day),
-                allowYesterday = dayOfWeekFlags.any(day.minus(1)),
+                allowToday,
+                allowYesterday,
             )
             val inDismissableWindow: Boolean = alarms.isNotEmpty() && isTimeRightBeforeAndNotAnchor(
                 alarms.first().info.time,
                 dismissWindow,
                 time,
-                allowToday = dayOfWeekFlags.any(day),
-                allowTomorrow = dayOfWeekFlags.any(day.plus(1)),
+                allowToday,
+                allowTomorrow,
             )
 
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
@@ -299,6 +318,11 @@ class StateProcessor(
         if (!Lock.isValid(handle)) throw InvalidatedStateException()
 
         val day = dateTime.dayOfWeek
+        val dayBefore = day.minus(1)
+        val dayAfter = day.plus(1)
+        val date = dateTime.toLocalDate()
+        val dateBefore = date.minusDays(1)
+        val dateAfter = date.plusDays(1)
         val time = dateTime.toLocalTime()
 
         for ((info, alarms) in stateRepository.getAllGroups()
@@ -307,9 +331,16 @@ class StateProcessor(
         ) {
             val dayOfWeekFlags = info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
 
-            val allowYesterday = dayOfWeekFlags.any(day.minus(1))
-            val allowToday = dayOfWeekFlags.any(day)
-            val allowTomorrow = dayOfWeekFlags.any(day.plus(1))
+            val beginDate = info.getFeature<ScheduleBeginFeature>()?.date
+            val endDate = info.getFeature<ScheduleEndFeature>()?.date
+            fun LocalDate.allowed() =
+                (beginDate == null || !this.isBefore(beginDate)) &&
+                (endDate == null || !this.isAfter(endDate))
+
+            val allowYesterday = dayOfWeekFlags.any(dayBefore) && dateBefore.allowed()
+            val allowToday = dayOfWeekFlags.any(day) && date.allowed()
+            val allowTomorrow = dayOfWeekFlags.any(dayAfter) && dateAfter.allowed()
+
             val groupStartTime = alarms.first().info.time
 
             val primedAtTime = time == alarms.first().info.time.minus(dismissWindow)

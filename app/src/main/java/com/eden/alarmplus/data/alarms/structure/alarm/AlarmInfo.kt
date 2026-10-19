@@ -2,6 +2,7 @@ package com.eden.alarmplus.data.alarms.structure.alarm
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
+import com.eden.alarmplus.data.alarms.structure.LocalTimeSerializer
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import java.time.LocalTime

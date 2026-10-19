@@ -77,4 +77,10 @@
     <string name="notifications_forewarnchannel_name">Upcoming</string>
     <string name="notifications_forewarnchannel_description">Notify when upcoming alarm is dismissable</string>
     <string name="notifications_forewarnnotification_title">Upcoming Alarm</string>
+    <string name="ui_main_alarms_edit_group_schedulebeginbutton_schedule">Set start date</string>
+    <string name="ui_main_alarms_edit_group_schedulebeginbutton_cancel">From %1$s</string>
+    <string name="ui_main_alarms_edit_group_scheduleendbutton_schedule">Set end date</string>
+    <string name="ui_main_alarms_edit_group_scheduleendbutton_cancel">To %1$s</string>
+    <string name="ui_main_alarms_edit_group_datepicker_applyaction">Apply</string>
+    <string name="ui_main_alarms_edit_group_datepicker_cancelaction">Cancel</string>
 </resources>

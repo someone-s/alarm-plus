@@ -1,4 +1,4 @@
-package com.eden.alarmplus.data.alarms.structure.alarm
+package com.eden.alarmplus.data.alarms.structure
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
