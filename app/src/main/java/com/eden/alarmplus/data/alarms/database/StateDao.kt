@@ -31,6 +31,21 @@ interface StateDao {
     )
     suspend fun getState(groupUpperUuid: Long, groupLowerUuid: Long): Int?
 
+
+    @Transaction
+    @Query(
+        """
+            UPDATE groups
+            SET 
+                features = :features
+            WHERE
+                group_upper_uuid = :groupUpperUuid
+                AND
+                group_lower_uuid = :groupLowerUuid
+        """
+    )
+    suspend fun setGroupFeatures(groupUpperUuid: Long, groupLowerUuid: Long, features: String)
+
     /**
      * @param state defined by [GroupEntity.Companion]
      */

@@ -14,7 +14,7 @@ data class GroupInfo(
     val uuid: Uuid = Uuid.random(),
     val name: String?,
     val features: List<GroupFeature>,
-    val state: StateType = StateType.ENABLED_UNDEFINED,
+    val state: StateType = StateType.ENABLED_UNDEFINED_DEFAULT,
 ) : Parcelable {
     fun shallowCopy(name: String?) = GroupInfo(
         uuid = this.uuid,

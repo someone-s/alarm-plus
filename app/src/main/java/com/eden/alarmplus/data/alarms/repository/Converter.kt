@@ -14,57 +14,43 @@ import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
 import kotlin.uuid.Uuid
 
-fun GroupInfo.toGroupEntity(): GroupEntity {
 
-    val features = formatter.encodeToString(this.features)
 
-    return GroupEntity(
-        uuid = this.uuid.toUuidLongs(),
-        name = this.name,
-        features = features,
-        state = this.state.toInt(),
-    )
-}
+fun String.toGroupFeatures(): List<GroupFeature> = formatter.decodeFromString(this)
+fun List<GroupFeature>.toGroupFeaturesString(): String = formatter.encodeToString(this)
 
-fun GroupEntity.toGroupInfo(): GroupInfo {
-    val features: List<GroupFeature> = formatter.decodeFromString(this.features)
+fun String.toAlarmFeatures(): List<AlarmFeature> = formatter.decodeFromString(this)
+fun List<AlarmFeature>.toAlarmFeaturesString(): String = formatter.encodeToString(this)
 
-    return GroupInfo(
-        uuid = this.uuid.toUuid(),
-        name = this.name,
-        features = features,
-        state = this.state.toStateType(),
-    )
-}
 
-fun AlarmData.toAlarmEntity(sortValue: Int, group: Uuid): AlarmEntity {
+fun GroupInfo.toGroupEntity() = GroupEntity(
+    uuid = this.uuid.toUuidLongs(),
+    name = this.name,
+    features = this.features.toGroupFeaturesString(),
+    state = this.state.toInt(),
+)
+fun GroupEntity.toGroupInfo() = GroupInfo(
+    uuid = this.uuid.toUuid(),
+    name = this.name,
+    features = this.features.toGroupFeatures(),
+    state = this.state.toStateType(),
+)
 
-    val timestamp = this.info.time.let { it.hour * 60 + it.minute }
+fun AlarmData.toAlarmEntity(sortValue: Int, group: Uuid) = AlarmEntity(
+    alarmUuid = this.info.uuid.toUuidLongs(),
+    groupUuid = group.toUuidLongs(),
+    sortValue = sortValue,
+    timestamp = this.info.time.let { it.hour * 60 + it.minute },
+    features = this.features.toAlarmFeaturesString(),
+)
 
-    val features = formatter.encodeToString(this.features)
-
-    return AlarmEntity(
-        alarmUuid = this.info.uuid.toUuidLongs(),
-        groupUuid = group.toUuidLongs(),
-        sortValue = sortValue,
-        timestamp = timestamp,
-        features = features,
-    )
-}
-
-fun AlarmEntity.toAlarmData(): AlarmData {
-    val time = LocalTime.of(this.timestamp / 60, this.timestamp % 60)
-
-    val features: List<AlarmFeature> = formatter.decodeFromString(this.features)
-
-    return AlarmData(
-        info = AlarmInfo(
-            uuid = this.alarmUuid.toUuid(),
-            time = time,
-        ),
-        features = features,
-    )
-}
+fun AlarmEntity.toAlarmData() = AlarmData(
+    info = AlarmInfo(
+        uuid = this.alarmUuid.toUuid(),
+        time = LocalTime.of(this.timestamp / 60, this.timestamp % 60),
+    ),
+    features = this.features.toAlarmFeatures(),
+)
 
 fun StateType.toInt() = when(this) {
     StateType.DISABLED -> GroupEntity.DISABLED_VALUE
@@ -73,7 +59,8 @@ fun StateType.toInt() = when(this) {
     StateType.ENABLED_ACTIVE -> GroupEntity.ENABLED_ACTIVE_VALUE
     StateType.ENABLED_DISMISSED -> GroupEntity.ENABLED_DISMISSED_VALUE
     StateType.ENABLED_IDLE -> GroupEntity.ENABLED_IDLE_VALUE
-    StateType.ENABLED_UNDEFINED -> GroupEntity.ENABLED_UNDEFINED_VALUE
+    StateType.ENABLED_UNDEFINED_MANUAL -> GroupEntity.ENABLED_UNDEFINED_MANUAL_VALUE
+    StateType.ENABLED_UNDEFINED_DEFAULT -> GroupEntity.ENABLED_UNDEFINED_DEFAULT_VALUE
 }
 
 fun Int.toStateType() = when(this) {
@@ -83,6 +70,7 @@ fun Int.toStateType() = when(this) {
     GroupEntity.ENABLED_ACTIVE_VALUE -> StateType.ENABLED_ACTIVE
     GroupEntity.ENABLED_DISMISSED_VALUE -> StateType.ENABLED_DISMISSED
     GroupEntity.ENABLED_IDLE_VALUE -> StateType.ENABLED_IDLE
-    GroupEntity.ENABLED_UNDEFINED_VALUE -> StateType.ENABLED_UNDEFINED
+    GroupEntity.ENABLED_UNDEFINED_DEFAULT_VALUE -> StateType.ENABLED_UNDEFINED_DEFAULT
+    GroupEntity.ENABLED_UNDEFINED_MANUAL_VALUE -> StateType.ENABLED_UNDEFINED_MANUAL
     else -> throw IllegalArgumentException("StateEntity.value is $this, not recognized.")
 }

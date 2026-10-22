@@ -50,7 +50,7 @@ interface GroupsInternalDao: GroupsDao {
         internalSetState(
             groupUpperUuid,
             groupLowerUuid,
-            if (enabled) GroupEntity.ENABLED_UNDEFINED_VALUE else GroupEntity.DISABLED_VALUE
+            if (enabled) GroupEntity.ENABLED_UNDEFINED_MANUAL_VALUE else GroupEntity.DISABLED_VALUE
         )
     }
 

@@ -199,7 +199,8 @@ class StateProcessor(
                 StateType.ENABLED_ACTIVE -> StateType.ENABLED_DISMISSED
                 StateType.ENABLED_DISMISSED -> currentState
                 StateType.ENABLED_IDLE -> currentState
-                StateType.ENABLED_UNDEFINED -> {
+                StateType.ENABLED_UNDEFINED_MANUAL,
+                StateType.ENABLED_UNDEFINED_DEFAULT -> {
                     Log.w("$javaClass", "Dismissing group $groupUuid with existing state Undefined.")
                     StateType.ENABLED_DISMISSED
                 }
@@ -260,11 +261,17 @@ class StateProcessor(
                 allowTomorrow,
             )
 
+            var shouldRemoveScheduleEndFeature = false
             val currentState = info.state
             val newState = when (currentState) {
                 StateType.DISABLED ->
                     currentState
-                StateType.ENABLED_UNDEFINED ->
+                StateType.ENABLED_UNDEFINED_MANUAL ->
+                    if (inDuration) StateType.ENABLED_ACTIVE
+                    else if (scheduleUpcoming) StateType.ENABLED_PENDING
+                    else if (scheduleGone) StateType.ENABLED_IDLE.also { shouldRemoveScheduleEndFeature = true }
+                    else StateType.ENABLED_IDLE
+                StateType.ENABLED_UNDEFINED_DEFAULT ->
                     if (inDuration) StateType.ENABLED_ACTIVE
                     else if (scheduleUpcoming) StateType.ENABLED_PENDING
                     else if (scheduleGone) StateType.DISABLED
@@ -297,13 +304,16 @@ class StateProcessor(
                 StateType.ENABLED_ACTIVE -> it
                 StateType.ENABLED_DISMISSED -> it
                 StateType.ENABLED_IDLE -> if (inDismissableWindow) StateType.ENABLED_PRIMED else it
-                StateType.ENABLED_UNDEFINED -> it
+                StateType.ENABLED_UNDEFINED_DEFAULT,
+                StateType.ENABLED_UNDEFINED_MANUAL -> it.also { Log.e("$javaClass", "Should not be reachable.") }
             } }
 
             if (inDismissableWindow && !inDuration)
                 forewarnGroups.add(info)
 
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
+            if (shouldRemoveScheduleEndFeature)
+                stateRepository.setGroupFeatures(info.uuid, info.features.filter { it !is ScheduleEndFeature })
             stateRepository.updateState(info.uuid, newState)
         }
 
@@ -345,8 +355,9 @@ class StateProcessor(
             // return if null (invalidated by changes, a new run should be triggered)
             var currentState = info.state
             when (currentState) {
-                StateType.DISABLED -> continue
-                StateType.ENABLED_UNDEFINED -> continue
+                StateType.DISABLED,
+                StateType.ENABLED_UNDEFINED_DEFAULT,
+                StateType.ENABLED_UNDEFINED_MANUAL -> continue
                 else -> {}
             }
             var stateUpdated = false
@@ -389,6 +400,9 @@ class StateProcessor(
                     StateType.ENABLED_DISMISSED -> currentState
                     StateType.ENABLED_IDLE -> StateType.ENABLED_PRIMED
                 }
+                check(currentState != StateType.DISABLED)
+                check(currentState != StateType.ENABLED_UNDEFINED_DEFAULT)
+                check(currentState != StateType.ENABLED_UNDEFINED_MANUAL)
                 stateUpdated = true
 
                 if (shouldNotify)
@@ -420,53 +434,40 @@ class StateProcessor(
                     allowTomorrow
                 )
                 val isLastInGroup = alarms.last().info.time == time
-                val onEndDate = endDate != null && date == endDate
+                val onOrAfterEndDate = endDate != null && !date.isBefore(endDate)
 
                 val shouldNotify = when (currentState) {
-                    StateType.DISABLED -> false
                     StateType.ENABLED_PENDING -> true
                     StateType.ENABLED_PRIMED -> true
                     StateType.ENABLED_ACTIVE -> true
                     StateType.ENABLED_DISMISSED -> false
                     StateType.ENABLED_IDLE -> true
-                    StateType.ENABLED_UNDEFINED -> {
-                        Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
-                        true
-                    }
                 }
 
                 currentState = when (currentState) {
-                    StateType.DISABLED ->
-                        currentState
                     StateType.ENABLED_PENDING,
                     StateType.ENABLED_PRIMED,
                     StateType.ENABLED_ACTIVE,
                     StateType.ENABLED_IDLE->
-                        if (isLastInGroup && onEndDate) StateType.DISABLED
+                        if (isLastInGroup && onOrAfterEndDate) StateType.DISABLED
                         else if (isLastInGroup) StateType.ENABLED_IDLE
                         else StateType.ENABLED_ACTIVE
                     StateType.ENABLED_DISMISSED ->
-                        if (isLastInGroup && onEndDate) StateType.DISABLED
+                        if (isLastInGroup && onOrAfterEndDate) StateType.DISABLED
                         else if (isLastInGroup) StateType.ENABLED_IDLE
                         else StateType.ENABLED_DISMISSED
-                    StateType.ENABLED_UNDEFINED -> {
-                        Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
-                        if (isLastInGroup && onEndDate) StateType.DISABLED
-                        else if (isLastInGroup) StateType.ENABLED_IDLE
-                        else StateType.ENABLED_ACTIVE
+                }.let {
+                    check(it != StateType.ENABLED_PENDING)
+                    check(it != StateType.ENABLED_PRIMED)
+                    check(it != StateType.ENABLED_UNDEFINED_DEFAULT)
+                    check(it != StateType.ENABLED_UNDEFINED_MANUAL)
+                    when(it) {
+                        StateType.DISABLED -> it
+                        StateType.ENABLED_ACTIVE -> it
+                        StateType.ENABLED_DISMISSED -> it
+                        StateType.ENABLED_IDLE -> if (inDismissableWindow) StateType.ENABLED_PRIMED else it
                     }
-                }.let { when (it) {
-                    StateType.DISABLED -> it
-                    StateType.ENABLED_PENDING -> if (inDismissableWindow) StateType.ENABLED_PRIMED else it
-                    StateType.ENABLED_PRIMED -> it
-                    StateType.ENABLED_ACTIVE -> it
-                    StateType.ENABLED_DISMISSED -> it
-                    StateType.ENABLED_IDLE -> if (inDismissableWindow) StateType.ENABLED_PRIMED else it
-                    StateType.ENABLED_UNDEFINED -> {
-                        Log.w("$javaClass", "Updating group ${info.uuid} with existing state Undefined.")
-                        it
-                    }
-                } }
+                }
                 stateUpdated = true
 
                 // Show alarm

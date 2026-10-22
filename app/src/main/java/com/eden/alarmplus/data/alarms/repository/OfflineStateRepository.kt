@@ -2,6 +2,7 @@ package com.eden.alarmplus.data.alarms.repository
 
 import com.eden.alarmplus.data.alarms.database.StateDao
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.GroupFeature
 import com.eden.alarmplus.data.alarms.structure.state.StateType
 import com.eden.alarmplus.data.common.repository.toUuidLongs
 import java.time.LocalTime
@@ -30,6 +31,11 @@ class OfflineStateRepository(
     override suspend fun getState(groupUuid: Uuid): StateType? {
         val longs = groupUuid.toUuidLongs()
         return stateDao.getState(longs.upperUuid, longs.lowerUuid)?.toStateType()
+    }
+
+    override suspend fun setGroupFeatures(groupUuid: Uuid, features: List<GroupFeature>) {
+        val longs = groupUuid.toUuidLongs()
+        stateDao.setGroupFeatures(longs.upperUuid, longs.lowerUuid, features.toGroupFeaturesString())
     }
 
     override suspend fun updateState(groupUuid: Uuid, state: StateType) {

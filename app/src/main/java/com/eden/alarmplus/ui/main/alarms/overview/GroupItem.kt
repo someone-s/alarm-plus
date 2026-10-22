@@ -108,7 +108,8 @@ fun GroupItem(
 ) {
     val mode = when (group.info.state) {
         StateType.DISABLED -> GroupItemMode.UNFOCUSED
-        StateType.ENABLED_UNDEFINED -> GroupItemMode.UNFOCUSED
+        StateType.ENABLED_UNDEFINED_DEFAULT -> GroupItemMode.UNFOCUSED
+        StateType.ENABLED_UNDEFINED_MANUAL -> GroupItemMode.UNFOCUSED
         StateType.ENABLED_PENDING -> GroupItemMode.UNFOCUSED
         StateType.ENABLED_PRIMED -> GroupItemMode.DISMISSABLE
         StateType.ENABLED_ACTIVE -> GroupItemMode.DISMISSABLE
@@ -251,7 +252,8 @@ fun GroupItem(
                             Switch(
                                 checked = when (group.info.state) {
                                     StateType.DISABLED -> false
-                                    StateType.ENABLED_UNDEFINED,
+                                    StateType.ENABLED_UNDEFINED_DEFAULT,
+                                    StateType.ENABLED_UNDEFINED_MANUAL,
                                     StateType.ENABLED_PENDING,
                                     StateType.ENABLED_PRIMED,
                                     StateType.ENABLED_ACTIVE,

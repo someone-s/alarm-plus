@@ -18,11 +18,12 @@ data class GroupEntity(
     @ColumnInfo(name = "features")
     val features: String,
     @ColumnInfo("state")
-    var state: Int = ENABLED_UNDEFINED_VALUE,
+    var state: Int = ENABLED_UNDEFINED_DEFAULT_VALUE,
 ) {
     companion object {
         const val DISABLED_VALUE = 6
-        const val ENABLED_UNDEFINED_VALUE = 0
+        const val ENABLED_UNDEFINED_MANUAL_VALUE = 7
+        const val ENABLED_UNDEFINED_DEFAULT_VALUE = 0
         const val ENABLED_PENDING_VALUE = 5
         const val ENABLED_PRIMED_VALUE = 4
         const val ENABLED_ACTIVE_VALUE = 1
