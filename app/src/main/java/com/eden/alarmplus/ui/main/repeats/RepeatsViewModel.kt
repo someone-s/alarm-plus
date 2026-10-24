@@ -1,6 +1,5 @@
 package com.eden.alarmplus.ui.main.repeats
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,7 +36,6 @@ class RepeatsViewModel(
     val groupAlarmsUiState: StateFlow<GroupAlarmUiState> =
         groupAlarmsRepository.getAllGroupsStream()
             .map {
-                Log.i("$javaClass", "AAAAA")
                 GroupAlarmUiState(it)
             }
             .stateIn(
