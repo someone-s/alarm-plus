@@ -1,5 +1,6 @@
 package com.eden.alarmplus.ui.notification
 
+import androidx.compose.foundation.layout.ExperimentalFlexBoxApi
 import androidx.compose.foundation.layout.FlexAlignItems
 import androidx.compose.foundation.layout.FlexBox
 import androidx.compose.foundation.layout.FlexDirection
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.ui.theme.PolygonShape
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalFlexBoxApi::class)
 @Composable
 fun ButtonGroup(
     modifier: Modifier = Modifier,

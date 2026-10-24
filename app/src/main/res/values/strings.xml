@@ -95,4 +95,11 @@
     <string name="ui_main_about_features_featuressection_pinstart_title">Overnight</string>
     <string name="ui_main_about_features_featuressection_pinstart_short">Create routines that crosses over midnight</string>
     <string name="ui_main_about_features_featuressection_pinstart_long">In the routines tab, open any item, open the specific time you would like the alarm to start. You can then pin the time to be the start of the alarm.</string>
+    <string name="ui_main_about_features_supportsection_upcoming_title">Upcoming features</string>
+    <string name="ui_main_about_features_supportsection_upcoming_support">View features planned and under consideration</string>
+    <string name="ui_main_about_features_supportsection_issues_title">Report issue</string>
+    <string name="ui_main_about_features_supportsection_issues_support">Spotted a bug? Report the issue here</string>
+    <string name="ui_main_about_features_supportsection_releases_title">Release notes</string>
+    <string name="ui_main_about_features_supportsection_releases_support">View release notes of the app</string>
+    <string name="ui_main_about_supportsection_label">Support</string>
 </resources>

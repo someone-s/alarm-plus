@@ -3,6 +3,7 @@ package com.eden.alarmplus.ui.main.about
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.ui.main.about.features.FeaturesSection
+import com.eden.alarmplus.ui.main.about.support.SupportSection
 import com.eden.alarmplus.ui.main.navigation.AboutRoute
 import com.eden.alarmplus.ui.main.navigation.CommonRouteState
 import com.eden.alarmplus.ui.main.navigation.populateScope
@@ -67,8 +69,10 @@ fun AboutScreen(
                             bottom = 72.dp
                         ),
                         horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        item { FeaturesSection(modifier = Modifier.widthIn(400.dp)) }
+                        item { FeaturesSection() }
+                        item { SupportSection() }
                     }
                 }
 
