@@ -38,7 +38,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
-import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupData
 import com.eden.alarmplus.ui.main.navigation.CommonRouteState
 import com.eden.alarmplus.ui.main.repeats.overview.AddButton
 import com.eden.alarmplus.ui.main.repeats.edit.EditSheet
@@ -140,7 +139,7 @@ fun RepeatsScreen(
             floatingActionButton = { AddButton(
                 onClick = {
                     editSheetState.showSheet(
-                        group = getUniqueGroupData(),
+                        group = viewModel.getDefaultGroupAlarm(),
                         initialModified = true
                     )
                 }

@@ -5,7 +5,10 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
+import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
+import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmInfo
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
+import com.eden.alarmplus.data.alarms.structure.group.getUniqueGroupInfo
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.logic.access.StateHookProvider
 import kotlinx.coroutines.flow.SharingStarted
@@ -58,6 +61,16 @@ class RepeatsViewModel(
     suspend fun dismissGroupAlarm(groupUuid: Uuid) {
         stateHookProvider.dismissGroup(groupUuid)
     }
+
+    fun getDefaultGroupAlarm() = GroupData(
+        info = getUniqueGroupInfo(),
+        alarms = listOf(
+            AlarmData(
+                info = getUniqueAlarmInfo().shallowCopy(currentTimeUiState.value.localTime),
+                features = emptyList(),
+            )
+        )
+    )
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
