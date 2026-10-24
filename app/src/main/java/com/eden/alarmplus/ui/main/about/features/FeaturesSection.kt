@@ -68,6 +68,12 @@ class FeaturesSectionState(
             longTextRes = R.string.ui_main_about_features_featuressection_schedule_long,
             videoRes = R.raw.schedule,
         ),
+        Feature(
+            titleRes = R.string.ui_main_about_features_featuressection_pinstart_title,
+            shortTextRes = R.string.ui_main_about_features_featuressection_pinstart_short,
+            longTextRes = R.string.ui_main_about_features_featuressection_pinstart_long,
+            videoRes = R.raw.pinstart,
+        ),
     )
 ) {
     var visible by mutableStateOf(false)
@@ -84,7 +90,7 @@ fun FeaturesSection(
     val hapticFeedback = LocalHapticFeedback.current
 
     Column(modifier = modifier) {
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         LabelItem(text = stringResource(R.string.ui_main_about_featuressection_label))
         Spacer(modifier = Modifier.height(8.dp))
         Column(

@@ -92,4 +92,7 @@
     <string name="ui_main_about_features_featuressection_schedule_title">Schedule</string>
     <string name="ui_main_about_features_featuressection_schedule_short">Start or end routines at specific date</string>
     <string name="ui_main_about_features_featuressection_schedule_long">In the routines tab, open any item and set either or both start and end dates. Date when an alarm is ran is based on the first alarm time.</string>
+    <string name="ui_main_about_features_featuressection_pinstart_title">Overnight</string>
+    <string name="ui_main_about_features_featuressection_pinstart_short">Create routines that crosses over midnight</string>
+    <string name="ui_main_about_features_featuressection_pinstart_long">In the routines tab, open any item, open the specific time you would like the alarm to start. You can then pin the time to be the start of the alarm.</string>
 </resources>

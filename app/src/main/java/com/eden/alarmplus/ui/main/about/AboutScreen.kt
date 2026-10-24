@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
@@ -67,7 +68,7 @@ fun AboutScreen(
                         ),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        item { FeaturesSection() }
+                        item { FeaturesSection(modifier = Modifier.widthIn(400.dp)) }
                     }
                 }
 
