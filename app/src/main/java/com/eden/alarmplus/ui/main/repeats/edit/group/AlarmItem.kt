@@ -11,7 +11,6 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -35,6 +34,7 @@ import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.AudioFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
+import com.eden.alarmplus.ui.common.components.CompanionSwipeToDismissBox
 import com.eden.alarmplus.ui.common.format.LocalFormat
 
 @Composable
@@ -65,12 +65,13 @@ fun AlarmItem(
             loaded = true
     }
 
-    SwipeToDismissBox(
+    CompanionSwipeToDismissBox(
         modifier = modifier,
         state = dismissBoxState,
         onDismiss = { onDelete(alarm) },
-        backgroundContent = {
+        companionContent = { modifier, alignment ->
             SegmentedListItem(
+                modifier = modifier,
                 shapes = shapes,
                 colors = ListItemDefaults.colors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -82,11 +83,7 @@ fun AlarmItem(
                         contentDescription = stringResource(R.string.ui_main_repeats_edit_group_alarmitem_deleteaction),
                         modifier = Modifier
                             .fillMaxSize()
-                            .wrapContentSize(when (dismissBoxState.dismissDirection) {
-                                SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                                SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-                                SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
-                            }),
+                            .wrapContentSize(alignment),
                     )
                 }
             )

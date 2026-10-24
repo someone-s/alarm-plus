@@ -19,7 +19,6 @@ import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -48,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.state.StateType
+import com.eden.alarmplus.ui.common.components.CompanionSwipeToDismissBox
 import com.eden.alarmplus.ui.common.format.LocalFormat
 
 object GroupItemDefaults {
@@ -130,7 +130,6 @@ fun GroupItem(
     val hapticFeedback = LocalHapticFeedback.current
     val timeFormatter = LocalFormat.current.timeFormatter
 
-
     var loaded by remember(group) { mutableStateOf(false) }
     LaunchedEffect(dismissBoxState.targetValue) {
         if (loaded)
@@ -139,12 +138,13 @@ fun GroupItem(
             loaded = true
     }
 
-    SwipeToDismissBox(
+    CompanionSwipeToDismissBox(
         modifier = modifier,
         state = dismissBoxState,
         onDismiss = { onDelete() },
-        backgroundContent = {
+        companionContent = { modifier, alignment ->
             SegmentedListItem(
+                modifier = modifier,
                 shapes = shapes,
                 colors = ListItemDefaults.colors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -156,13 +156,7 @@ fun GroupItem(
                         contentDescription = stringResource(R.string.ui_main_repeats_overview_groupitem_deleteaction),
                         modifier = Modifier
                             .fillMaxSize()
-                            .wrapContentSize(
-                                when (dismissBoxState.dismissDirection) {
-                                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-                                    SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
-                                }
-                            ),
+                            .wrapContentSize(alignment),
                     )
                 }
             )
