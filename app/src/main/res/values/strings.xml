@@ -82,4 +82,14 @@
     <string name="ui_main_repeats_edit_group_scheduleendbutton_cancel">To %1$s</string>
     <string name="ui_main_repeats_edit_group_datepicker_applyaction">Apply</string>
     <string name="ui_main_repeats_edit_group_datepicker_cancelaction">Cancel</string>
+    <string name="ui_main_about_abouttopbar_title">About</string>
+    <string name="ui_main_about_featuressection_label">Features</string>
+    <string name="ui_main_about_features_featuressection_dayofweek_title">Day of week</string>
+    <string name="ui_main_about_features_featuressection_dayofweek_short">Limit routines to certain days of the week</string>
+    <string name="ui_main_about_features_featuressection_dayofweek_long">In the routines tab, open any item and limit the routine to run on certain days of week. If an alarm\'s start time is on an allowed day of week, it is started.</string>
+    <string name="ui_main_about_features_featuressection_placeholder">Placeholder</string>
+    <string name="ui_main_about_features_featuredialog_dismiss">Dismiss</string>
+    <string name="ui_main_about_features_featuressection_schedule_title">Schedule</string>
+    <string name="ui_main_about_features_featuressection_schedule_short">Start or end routines at specific date</string>
+    <string name="ui_main_about_features_featuressection_schedule_long">In the routines tab, open any item and set either or both start and end dates. Date when an alarm is ran is based on the first alarm time.</string>
 </resources>
