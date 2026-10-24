@@ -21,8 +21,8 @@ import com.eden.alarmplus.ui.common.format.LocalFormat
 import com.eden.alarmplus.ui.main.navigation.rememberRouteState
 import com.eden.alarmplus.ui.main.navigation.AboutRoute
 import com.eden.alarmplus.ui.main.about.AboutScreen
-import com.eden.alarmplus.ui.main.navigation.AlarmsRoute
-import com.eden.alarmplus.ui.main.alarms.GroupAlarmScreen
+import com.eden.alarmplus.ui.main.navigation.RepeatsRoute
+import com.eden.alarmplus.ui.main.repeats.RepeatsScreen
 import com.eden.alarmplus.ui.main.navigation.topLevelRoutes
 
 
@@ -70,8 +70,8 @@ fun MainContent(
         val sharedContentKey = "SCAFFOLD"
 
         SharedTransitionLayout {
-            NavHost(navController, startDestination = AlarmsRoute) {
-                composable<AlarmsRoute> { GroupAlarmScreen(
+            NavHost(navController, startDestination = RepeatsRoute) {
+                composable<RepeatsRoute> { RepeatsScreen(
                     bottomBarState = bottomBarState,
                     sharedContentKey = sharedContentKey,
                     sharedTransitionScope = this@SharedTransitionLayout,

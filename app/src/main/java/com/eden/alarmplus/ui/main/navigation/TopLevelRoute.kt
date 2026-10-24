@@ -13,13 +13,13 @@ data class TopLevelRoute<T : Any>(
 
 val topLevelRoutes = listOf(
     TopLevelRoute(
-        R.string.ui_main_maincontent_alarms,
-        AlarmsRoute,
-        R.drawable.alarm_filled,
-        R.drawable.alarm
+        R.string.ui_main_navigation_toplevelroute_repeats,
+        RepeatsRoute,
+        R.drawable.event_repeat_filled,
+        R.drawable.event_repeat
     ),
     TopLevelRoute(
-        R.string.ui_main_maincontent_about,
+        R.string.ui_main_navigation_toplevelroute_about,
         AboutRoute,
         R.drawable.info_filled,
         R.drawable.info
@@ -27,7 +27,7 @@ val topLevelRoutes = listOf(
 )
 
 @Serializable
-object AlarmsRoute
+object RepeatsRoute
 
 @Serializable
 object AboutRoute
