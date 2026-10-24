@@ -1,5 +1,6 @@
 package com.eden.alarmplus.ui.common.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,7 +69,12 @@ fun CompanionSwipeToDismissBox(
                 content = {
                     companionContent(
                         Modifier.layout { measurable, constraints ->
-                            val offset = state.requireOffset().toInt()
+                            val offset = try {
+                                state.requireOffset().toInt()
+                            } catch (exception: IllegalStateException) {
+                                Log.i("$javaClass", "Offset not initialized.", exception)
+                                0
+                            }
                             val gap = companionGap.toPx().toInt()
                             val width = max(0, abs(offset) - gap)
                             val placeable = measurable.measure(
