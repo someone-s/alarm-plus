@@ -19,6 +19,8 @@ import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.data.notifications.database.NotificationDatabase
 import com.eden.alarmplus.data.notifications.repository.NotificationRepository
 import com.eden.alarmplus.data.notifications.repository.OfflineNotificationRepository
+import com.eden.alarmplus.data.version.repository.OfflineVersionRepository
+import com.eden.alarmplus.data.version.repository.VersionRepository
 import kotlin.uuid.Uuid
 
 class AppDataContainer(
@@ -76,5 +78,9 @@ class AppDataContainer(
         val timeTickReceiver = TimeTickReceiver()
         context.registerReceiver(timeTickReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
         ReceiverTimeTickRepository(timeTickReceiver)
+    }
+
+    override val versionRepository: VersionRepository by lazy {
+        OfflineVersionRepository(context)
     }
 }

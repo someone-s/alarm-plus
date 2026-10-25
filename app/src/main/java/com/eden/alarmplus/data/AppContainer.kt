@@ -6,6 +6,7 @@ import com.eden.alarmplus.data.datetime.repository.DateFormatRepository
 import com.eden.alarmplus.data.datetime.repository.TimeFormatRepository
 import com.eden.alarmplus.data.datetime.repository.TimeTickRepository
 import com.eden.alarmplus.data.notifications.repository.NotificationRepository
+import com.eden.alarmplus.data.version.repository.VersionRepository
 
 interface AppContainer {
     val groupAlarmsRepository: GroupAlarmsRepository
@@ -14,4 +15,5 @@ interface AppContainer {
     val dateFormatRepository: DateFormatRepository
     val timeFormatRepository: TimeFormatRepository
     val timeTickRepository: TimeTickRepository
+    val versionRepository: VersionRepository
 }

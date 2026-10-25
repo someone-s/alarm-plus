@@ -22,10 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.eden.alarmplus.BuildConfig
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.eden.alarmplus.R
 import com.eden.alarmplus.ui.common.components.LabelItem
 
@@ -68,7 +69,10 @@ class SupportSectionState(
 @Composable
 fun SupportSection(
     modifier: Modifier = Modifier,
-    state: SupportSectionState = rememberSupportSectionState()
+    state: SupportSectionState = rememberSupportSectionState(),
+    viewModel: SupportViewModel =
+        if (LocalInspectionMode.current) mockSupportViewModel
+        else viewModel(factory = SupportViewModelProvider.Factory),
 ) {
     val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -116,7 +120,7 @@ fun SupportSection(
             horizontalArrangement = Arrangement.End
         ) {
             Text(
-                text = "${BuildConfig.APPLICATION_ID} ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                text = "${viewModel.applicationId} ${viewModel.versionName} (${viewModel.versionCode})",
                 style = MaterialTheme.typography.labelSmall
             )
         }

@@ -102,4 +102,10 @@
     <string name="ui_main_about_features_supportsection_releases_title">Release notes</string>
     <string name="ui_main_about_features_supportsection_releases_support">View release notes of the app</string>
     <string name="ui_main_about_supportsection_label">Support</string>
+    <string name="ui_main_welcome_releasedialog_title">Update %1$s</string>
+    <string name="ui_main_welcome_releasedialog_body">%1$s has been updated to version %2$s. View new features, fixes and release notes in About.</string>
+    <string name="ui_main_about_welcome_releasedialog_dismiss">Dismiss</string>
+    <string name="ui_main_welcome_welcomedialog_title">Welcome!</string>
+    <string name="ui_main_about_welcome_welcomedialog_dismiss">Dismiss</string>
+    <string name="ui_mian_welcome_welcomedialog_body">Thank you for downloading %1$s, highlighted features are shown in the About section. Made with love, enjoy!</string>
 </resources>
