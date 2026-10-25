@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
@@ -51,7 +51,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RepeatsScreen(
-    viewModel: RepeatsViewModel = viewModel(factory = RepeatsViewModelProvider.Factory),
+    viewModel: RepeatsViewModel =
+        if (LocalInspectionMode.current) mockRepeatsViewModel
+        else viewModel(factory = RepeatsViewModelProvider.Factory),
     sharedContentKey: String,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -226,7 +228,6 @@ fun RepeatsScreenPreview() {
             NavHost(navController, startDestination = RepeatsRoute) {
                 composable<RepeatsRoute> {
                     RepeatsScreen(
-                        viewModel = mockRepeatsViewModel,
                         sharedContentKey = "SCAFFOLD",
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this,
