@@ -3,7 +3,7 @@ name: Release CI
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
   
   workflow_dispatch:
 
@@ -30,6 +30,7 @@ jobs:
     
     - id: info_release
       name: Get latest release name
+      continue-on-error: true
       run: |
         LATEST_RELEASE_NAME=$(gh release view --json tagName --jq '.tagName')
         echo "LATEST_RELEASE_NAME=$LATEST_RELEASE_NAME" >> $GITHUB_OUTPUT
