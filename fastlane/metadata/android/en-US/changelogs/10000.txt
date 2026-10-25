@@ -1,0 +1,5 @@
+Initial release with routine alarms.
+- Set schedule start and end date
+- Set day of week for routines
+- Set audio and vibrate per time in routine
+- Pin a specific time as start of routine
