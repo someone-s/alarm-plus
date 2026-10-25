@@ -4,6 +4,8 @@
 
 Set alarms to trigger at specific times. Alarm Plus gives you more control over how when alarms are triggered.
 
+Designed to work on phones and tablet with dynamic layout.
+
 Supports Android 7 to 16.
 
 ## Screenshots
@@ -11,6 +13,7 @@ Supports Android 7 to 16.
 |                                           |                               |                                   |                                |
 |--------------------------------------------------:|:----------------------------------------------:|:----------------------------------------------:|:---------------------------------------------|
 | ![1](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![2](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png) | ![3](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![4](/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png) |
+| ![1](fastlane/metadata/android/en-US/images/tenInchScreenshots/1.png) | ![2](fastlane/metadata/android/en-US/images/tenInchScreenshots/2.png) | ![3](fastlane/metadata/android/en-US/images/tenInchScreenshots/3.png) | ![4](/fastlane/metadata/android/en-US/images/tenInchScreenshots/4.png) |
 
 ## Getting the App
 Android (F-Droid)                            |	Android (Play Store)                            |	Android (Release Page)
