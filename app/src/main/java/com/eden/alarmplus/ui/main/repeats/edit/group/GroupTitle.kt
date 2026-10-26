@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
 import com.eden.alarmplus.ui.theme.PolygonShape
@@ -52,9 +53,11 @@ fun GroupTitle(
             text = title ?: "Unnamed",
             fontWeight = FontWeight.SemiBold,
             style = MaterialTheme.typography.displaySmall,
-            modifier = Modifier.clickable {
-                showTitleInput = true
-            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f)
+                .clickable { showTitleInput = true },
         )
         Spacer(modifier = Modifier.width(12.dp))
         IconButton(
