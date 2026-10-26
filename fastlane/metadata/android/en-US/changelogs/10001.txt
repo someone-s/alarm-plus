@@ -1,0 +1,3 @@
+Bugfix release
+- Fix state not recalculated when time changed
+- Fix long group name cause button to disappear
