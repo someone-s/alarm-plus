@@ -133,6 +133,9 @@ jobs:
         mkdir -p app/keystore/
         touch app/keystore/release.jks
         echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/keystore/release.jks
+
+        mkdir -p ~/.gradle/
+        touch ~/.gradle/gradle.properties
         echo "RELEASE_STORE_FILE=keystore/release.jks" >> ~/.gradle/gradle.properties
         echo "RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
         echo "RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
@@ -183,6 +186,9 @@ jobs:
         mkdir -p app/keystore/
         touch app/keystore/release.jks
         echo ${{ secrets.SIGNING_KEY }} | base64 -d > app/keystore/release.jks
+        
+        mkdir -p ~/.gradle/
+        touch ~/.gradle/gradle.properties
         echo "RELEASE_STORE_FILE=keystore/release.jks" >> ~/.gradle/gradle.properties
         echo "RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
         echo "RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
