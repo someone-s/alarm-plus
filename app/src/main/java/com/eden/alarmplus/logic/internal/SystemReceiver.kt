@@ -31,11 +31,6 @@ class SystemReceiver: BroadcastReceiver() {
             try {
                 notificationRepository.reset()
                 stateProcessor.initializeState(LocalDateTime.now())
-                pendingResult.resultCode = 0
-            }
-            catch (e: Exception) {
-                pendingResult.resultCode = -1
-                pendingResult.resultData = e.message
             }
             finally {
                 pendingResult.finish()
