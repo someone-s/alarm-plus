@@ -1,0 +1,3 @@
+Bugfix release
+- Fix direct boot exception when in lock screen (all saved alarm will be cleared)
+- Fix group title width
