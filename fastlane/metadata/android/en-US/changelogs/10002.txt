@@ -1,0 +1,12 @@
+Re-release of previous versions
+- Change in build process
+
+Initial release with routine alarms.
+- Set schedule start and end date
+- Set day of week for routines
+- Set audio and vibrate per time in routine
+- Pin a specific time as start of routine
+
+Bugfix release
+- Fix state not recalculated when time changed
+- Fix long group name cause button to disappear
