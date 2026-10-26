@@ -56,7 +56,7 @@ fun GroupTitle(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(1f)
+                .weight(1f, fill = false)
                 .clickable { showTitleInput = true },
         )
         Spacer(modifier = Modifier.width(12.dp))
