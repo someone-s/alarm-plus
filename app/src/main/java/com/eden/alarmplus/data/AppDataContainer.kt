@@ -53,11 +53,11 @@ class AppDataContainer(
     }
 
     override val stateRepository: StateRepository by lazy {
-        OfflineStateRepository(AlarmsDatabase.getDatabase(context).stateDao())
+        OfflineStateRepository(AlarmsDatabase.getDatabase(context.createDeviceProtectedStorageContext()).stateDao())
     }
 
     override val notificationRepository: NotificationRepository by lazy {
-        OfflineNotificationRepository(NotificationDatabase.getDatabase(context).notificationDao())
+        OfflineNotificationRepository(NotificationDatabase.getDatabase(context.createDeviceProtectedStorageContext()).notificationDao())
     }
 
     private val timeChangeReceiver: TimeChangeReceiver by lazy {
