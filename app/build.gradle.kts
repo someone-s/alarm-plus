@@ -41,7 +41,7 @@ android {
                 enable = true
             }
             ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
+                debugSymbolLevel = "FULL"
             }
         }
     }
