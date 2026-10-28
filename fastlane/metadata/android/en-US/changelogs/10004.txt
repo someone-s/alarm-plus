@@ -1,0 +1,2 @@
+Optimization release
+- Enable R8 optimization to reduce release size
