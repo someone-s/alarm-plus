@@ -33,6 +33,11 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
         android:purposeString="@string/manifest_permission_foregroundservicemediaplayback_purpose" />
+
+    <!-- Remove unnecessary permission included by ExoPlayer -->
+    <uses-permission
+        tools:node="remove"
+        android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <attribution
         android:tag="playAudibleAlarms"
