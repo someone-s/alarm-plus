@@ -1,0 +1,2 @@
+Bugfix release
+- Remove unnecessary ACCESS_NETWORK_STATE included by dependency
