@@ -14,6 +14,7 @@ import com.eden.alarmplus.ui.main.repeats.edit.alarm.AlarmSection
 import com.eden.alarmplus.ui.main.repeats.edit.alarm.AlarmSectionState
 import com.eden.alarmplus.ui.main.repeats.edit.group.GroupSection
 import com.eden.alarmplus.ui.main.repeats.edit.group.GroupSectionState
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Composable
@@ -43,6 +44,7 @@ class EditContentState(
 fun EditContent(
     editContentState: EditContentState,
     maximise: Boolean = false,
+    currentDateTime: LocalDateTime,
     onDelete: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -63,7 +65,7 @@ fun EditContent(
                     alarmSectionState.setAlarmDraft(
                         AlarmData(
                             info = AlarmInfo(
-                                time = LocalTime.now(),
+                                time = currentDateTime.toLocalTime(),
                             ),
                             features = emptyList(),
                         )

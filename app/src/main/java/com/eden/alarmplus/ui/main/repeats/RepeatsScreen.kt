@@ -61,7 +61,8 @@ fun RepeatsScreen(
 ) = with(sharedTransitionScope) {
 
     val groupAlarmUiState by viewModel.groupAlarmsUiState.collectAsState()
-
+    val currentTimeUiState by viewModel.currentTimeUiState.collectAsState()
+    
     val editSheetState = rememberEditSheetState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -202,6 +203,7 @@ fun RepeatsScreen(
 
         EditSheet(
             state = editSheetState,
+            currentDateTime = currentTimeUiState.localDateTime,
             onDelete = {
                 showRevertGroupDeleteSnackbar(editSheetState.group)
             },

@@ -33,6 +33,7 @@ import com.eden.alarmplus.ui.common.components.ModalSideSheet
 import com.eden.alarmplus.ui.common.components.SideSheetValue
 import com.eden.alarmplus.ui.common.components.rememberSideSheetState
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
 fun rememberEditSheetState(
@@ -79,6 +80,7 @@ class EditSheetState(
 @Composable
 fun EditSheet(
     state: EditSheetState,
+    currentDateTime: LocalDateTime,
     windowInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2(),
     onDelete: () -> Unit,
     onBack: () -> Unit,
@@ -123,6 +125,7 @@ fun EditSheet(
                 EditContent(
                     editContentState = editContentState,
                     maximise = true,
+                    currentDateTime = currentDateTime,
                     onDelete = {
                         if (editContentState.modified)
                             state.modifyGroup(editContentState.group)
@@ -167,6 +170,7 @@ fun EditSheet(
                 EditContent(
                     editContentState = editContentState,
                     maximise = false,
+                    currentDateTime = currentDateTime,
                     onDelete = {
                         if (editContentState.modified)
                             state.modifyGroup(editContentState.group)
@@ -212,6 +216,7 @@ fun EditSheetPreview() {
     Scaffold {
         EditSheet(
             state = editSheetState,
+            currentDateTime = LocalDateTime.now(),
             onDelete = {},
             onBack = {},
         )
