@@ -3,6 +3,7 @@ package com.eden.alarmplus.logic.access
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.IntentCompat
 import com.eden.alarmplus.AlarmPlusApplication
 import com.eden.alarmplus.BuildConfig
@@ -33,7 +34,7 @@ class DismissReceiver: BroadcastReceiver() {
                 logicScope.listener?.onDismiss(context, groupUuid)
             }
             catch (e: Exception) {
-                pendingResult.resultData = e.message
+                Log.e("$javaClass", e.message, e)
             }
             finally {
                 pendingResult.finish()

@@ -3,6 +3,7 @@ package com.eden.alarmplus.logic.internal
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.eden.alarmplus.AlarmPlusApplication
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +32,9 @@ class SystemReceiver: BroadcastReceiver() {
             try {
                 notificationRepository.reset()
                 stateProcessor.initializeState(LocalDateTime.now())
+            }
+            catch (e: Exception) {
+                Log.e("$javaClass", e.message, e)
             }
             finally {
                 pendingResult.finish()
