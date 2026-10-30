@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialize)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.androidx.room3)
 }
 
 android {
@@ -62,8 +63,8 @@ android {
     }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
