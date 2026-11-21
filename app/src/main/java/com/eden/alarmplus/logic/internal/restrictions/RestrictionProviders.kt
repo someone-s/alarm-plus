@@ -10,6 +10,7 @@ import kotlin.reflect.KClass
 object RestrictionProviders {
     private val providers = mapOf<KClass<*>, RestrictionProvider>(
         DayOfWeekFeature::class to DayOfWeekProvider,
+        DayWeekOfMonthScope::class to DayWeekOfMonthProvider,
         ScheduleBeginFeature::class to ScheduleBeginProvider,
         ScheduleEndFeature::class to ScheduleEndProvider,
     )
