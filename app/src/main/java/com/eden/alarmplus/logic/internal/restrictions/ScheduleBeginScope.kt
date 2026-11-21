@@ -7,7 +7,10 @@ class ScheduleBeginScope(
     private val beginDate: LocalDate
 ): RestrictionScope {
 
-    override val filterOrder: Int = 1
+    override val filterOrder = 1
+
+    override val defaultFilterLimit = null
+
     override fun isDateAllowed(date: LocalDate): Boolean = !date.isBefore(beginDate)
 
     override fun getStartDate() = beginDate.toZonedDateTime()
