@@ -8,6 +8,9 @@ class ScheduleEndScope(
 ): RestrictionScope {
 
     override val filterOrder: Int = 2
+
+    override val defaultFilterLimit = null
+
     override fun isDateAllowed(date: LocalDate): Boolean = !date.isAfter(endDate)
 
     override fun getStartDate(): ZonedDateTime? = null

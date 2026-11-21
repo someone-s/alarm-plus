@@ -55,11 +55,8 @@ object RestrictionProviders {
 
         var sorted = listOf(StartPeriod(on = combinedStartDate, until = null))
 
-        for ((index, restriction) in this.sortedByDescending { it.filterOrder }.withIndex())
-            sorted = restriction.filterStartDate(
-                sorted,
-                if (index == this.lastIndex) 1 else null
-            )
+        for (restriction in this.sortedByDescending { it.filterOrder })
+            sorted = restriction.filterStartDate(sorted)
 
         return StartDateResult(
             hasRestriction = true,
@@ -96,10 +93,7 @@ object RestrictionProviders {
         var sorted = listOf(EndPeriod(on = combinedEndDate, since = null))
 
         for ((index, restriction) in this.sortedByDescending { it.filterOrder }.withIndex())
-            sorted = restriction.filterEndDate(
-                sorted,
-                if (index == this.lastIndex) 1 else null
-            )
+            sorted = restriction.filterEndDate(sorted)
 
         return EndDateResult(
             hasRestriction = true,

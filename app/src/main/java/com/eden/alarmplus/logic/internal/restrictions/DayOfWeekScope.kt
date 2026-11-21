@@ -11,7 +11,9 @@ import kotlin.math.min
 class DayOfWeekScope(
     private val flags: DayOfWeekFlags
 ): RestrictionScope {
-    override val filterOrder: Int = 1000
+    override val filterOrder = 1000
+
+    override val defaultFilterLimit = 7L
 
     override fun isDateAllowed(date: LocalDate): Boolean = flags.any(date.dayOfWeek)
 

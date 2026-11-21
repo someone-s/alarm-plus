@@ -10,6 +10,8 @@ interface RestrictionScope {
      */
     val filterOrder: Int
 
+    val defaultFilterLimit: Long?
+
     fun isDateAllowed(date: LocalDate): Boolean
 
     /**
@@ -20,7 +22,7 @@ interface RestrictionScope {
     /**
      * @param limit null or >= 1
      */
-    fun filterStartDate(sorted: List<StartPeriod>, limit: Long? = null): List<StartPeriod>
+    fun filterStartDate(sorted: List<StartPeriod>, limit: Long? = defaultFilterLimit): List<StartPeriod>
 
     /**
      * Time element always set by [java.time.LocalTime.MIDNIGHT]
@@ -30,5 +32,5 @@ interface RestrictionScope {
     /**
      * @param limit null or >= 1
      */
-    fun filterEndDate(sorted: List<EndPeriod>, limit: Long? = null): List<EndPeriod>
+    fun filterEndDate(sorted: List<EndPeriod>, limit: Long? = defaultFilterLimit): List<EndPeriod>
 }
