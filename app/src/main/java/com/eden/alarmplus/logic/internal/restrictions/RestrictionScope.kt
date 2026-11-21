@@ -1,7 +1,6 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 interface RestrictionScope {
 
@@ -17,7 +16,7 @@ interface RestrictionScope {
     /**
      * Time element always set by [java.time.LocalTime.MIDNIGHT]
      */
-    fun getStartDate(): ZonedDateTime?
+    fun getStartDate(): LocalDate?
 
     /**
      * @param limit null or >= 1
@@ -27,7 +26,7 @@ interface RestrictionScope {
     /**
      * Time element always set by [java.time.LocalTime.MIDNIGHT]
      */
-    fun getEndDate(): ZonedDateTime?
+    fun getEndDate(): LocalDate?
 
     /**
      * @param limit null or >= 1

@@ -1,15 +1,11 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
-import java.time.ZonedDateTime
+import java.time.LocalDate
 
 data class StartPeriod(
+    val on: LocalDate,
     /**
-     * Time element always set by [java.time.LocalTime.MIDNIGHT]
+     * Inclusive
      */
-    val on: ZonedDateTime,
-    /**
-     * Inclusive;
-     * Time element always set by [java.time.LocalTime.MIDNIGHT]
-     */
-    val until: ZonedDateTime?,
+    val until: LocalDate?,
 )

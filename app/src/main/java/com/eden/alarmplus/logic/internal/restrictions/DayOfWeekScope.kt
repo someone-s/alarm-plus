@@ -2,7 +2,6 @@ package com.eden.alarmplus.logic.internal.restrictions
 
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.max
@@ -17,7 +16,7 @@ class DayOfWeekScope(
 
     override fun isDateAllowed(date: LocalDate): Boolean = flags.any(date.dayOfWeek)
 
-    override fun getStartDate(): ZonedDateTime? = null
+    override fun getStartDate() = null
 
     override fun filterStartDate(sorted: List<StartPeriod>, limit: Long?): List<StartPeriod> = sorted
         .flatMap { startDate ->
@@ -52,7 +51,7 @@ class DayOfWeekScope(
             else it
         }
 
-    override fun getEndDate(): ZonedDateTime? = null
+    override fun getEndDate() = null
 
     override fun filterEndDate(sorted: List<EndPeriod>, limit: Long?): List<EndPeriod> = sorted
         .flatMap { endDate ->

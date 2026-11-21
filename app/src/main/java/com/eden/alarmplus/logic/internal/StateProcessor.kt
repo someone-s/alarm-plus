@@ -15,8 +15,6 @@ import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders
 import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.getFirstStartFrom
 import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.getLastEndOn
 import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.isDateAllowed
-import com.eden.alarmplus.logic.internal.restrictions.isAfter
-import com.eden.alarmplus.logic.internal.restrictions.isBefore
 import com.eden.alarmplus.logic.internal.restrictions.isOnOrBefore
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
