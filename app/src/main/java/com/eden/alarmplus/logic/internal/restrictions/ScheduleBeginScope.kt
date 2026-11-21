@@ -1,7 +1,6 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 class ScheduleBeginScope(
     private val beginDate: LocalDate
@@ -13,36 +12,38 @@ class ScheduleBeginScope(
 
     override fun isDateAllowed(date: LocalDate): Boolean = !date.isBefore(beginDate)
 
-    override fun getStartDate() = beginDate.toZonedDateTime()
+    override fun getStartDate() = beginDate
 
-    override fun filterStartDate(sorted: List<StartPeriod>, limit: Long?): List<StartPeriod> {
-        val begin = beginDate.toZonedDateTime()
-        return sorted.mapNotNull { startDate ->
+    override fun filterStartDate(
+        sorted: List<StartPeriod>,
+        limit: Long?
+    ): List<StartPeriod> = sorted
+        .mapNotNull { startDate ->
             if (startDate.until != null &&
-                startDate.until.isBefore(begin))
+                startDate.until.isBefore(beginDate))
                 null
             else
                 StartPeriod(
-                    on = maxOf(begin, startDate.on),
+                    on = maxOf(beginDate, startDate.on),
                     until = startDate.until
                 )
         }
-    }
 
-    override fun getEndDate(): ZonedDateTime? = null
+    override fun getEndDate() = null
 
-    override fun filterEndDate(sorted: List<EndPeriod>, limit: Long?): List<EndPeriod> {
-        val begin = beginDate.toZonedDateTime()
-        return sorted.mapNotNull { endDate ->
-            if (endDate.on.isBefore(begin))
+    override fun filterEndDate(
+        sorted: List<EndPeriod>,
+        limit: Long?
+    ): List<EndPeriod> = sorted
+        .mapNotNull { endDate ->
+            if (endDate.on.isBefore(beginDate))
                 null
             else
                 EndPeriod(
                     on = endDate.on,
                     since =
-                        if (endDate.since == null) begin
-                        else maxOf(begin, endDate.since)
+                        if (endDate.since == null) beginDate
+                        else maxOf(beginDate, endDate.since)
                 )
         }
-    }
 }

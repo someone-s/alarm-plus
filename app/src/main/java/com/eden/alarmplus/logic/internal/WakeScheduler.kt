@@ -84,7 +84,7 @@ class WakeScheduler(
 
                     val nextStartDate = fromDate.plusDays(1).let { adjusted ->
                         restrictions.getFirstStartFrom(adjusted).let { result ->
-                            if (result.hasRestriction) result.nextStartPeriod?.on?.toLocalDate()
+                            if (result.hasRestriction) result.nextStartPeriod?.on
                             else adjusted
                         }
                     }
@@ -112,7 +112,7 @@ class WakeScheduler(
 
                     val nextDismissDate = fromDate.plusDays(2).let { adjusted ->
                         restrictions.getFirstStartFrom(adjusted).let { result ->
-                            if (result.hasRestriction) result.nextStartPeriod?.on?.toLocalDate()
+                            if (result.hasRestriction) result.nextStartPeriod?.on
                             else adjusted
                         }
                     }

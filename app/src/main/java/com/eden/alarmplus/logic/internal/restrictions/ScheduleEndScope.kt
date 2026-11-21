@@ -1,7 +1,6 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 class ScheduleEndScope(
     private val endDate: LocalDate
@@ -13,36 +12,38 @@ class ScheduleEndScope(
 
     override fun isDateAllowed(date: LocalDate): Boolean = !date.isAfter(endDate)
 
-    override fun getStartDate(): ZonedDateTime? = null
+    override fun getStartDate() = null
 
-    override fun filterStartDate(sorted: List<StartPeriod>, limit: Long?): List<StartPeriod> {
-        val end = endDate.toZonedDateTime()
-        return sorted.mapNotNull { startDate ->
-            if (startDate.on.isAfter(end))
+    override fun filterStartDate(
+        sorted: List<StartPeriod>,
+        limit: Long?
+    ): List<StartPeriod> = sorted
+        .mapNotNull { period ->
+            if (period.on.isAfter(endDate))
                 null
             else
                 StartPeriod(
-                    on = startDate.on,
+                    on = period.on,
                     until =
-                        if (startDate.until == null) end
-                        else minOf(end, startDate.until)
+                        if (period.until == null) endDate
+                        else minOf(endDate, period.until)
                 )
         }
-    }
 
-    override fun getEndDate() = endDate.toZonedDateTime()
+    override fun getEndDate() = endDate
 
-    override fun filterEndDate(sorted: List<EndPeriod>, limit: Long?): List<EndPeriod> {
-        val end = endDate.toZonedDateTime()
-        return sorted.mapNotNull { endDate ->
-            if (endDate.since != null &&
-                endDate.since.isAfter(end))
+    override fun filterEndDate(
+        sorted: List<EndPeriod>,
+        limit: Long?
+    ): List<EndPeriod> = sorted
+        .mapNotNull { period ->
+            if (period.since != null &&
+                period.since.isAfter(endDate))
                 null
             else
                 EndPeriod(
-                    on = minOf(end, endDate.on),
-                    since = endDate.since
+                    on = minOf(endDate, period.on),
+                    since = period.since
                 )
         }
-    }
 }

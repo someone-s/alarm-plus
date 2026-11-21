@@ -47,10 +47,8 @@ object RestrictionProviders {
                 nextStartPeriod = null,
             )
 
-        val searchStartDate = date?.toZonedDateTime()
-
         val combinedStartDate =
-            if (searchStartDate != null) maxOf(inheritStartDate, searchStartDate)
+            if (date != null) maxOf(inheritStartDate, date)
             else inheritStartDate
 
         var sorted = listOf(StartPeriod(on = combinedStartDate, until = null))
@@ -84,10 +82,8 @@ object RestrictionProviders {
                 lastEndPeriod = null,
             )
 
-        val searchEndDate = date?.toZonedDateTime()
-
         val combinedEndDate =
-            if (searchEndDate != null) minOf(inheritEndDate, searchEndDate)
+            if (date != null) minOf(inheritEndDate, date)
             else inheritEndDate
 
         var sorted = listOf(EndPeriod(on = combinedEndDate, since = null))
