@@ -9,6 +9,7 @@ import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.RestrictionFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekOfMonthFeature
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -19,11 +20,13 @@ val formatter = Json {
     serializersModule = SerializersModule {
         polymorphic(GroupFeature::class) {
             subclass(DayOfWeekFeature::class)
+            subclass(DayWeekOfMonthFeature::class)
             subclass(ScheduleBeginFeature::class)
             subclass(ScheduleEndFeature::class)
         }
         polymorphic(RestrictionFeature::class) {
             subclass(DayOfWeekFeature::class)
+            subclass(DayWeekOfMonthFeature::class)
             subclass(ScheduleBeginFeature::class)
             subclass(ScheduleEndFeature::class)
         }
