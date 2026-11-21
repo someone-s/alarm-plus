@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.eden.alarmplus.data.alarms.structure.alarm.getUniqueAlarmData
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.emptyGroupData
