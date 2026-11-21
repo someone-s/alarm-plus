@@ -12,13 +12,13 @@ class DayOfWeekScope(
 ): RestrictionScope {
     override val filterOrder = 1000
 
-    override val defaultFilterLimit = 7L
+    override val defaultFilterLimit = 7
 
     override fun isDateAllowed(date: LocalDate): Boolean = flags.any(date.dayOfWeek)
 
     override fun getStartDate() = null
 
-    override fun filterStartDate(sorted: List<StartPeriod>, limit: Long?): List<StartPeriod> = sorted
+    override fun filterStartDate(sorted: List<StartPeriod>, limit: Int?): List<StartPeriod> = sorted
         .flatMap { startDate ->
             if (startDate.until == null)
                 listOf(
@@ -33,7 +33,7 @@ class DayOfWeekScope(
                 listOf(startDate)
             else {
                 val days = 1 + ChronoUnit.DAYS.between(startDate.on, startDate.until)
-                val count = if (limit != null) min(days, limit) else days
+                val count = if (limit != null) min(days, limit.toLong()) else days
                 (0..<count).mapNotNull { dayIndex ->
                     val date = startDate.on.plusDays(dayIndex)
                     if (flags.any(date.dayOfWeek))
@@ -47,13 +47,13 @@ class DayOfWeekScope(
         }
         .let {
             if (limit != null)
-                it.take(limit.toInt())
+                it.take(limit)
             else it
         }
 
     override fun getEndDate() = null
 
-    override fun filterEndDate(sorted: List<EndPeriod>, limit: Long?): List<EndPeriod> = sorted
+    override fun filterEndDate(sorted: List<EndPeriod>, limit: Int?): List<EndPeriod> = sorted
         .flatMap { endDate ->
             if (endDate.since == null)
                 listOf(
@@ -82,7 +82,7 @@ class DayOfWeekScope(
         }
         .let {
             if (limit != null)
-                it.take(limit.toInt())
+                it.take(limit)
             else it
         }
 }

@@ -16,7 +16,7 @@ class ScheduleEndScope(
 
     override fun filterStartDate(
         sorted: List<StartPeriod>,
-        limit: Long?
+        limit: Int?
     ): List<StartPeriod> = sorted
         .mapNotNull { period ->
             if (period.on.isAfter(endDate))
@@ -34,7 +34,7 @@ class ScheduleEndScope(
 
     override fun filterEndDate(
         sorted: List<EndPeriod>,
-        limit: Long?
+        limit: Int?
     ): List<EndPeriod> = sorted
         .mapNotNull { period ->
             if (period.since != null &&
