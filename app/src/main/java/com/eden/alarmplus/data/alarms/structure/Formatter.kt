@@ -6,6 +6,7 @@ import com.eden.alarmplus.data.alarms.structure.alarm.feature.PinStartFeature
 import com.eden.alarmplus.data.alarms.structure.alarm.feature.VibrateFeature
 import com.eden.alarmplus.data.alarms.structure.group.GroupFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.RestrictionFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
 import kotlinx.serialization.json.Json
@@ -17,6 +18,11 @@ import kotlinx.serialization.modules.subclass
 val formatter = Json {
     serializersModule = SerializersModule {
         polymorphic(GroupFeature::class) {
+            subclass(DayOfWeekFeature::class)
+            subclass(ScheduleBeginFeature::class)
+            subclass(ScheduleEndFeature::class)
+        }
+        polymorphic(RestrictionFeature::class) {
             subclass(DayOfWeekFeature::class)
             subclass(ScheduleBeginFeature::class)
             subclass(ScheduleEndFeature::class)
