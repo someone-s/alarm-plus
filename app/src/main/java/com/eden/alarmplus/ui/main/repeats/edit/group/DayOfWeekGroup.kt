@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 
 @Composable
 fun DayOfWeekGroup(

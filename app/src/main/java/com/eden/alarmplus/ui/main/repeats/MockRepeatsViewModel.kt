@@ -3,7 +3,7 @@ package com.eden.alarmplus.ui.main.repeats
 import com.eden.alarmplus.data.alarms.repository.GroupAlarmsRepository
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmInfo
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature

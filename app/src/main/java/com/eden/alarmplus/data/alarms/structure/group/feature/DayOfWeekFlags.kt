@@ -1,4 +1,4 @@
-package com.eden.alarmplus.data.alarms.structure.dayofweek
+package com.eden.alarmplus.data.alarms.structure.group.feature
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable

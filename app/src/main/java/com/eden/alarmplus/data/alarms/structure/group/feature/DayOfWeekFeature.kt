@@ -1,7 +1,6 @@
 package com.eden.alarmplus.data.alarms.structure.group.feature
 
 import androidx.compose.runtime.Stable
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

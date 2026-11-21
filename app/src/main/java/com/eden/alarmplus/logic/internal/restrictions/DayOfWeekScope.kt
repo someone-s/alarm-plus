@@ -1,6 +1,6 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -19,8 +19,8 @@ class DayOfWeekScope(
 
     override fun getStartDate(): ZonedDateTime? = null
 
-    override fun filterStartDate(sorted: List<StartPeriod>, limit: Long?): List<StartPeriod> =
-        sorted.flatMap { startDate ->
+    override fun filterStartDate(sorted: List<StartPeriod>, limit: Long?): List<StartPeriod> = sorted
+        .flatMap { startDate ->
             if (startDate.until == null)
                 listOf(
                     StartPeriod(
@@ -46,11 +46,16 @@ class DayOfWeekScope(
                 }
             }
         }
+        .let {
+            if (limit != null)
+                it.take(limit.toInt())
+            else it
+        }
 
     override fun getEndDate(): ZonedDateTime? = null
 
-    override fun filterEndDate(sorted: List<EndPeriod>, limit: Long?): List<EndPeriod> =
-        sorted.flatMap { endDate ->
+    override fun filterEndDate(sorted: List<EndPeriod>, limit: Long?): List<EndPeriod> = sorted
+        .flatMap { endDate ->
             if (endDate.since == null)
                 listOf(
                     EndPeriod(
@@ -75,5 +80,10 @@ class DayOfWeekScope(
                     else null
                 }
             }
+        }
+        .let {
+            if (limit != null)
+                it.take(limit.toInt())
+            else it
         }
 }
