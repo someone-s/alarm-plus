@@ -1,0 +1,125 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "cf1bf6697257e185e16963051f75eec7",
+    "entities": [
+      {
+        "tableName": "alerts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`index` INTEGER NOT NULL, `notification_id` INTEGER NOT NULL, `displayed_name` TEXT, `displayed_timestamp` INTEGER, `snooze_allowed` INTEGER NOT NULL, `dismiss_allowed` INTEGER NOT NULL, `audio_uri` TEXT, `vibrate_set` INTEGER NOT NULL, `group_upper_uuid` INTEGER NOT NULL, `group_lower_uuid` INTEGER NOT NULL, PRIMARY KEY(`index`))",
+        "fields": [
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notificationId",
+            "columnName": "notification_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayedName",
+            "columnName": "displayed_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "displayedTimestamp",
+            "columnName": "displayed_timestamp",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "snoozeAllowed",
+            "columnName": "snooze_allowed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dismissAllowed",
+            "columnName": "dismiss_allowed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioUriString",
+            "columnName": "audio_uri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "vibrateEnabled",
+            "columnName": "vibrate_set",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.upperUuid",
+            "columnName": "group_upper_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.lowerUuid",
+            "columnName": "group_lower_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "index"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_alerts_group_upper_uuid_group_lower_uuid",
+            "unique": false,
+            "columnNames": [
+              "group_upper_uuid",
+              "group_lower_uuid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_alerts_group_upper_uuid_group_lower_uuid` ON `${TABLE_NAME}` (`group_upper_uuid`, `group_lower_uuid`)"
+          }
+        ]
+      },
+      {
+        "tableName": "forewarns",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`notification_id` INTEGER NOT NULL, `group_upper_uuid` INTEGER NOT NULL, `group_lower_uuid` INTEGER NOT NULL, PRIMARY KEY(`group_upper_uuid`, `group_lower_uuid`))",
+        "fields": [
+          {
+            "fieldPath": "notificationId",
+            "columnName": "notification_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.upperUuid",
+            "columnName": "group_upper_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.lowerUuid",
+            "columnName": "group_lower_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "group_upper_uuid",
+            "group_lower_uuid"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf1bf6697257e185e16963051f75eec7')"
+    ]
+  }
+}

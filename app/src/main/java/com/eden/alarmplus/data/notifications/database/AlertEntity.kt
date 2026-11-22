@@ -10,7 +10,7 @@ import com.eden.alarmplus.data.common.database.UuidLongs
 @Entity(
     tableName = "alerts",
     indices = [
-        Index("group_upper_uuid", "group_lower_uuid", unique = true)
+        Index("group_upper_uuid", "group_lower_uuid")
     ]
 )
 data class AlertEntity(
