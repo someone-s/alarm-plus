@@ -1,0 +1,171 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "0794fd2df8f2b4375c4ff6917df5a642",
+    "entities": [
+      {
+        "tableName": "groups",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT, `active` INTEGER NOT NULL, `group_upper_uuid` INTEGER NOT NULL, `group_lower_uuid` INTEGER NOT NULL, PRIMARY KEY(`group_upper_uuid`, `group_lower_uuid`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uuid.upperUuid",
+            "columnName": "group_upper_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uuid.lowerUuid",
+            "columnName": "group_lower_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "group_upper_uuid",
+            "group_lower_uuid"
+          ]
+        }
+      },
+      {
+        "tableName": "alarms",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timestamp` INTEGER NOT NULL, `features` TEXT NOT NULL, `alarm_upper_uuid` INTEGER NOT NULL, `alarm_lower_uuid` INTEGER NOT NULL, `group_upper_uuid` INTEGER NOT NULL, `group_lower_uuid` INTEGER NOT NULL, PRIMARY KEY(`alarm_upper_uuid`, `alarm_lower_uuid`), FOREIGN KEY(`group_upper_uuid`, `group_lower_uuid`) REFERENCES `groups`(`group_upper_uuid`, `group_lower_uuid`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alarmUuid.upperUuid",
+            "columnName": "alarm_upper_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alarmUuid.lowerUuid",
+            "columnName": "alarm_lower_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.upperUuid",
+            "columnName": "group_upper_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.lowerUuid",
+            "columnName": "group_lower_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "alarm_upper_uuid",
+            "alarm_lower_uuid"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_alarms_group_upper_uuid_group_lower_uuid",
+            "unique": false,
+            "columnNames": [
+              "group_upper_uuid",
+              "group_lower_uuid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_alarms_group_upper_uuid_group_lower_uuid` ON `${TABLE_NAME}` (`group_upper_uuid`, `group_lower_uuid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "groups",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "group_upper_uuid",
+              "group_lower_uuid"
+            ],
+            "referencedColumns": [
+              "group_upper_uuid",
+              "group_lower_uuid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "states",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`value` INTEGER NOT NULL, `group_upper_uuid` INTEGER NOT NULL, `group_lower_uuid` INTEGER NOT NULL, PRIMARY KEY(`group_upper_uuid`, `group_lower_uuid`), FOREIGN KEY(`group_upper_uuid`, `group_lower_uuid`) REFERENCES `groups`(`group_upper_uuid`, `group_lower_uuid`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.upperUuid",
+            "columnName": "group_upper_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid.lowerUuid",
+            "columnName": "group_lower_uuid",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "group_upper_uuid",
+            "group_lower_uuid"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "groups",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "group_upper_uuid",
+              "group_lower_uuid"
+            ],
+            "referencedColumns": [
+              "group_upper_uuid",
+              "group_lower_uuid"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0794fd2df8f2b4375c4ff6917df5a642')"
+    ]
+  }
+}

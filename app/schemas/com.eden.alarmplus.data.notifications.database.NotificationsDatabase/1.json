@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2aa24af9b1bf3fd4ffdfbd5e58e1a4a5",
+    "entities": [
+      {
+        "tableName": "pending_intents",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`custom_tag` INTEGER NOT NULL, `request_code` INTEGER NOT NULL, `identifying_value` TEXT NOT NULL, PRIMARY KEY(`custom_tag`, `request_code`))",
+        "fields": [
+          {
+            "fieldPath": "customTag",
+            "columnName": "custom_tag",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requestCode",
+            "columnName": "request_code",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identifyingValue",
+            "columnName": "identifying_value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "custom_tag",
+            "request_code"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2aa24af9b1bf3fd4ffdfbd5e58e1a4a5')"
+    ]
+  }
+}
