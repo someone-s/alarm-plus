@@ -42,6 +42,7 @@ data class DayWeekOfMonthFlags(
         val PENULTIMATE = DayWeekOfMonthFlags(1 shl 5)
         val ALL_START   = merge(FIRST, SECOND, THIRD, FORTH)
         val ALL_END     = merge(LAST, PENULTIMATE)
+        val ALL         = merge(ALL_START, ALL_END)
 
         fun merge(vararg flags: DayWeekOfMonthFlags): DayWeekOfMonthFlags {
             var mergedMask = 0
@@ -62,6 +63,9 @@ data class DayWeekOfMonthFlags(
     fun any(dayWeekOfMonth: Int, dayWeeksInMonth: Int): Boolean =
         (mask and ALL_START.mask and (1 shl dayWeekOfMonth)) or
         (mask and ALL_END.mask and (1 shl (4 + dayWeeksInMonth - dayWeekOfMonth - 1))) > 0
+
+    fun all(flags: DayWeekOfMonthFlags): Boolean =
+        (mask and flags.mask) == flags.mask
 
     data class MonthAndDayWeek(
         val monthOffset: Int,
@@ -141,6 +145,15 @@ data class DayWeekOfMonthFlags(
     val endDayWeeksOfMonth: List<Int> get() = buildList {
         if ((mask and LAST.mask) > 0)        add(-1)
         if ((mask and PENULTIMATE.mask) > 0) add(-2)
+    }
+
+    fun split(): List<DayWeekOfMonthFlags> = buildList {
+        if ((mask and FIRST.mask) > 0)          add(FIRST)
+        if ((mask and SECOND.mask) > 0)         add(SECOND)
+        if ((mask and THIRD.mask) > 0)          add(THIRD)
+        if ((mask and FORTH.mask) > 0)          add(FORTH)
+        if ((mask and LAST.mask) > 0)           add(LAST)
+        if ((mask and PENULTIMATE.mask) > 0)    add(PENULTIMATE)
     }
 
 }
