@@ -1,0 +1,2 @@
+Bugfix release
+- Fix newer notification of a group not replacing old ones
