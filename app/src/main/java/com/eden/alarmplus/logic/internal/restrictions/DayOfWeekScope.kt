@@ -69,7 +69,7 @@ class DayOfWeekScope(
             else {
                 val days = 1 + ChronoUnit.DAYS.between(endDate.since, endDate.on)
                 val first = if (limit != null) max(0, days - limit) else 0
-                (first..<days).mapNotNull { dayIndex ->
+                ((days - 1) downTo first).mapNotNull { dayIndex ->
                     val date = endDate.since.plusDays(dayIndex)
                     if (flags.any(date.dayOfWeek))
                         EndPeriod(

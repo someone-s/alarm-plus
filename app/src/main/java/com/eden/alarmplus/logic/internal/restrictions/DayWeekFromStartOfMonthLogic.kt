@@ -151,7 +151,7 @@ class DayWeekFromStartOfMonthLogic(
                     week = weekBefore
                 }
 
-                output.reversed()
+                output
             }
         }
 }
