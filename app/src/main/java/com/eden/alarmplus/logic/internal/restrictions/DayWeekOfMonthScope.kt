@@ -1,182 +1,300 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
-import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekOfMonthFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekFromEndOfMonthFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekFromStartOfMonthFlags
 import java.time.LocalDate
-import java.time.temporal.ChronoField
-import kotlin.collections.flatMap
 
 class DayWeekOfMonthScope(
-    private val flags: DayWeekOfMonthFlags
+    startFlags: DayWeekFromStartOfMonthFlags,
+    endFlags: DayWeekFromEndOfMonthFlags,
 ): RestrictionScope {
+
+    private val startLogic = DayWeekFromStartOfMonthLogic(startFlags)
+    private val endLogic = DayWeekFromEndOfMonthLogic(endFlags)
+
     override val filterOrder = 900
     override val defaultFilterLimit = 6
 
     override fun isDateAllowed(date: LocalDate): Boolean =
-        flags.any(date.dayOfMonth, date.month.length(date.isLeapYear))
+        startLogic.isDateAllowed(date) || endLogic.isDateAllowed(date)
 
     override fun getStartDate() = null
 
     override fun filterStartDate(
         sorted: List<StartPeriod>,
         limit: Int?
-    ): List<StartPeriod> = sorted
-        .flatMap { period ->
+    ): List<StartPeriod> {
+        val bases = startLogic.filterStartDate(sorted, limit)
+        val overlays = endLogic.filterStartDate(sorted, limit)
 
-            if (period.until == null) {
+        val baseIterator = bases.iterator()
+        fun getNextBase(): StartPeriod? = if (baseIterator.hasNext()) baseIterator.next() else null
+        var currentBase = getNextBase()
 
-                fun nextOrSameDate(date: LocalDate): LocalDate {
+        val overlayIterator = overlays.iterator()
+        fun getNextOverlay(): StartPeriod? = if (overlayIterator.hasNext()) overlayIterator.next() else null
+        var currentOverlay = getNextOverlay()
 
-                    val firstDateOfMonth = date.with(ChronoField.DAY_OF_MONTH, 1)
+        var reachedInfinite = false
 
-                    val dayWeekOfMonth = date.dayOfMonth / 7
-                    val dayWeeksInMonth = date.month.length(date.isLeapYear)
+        val output = ArrayList<StartPeriod>(bases.size + overlays.size)
 
-                    val result = flags.nextOrSame(
-                        dayWeekOfMonth = dayWeekOfMonth,
-                        dayWeeksInMonth = dayWeeksInMonth,
-                        dayWeeksInNextMonth = firstDateOfMonth
-                            .plusMonths(1)
-                            .let { it.month.length(it.isLeapYear) },
-                    )
-                    check(result.monthOffset >= 0)
-                    check(result.dayWeekOfMonth >= 0)
+        while ((currentBase != null || currentOverlay != null) && !reachedInfinite) {
 
-                    return if (result.monthOffset == 0 && result.dayWeekOfMonth == dayWeekOfMonth) date
-                    else firstDateOfMonth.plusMonths(result.monthOffset.toLong()).plusDays(7L * result.dayWeekOfMonth)
-                }
-
-                listOf(
-                    StartPeriod(
-                        on = nextOrSameDate(period.on),
-                        until = null,
-                    )
-                )
+            if (currentBase == null) {
+                checkNotNull(currentOverlay)
+                output.add(currentOverlay)
+                currentOverlay = getNextOverlay()
+                continue
             }
-            else {
 
-                assert(period.until.isOnOrAfter(period.on))
+            if (currentOverlay == null) {
+                output.add(currentBase)
+                currentBase = getNextBase()
+                continue
+            }
 
-                fun LocalDate.snapToDayWeekStart() =
-                    this.withDayOfMonth(this.dayOfMonth - this.dayOfMonth % 7)
 
-                val startWeek = period.on.snapToDayWeekStart()
-                val endWeek = period.until.snapToDayWeekStart()
+            if (currentBase.until == null || currentOverlay.until == null) {
+                output.add(StartPeriod(
+                    minOf(currentBase.on, currentOverlay.on),
+                    null
+                ))
+                reachedInfinite = true
+                continue
+            }
 
-                val output: MutableList<StartPeriod> =
-                    if (limit != null) ArrayList(limit)
-                    else ArrayList()
+            if (currentBase.until.isBefore(currentOverlay.on)) {
+                output.add(currentBase)
+                currentBase = getNextBase()
+                continue
+            }
 
-                var week = startWeek
-                while (
-                    week.isOnOrBefore(endWeek) &&
-                    (limit == null || output.size < limit)
-                ) {
+            if (currentOverlay.until.isBefore(currentBase.on)) {
+                output.add((currentOverlay))
+                currentOverlay = getNextOverlay()
+                continue
+            }
 
-                    val weekAfter = week.plusWeeks(1).snapToDayWeekStart()
+            var combinedRange = StartPeriod(
+                minOf(currentBase.on, currentOverlay.on),
+                maxOf(currentBase.until, currentOverlay.until)
+            )
 
-                    if (flags.any(
-                        dayWeekOfMonth = week.dayOfMonth / 7,
-                        dayWeeksInMonth = week.month.length(week.isLeapYear)
-                    )) {
-                        output.add(
-                            StartPeriod(
-                                on =
-                                    if (week.isEqual(startWeek)) period.on
-                                    else week,
-                                until =
-                                    if (week.isEqual(endWeek)) period.until
-                                    else weekAfter.minusDays(1)
-                            )
-                        )
+            while (true) {
+
+                var stable = true
+
+                while (true) {
+
+                    if (combinedRange.until == null)
+                        break
+
+                    val nextBase = getNextBase()
+
+                    if (nextBase == null) {
+                        currentBase = nextBase
+                        break
                     }
 
-                    week = weekAfter
+                    if (nextBase.until == null) {
+                        combinedRange = StartPeriod(combinedRange.on, null)
+                        reachedInfinite = true
+                        currentBase = nextBase
+                        break
+                    }
+
+                    if (nextBase.on.isAfter(combinedRange.until)) {
+                        currentBase = nextBase
+                        break
+                    }
+
+                    combinedRange = StartPeriod(
+                        combinedRange.on,
+                        maxOf(combinedRange.until, nextBase.until)
+                    )
+                    currentBase = nextBase
+                    stable = false
                 }
 
-                output
+                while (true) {
+
+                    if (combinedRange.until == null)
+                        break
+
+                    val nextOverlay = getNextOverlay()
+
+                    if (nextOverlay == null) {
+                        currentOverlay = nextOverlay
+                        break
+                    }
+
+                    if (nextOverlay.until == null) {
+                        combinedRange = StartPeriod(combinedRange.on, null)
+                        reachedInfinite = true
+                        currentOverlay = nextOverlay
+                        break
+                    }
+
+                    if (nextOverlay.on.isAfter(combinedRange.until)) {
+                        currentOverlay = nextOverlay
+                        break
+                    }
+
+                    combinedRange = StartPeriod(
+                        combinedRange.on,
+                        maxOf(combinedRange.until, nextOverlay.until)
+                    )
+                    currentOverlay = nextOverlay
+                    stable = false
+                }
+
+                if (stable) break
             }
+
+            output.add(combinedRange)
         }
+
+        return output
+    }
 
     override fun getEndDate() = null
 
     override fun filterEndDate(
         sorted: List<EndPeriod>,
         limit: Int?
-    ): List<EndPeriod> = sorted
-        .flatMap { period ->
+    ): List<EndPeriod> {
+        val bases = startLogic.filterEndDate(sorted, limit)
+        val overlays = endLogic.filterEndDate(sorted, limit)
 
-            if (period.since == null) {
+        val baseIterator = bases.iterator()
+        fun getNextBase(): EndPeriod? = if (baseIterator.hasNext()) baseIterator.next() else null
+        var currentBase = getNextBase()
 
-                fun prevOrSameDate(date: LocalDate): LocalDate {
+        val overlayIterator = overlays.iterator()
+        fun getNextOverlay(): EndPeriod? = if (overlayIterator.hasNext()) overlayIterator.next() else null
+        var currentOverlay = getNextOverlay()
 
-                    val firstDateOfMonth = date.with(ChronoField.DAY_OF_MONTH, 1)
+        var reachedInfinite = false
 
-                    val dayWeekOfMonth = date.dayOfMonth / 7
-                    val dayWeeksInMonth = date.month.length(date.isLeapYear)
+        val output = ArrayList<EndPeriod>(bases.size + overlays.size)
 
-                    val result = flags.prevOrSame(
-                        dayWeekOfMonth = dayWeekOfMonth,
-                        dayWeeksInMonth = dayWeeksInMonth,
-                        dayWeeksInPrevMonth = firstDateOfMonth
-                            .minusMonths(1)
-                            .let { it.month.length(it.isLeapYear) },
-                    )
-                    check(result.monthOffset >= 0)
-                    check(result.dayWeekOfMonth >= 0)
+        while ((currentBase != null || currentOverlay != null) && !reachedInfinite) {
 
-                    return if (result.monthOffset == 0 && result.dayWeekOfMonth == dayWeekOfMonth) date
-                    else firstDateOfMonth.plusMonths(result.monthOffset.toLong()).plusDays(7L * result.dayWeekOfMonth)
-                }
-
-                listOf(
-                    EndPeriod(
-                        on = prevOrSameDate(period.on),
-                        since = null,
-                    )
-                )
+            if (currentBase == null) {
+                checkNotNull(currentOverlay)
+                output.add(currentOverlay)
+                currentOverlay = getNextOverlay()
+                continue
             }
-            else {
 
-                assert(period.since.isOnOrBefore(period.on))
+            if (currentOverlay == null) {
+                output.add(currentBase)
+                currentBase = getNextBase()
+                continue
+            }
 
-                fun LocalDate.snapToDayWeekStart() =
-                    this.withDayOfMonth(this.dayOfMonth - this.dayOfMonth % 7)
 
-                val startWeek = period.since.snapToDayWeekStart()
-                val endWeek = period.on.snapToDayWeekStart()
+            if (currentBase.since == null || currentOverlay.since == null) {
+                output.add(EndPeriod(
+                    maxOf(currentBase.on, currentOverlay.on),
+                    null
+                ))
+                reachedInfinite = true
+                continue
+            }
 
-                val output: MutableList<EndPeriod> =
-                    if (limit != null) ArrayList(limit)
-                    else ArrayList()
+            if (currentBase.since.isAfter(currentOverlay.on)) {
+                output.add(currentBase)
+                currentBase = getNextBase()
+                continue
+            }
 
-                var week = endWeek
-                while (
-                    week.isOnOrAfter(startWeek) &&
-                    (limit == null || output.size < limit)
-                ) {
+            if (currentOverlay.since.isAfter(currentBase.on)) {
+                output.add((currentOverlay))
+                currentOverlay = getNextOverlay()
+                continue
+            }
 
-                    val weekBefore = week.minusDays(1).snapToDayWeekStart()
+            var combinedRange = EndPeriod(
+                maxOf(currentBase.on, currentOverlay.on),
+                minOf(currentBase.since, currentOverlay.since)
+            )
 
-                    if (flags.any(
-                            dayWeekOfMonth = week.dayOfMonth / 7,
-                            dayWeeksInMonth = week.month.length(week.isLeapYear)
-                        )) {
-                        output.add(
-                            EndPeriod(
-                                on =
-                                    if (week.isEqual(endWeek)) period.on
-                                    else week,
-                                since =
-                                    if (week.isEqual(startWeek)) period.since
-                                    else weekBefore.plusDays(1)
-                            )
-                        )
+            while (true) {
+
+                var stable = true
+
+                while (true) {
+
+                    if (combinedRange.since == null)
+                        break
+
+                    val nextBase = getNextBase()
+
+                    if (nextBase == null) {
+                        currentBase = nextBase
+                        break
                     }
 
-                    week = weekBefore
+                    if (nextBase.since == null) {
+                        combinedRange = EndPeriod(combinedRange.on, null)
+                        reachedInfinite = true
+                        currentBase = nextBase
+                        break
+                    }
+
+                    if (nextBase.on.isBefore(combinedRange.since)) {
+                        currentBase = nextBase
+                        break
+                    }
+
+                    combinedRange = EndPeriod(
+                        combinedRange.on,
+                        minOf(combinedRange.since, nextBase.since)
+                    )
+                    currentBase = nextBase
+                    stable = false
                 }
 
-                output.reversed()
+                while (true) {
+
+                    if (combinedRange.since == null)
+                        break
+
+                    val nextOverlay = getNextOverlay()
+
+                    if (nextOverlay == null) {
+                        currentOverlay = nextOverlay
+                        break
+                    }
+
+                    if (nextOverlay.since == null) {
+                        combinedRange = EndPeriod(combinedRange.on, null)
+                        reachedInfinite = true
+                        currentOverlay = nextOverlay
+                        break
+                    }
+
+                    if (nextOverlay.on.isBefore(combinedRange.since)) {
+                        currentOverlay = nextOverlay
+                        break
+                    }
+
+                    combinedRange = EndPeriod(
+                        combinedRange.on,
+                        minOf(combinedRange.since, nextOverlay.since)
+                    )
+                    currentOverlay = nextOverlay
+                    stable = false
+                }
+
+                if (stable) break
             }
+
+            output.add(combinedRange)
         }
+
+        return output
+    }
 }

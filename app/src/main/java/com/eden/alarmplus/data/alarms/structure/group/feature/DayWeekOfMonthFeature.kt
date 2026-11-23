@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * This is used to represent the limit day of week to the nth of the month,
+ * This is used to represent the limit day of week to the n-th of the month,
  * i.e. First Monday of the month or Fifth Monday of the month
  */
 @Stable
@@ -14,7 +14,9 @@ import kotlinx.serialization.Serializable
 @SerialName("day-week-of-month-feature")
 @Parcelize
 data class DayWeekOfMonthFeature(
-    @SerialName("flags")
-    val flags: DayWeekOfMonthFlags
+    @SerialName("s-flags")
+    val startFlags: DayWeekFromStartOfMonthFlags,
+    @SerialName("e-flags")
+    val endFlags: DayWeekFromEndOfMonthFlags,
 ): RestrictionFeature {
 }

@@ -19,6 +19,7 @@ interface RestrictionScope {
     fun getStartDate(): LocalDate?
 
     /**
+     * @param sorted ascending
      * @param limit null or >= 1
      */
     fun filterStartDate(sorted: List<StartPeriod>, limit: Int? = defaultFilterLimit): List<StartPeriod>
@@ -29,6 +30,7 @@ interface RestrictionScope {
     fun getEndDate(): LocalDate?
 
     /**
+     * @param sorted descending
      * @param limit null or >= 1
      */
     fun filterEndDate(sorted: List<EndPeriod>, limit: Int? = defaultFilterLimit): List<EndPeriod>

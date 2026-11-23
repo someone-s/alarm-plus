@@ -1,6 +1,7 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekOfMonthFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.RestrictionFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
@@ -10,7 +11,7 @@ import kotlin.reflect.KClass
 object RestrictionProviders {
     private val providers = mapOf<KClass<*>, RestrictionProvider>(
         DayOfWeekFeature::class to DayOfWeekProvider,
-        DayWeekOfMonthScope::class to DayWeekOfMonthProvider,
+        DayWeekOfMonthFeature::class to DayWeekOfMonthProvider,
         ScheduleBeginFeature::class to ScheduleBeginProvider,
         ScheduleEndFeature::class to ScheduleEndProvider,
     )
