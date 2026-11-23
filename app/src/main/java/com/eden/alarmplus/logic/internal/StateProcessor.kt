@@ -245,7 +245,7 @@ class StateProcessor(
             )
 
             val scheduleUpcoming = restrictions.getFirstStartFrom().let { result ->
-                result.hasRestriction &&
+                result.hasFixedRestriction &&
                 (result.nextStartPeriod == null || result.nextStartPeriod.on.isAfter(date))
             }
             val scheduleGone = restrictions.getLastEndOn().let { result ->
