@@ -30,7 +30,7 @@ object RestrictionProviders {
         this.all { it.isDateAllowed(date) }
 
     data class StartDateResult(
-        val hasRestriction: Boolean,
+        val hasFixedRestriction: Boolean,
         val nextStartPeriod: StartPeriod?,
     )
 
@@ -53,7 +53,7 @@ object RestrictionProviders {
             sorted = restriction.filterStartDate(sorted)
 
         return StartDateResult(
-            hasRestriction = inheritStartDate != null,
+            hasFixedRestriction = inheritStartDate != null,
             nextStartPeriod = sorted.firstOrNull(),
         )
     }
