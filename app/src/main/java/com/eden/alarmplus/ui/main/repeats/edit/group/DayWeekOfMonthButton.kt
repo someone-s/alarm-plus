@@ -24,20 +24,40 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.eden.alarmplus.R
-import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekOfMonthFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekFromEndOfMonthFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekFromStartOfMonthFlags
 
 @Composable
 fun DayWeekOfMonthButton(
     modifier: Modifier = Modifier,
     shape: Shape = ButtonDefaults.squareShape,
-    flags: DayWeekOfMonthFlags,
-    onUpdate: (DayWeekOfMonthFlags, Boolean) -> Unit,
+    startFlags: DayWeekFromStartOfMonthFlags,
+    onUpdateStartFlags: (DayWeekFromStartOfMonthFlags, Boolean) -> Unit,
+    endFlags: DayWeekFromEndOfMonthFlags,
+    onUpdateEndFlags: (DayWeekFromEndOfMonthFlags, Boolean) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
     val hapticFeedback = LocalHapticFeedback.current
 
-    val notSpecified = flags.all(DayWeekOfMonthFlags.ALL)
+    val notSpecified = startFlags.all(DayWeekFromStartOfMonthFlags.ALL) && endFlags.all(DayWeekFromEndOfMonthFlags.ALL)
+    val displayTextSet = remember(startFlags, endFlags) {
+        startFlags.split().map { flag ->
+            when(flag) {
+                DayWeekFromStartOfMonthFlags.FIRST       -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_first
+                DayWeekFromStartOfMonthFlags.SECOND      -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_second
+                DayWeekFromStartOfMonthFlags.THIRD       -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_third
+                DayWeekFromStartOfMonthFlags.FORTH       -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_forth
+                else -> throw IllegalArgumentException("DayWeekOfMonthFlags out of range")
+            }
+        } + endFlags.split().map { flag ->
+            when(flag) {
+                DayWeekFromEndOfMonthFlags.LAST        -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_last
+                DayWeekFromEndOfMonthFlags.PENULTIMATE -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_penultimate
+                else -> throw IllegalArgumentException("DayWeekOfMonthFlags out of range")
+            }
+        }
+    }
 
     FilledTonalButton(
         modifier = modifier,
@@ -68,33 +88,20 @@ fun DayWeekOfMonthButton(
                     R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_all)
                 else stringResource(
                     R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_combined,
-                    flags.split()
-                        .let { it
-                            .withIndex()
-                            .map { (index, flag) ->
-                                val flagText = stringResource(
-                                    when(flag) {
-                                        DayWeekOfMonthFlags.FIRST       -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_first
-                                        DayWeekOfMonthFlags.SECOND      -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_second
-                                        DayWeekOfMonthFlags.THIRD       -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_third
-                                        DayWeekOfMonthFlags.FORTH       -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_forth
-                                        DayWeekOfMonthFlags.LAST        -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_last
-                                        DayWeekOfMonthFlags.PENULTIMATE -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_penultimate
-                                        else -> throw IllegalArgumentException("DayWeekOfMonthFlags out of range")
-                                    }
-                                )
-                                stringResource(
-                                    if (index == 0)
-                                        R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorstart
-                                    else if (index == it.lastIndex)
-                                        R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorend
-                                    else
-                                        R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperator,
-                                    flagText
-                                )
-                            }
+                    displayTextSet.let { it
+                        .withIndex()
+                        .map { (index, flagText) ->
+                            stringResource(
+                                when (index) {
+                                    0 -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorstart
+                                    it.lastIndex -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorend
+                                    else -> R.string.ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperator
+                                },
+                                stringResource(flagText)
+                            )
                         }
-                        .joinToString(separator = "")
+                    }
+                    .joinToString(separator = "")
                 )
             ),
             style = MaterialTheme.typography.bodyMedium,
