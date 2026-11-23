@@ -36,6 +36,7 @@ data class DayWeekFromEndOfMonthFlags(
         val LAST        = DayWeekFromEndOfMonthFlags(1 shl 0)
         val PENULTIMATE = DayWeekFromEndOfMonthFlags(1 shl 1)
         val ALL         = merge(LAST, PENULTIMATE)
+        val NONE = DayWeekFromEndOfMonthFlags(0)
 
         fun merge(vararg flags: DayWeekFromEndOfMonthFlags): DayWeekFromEndOfMonthFlags {
             var mergedMask = 0
@@ -77,8 +78,8 @@ data class DayWeekFromEndOfMonthFlags(
     /**
      * @param dayWeekFromEndOfMonth 0 indexed
      */
-    fun nextOrSame(dayWeekFromEndOfMonth: Int): MonthAndDayWeekFromEnd =
-        endDayWeeksOfMonth.minOf { end ->
+    fun nextOrSame(dayWeekFromEndOfMonth: Int): MonthAndDayWeekFromEnd? =
+        endDayWeeksOfMonth.minOfOrNull { end ->
             MonthAndDayWeekFromEnd(
                 if (dayWeekFromEndOfMonth < end) 1 else 0,
                 end
@@ -88,8 +89,8 @@ data class DayWeekFromEndOfMonthFlags(
     /**
      * @param dayWeekFromEndOfMonth 0 indexed
      */
-    fun prevOrSame(dayWeekFromEndOfMonth: Int): MonthAndDayWeekFromEnd =
-        endDayWeeksOfMonth.maxOf { end ->
+    fun prevOrSame(dayWeekFromEndOfMonth: Int): MonthAndDayWeekFromEnd? =
+        endDayWeeksOfMonth.maxOfOrNull { end ->
             MonthAndDayWeekFromEnd(
                 if (dayWeekFromEndOfMonth > end) -1 else 0,
                 end

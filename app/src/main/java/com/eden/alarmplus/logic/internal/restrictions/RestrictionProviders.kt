@@ -43,23 +43,17 @@ object RestrictionProviders {
             .mapNotNull { restriction -> restriction.getStartDate() }
             .maxByOrNull { startDate -> startDate }
 
-        if (inheritStartDate == null)
-            return StartDateResult(
-                hasRestriction = false,
-                nextStartPeriod = null,
-            )
-
         val combinedStartDate =
-            if (date != null) maxOf(inheritStartDate, date)
-            else inheritStartDate
+            if (date != null && inheritStartDate != null) maxOf(inheritStartDate, date)
+            else inheritStartDate ?: date ?: LocalDate.now()
 
         var sorted = listOf(StartPeriod(on = combinedStartDate, until = null))
 
-        for (restriction in this.sortedByDescending { it.filterOrder })
+        for (restriction in this.sortedBy { it.filterOrder })
             sorted = restriction.filterStartDate(sorted)
 
         return StartDateResult(
-            hasRestriction = true,
+            hasRestriction = inheritStartDate != null,
             nextStartPeriod = sorted.firstOrNull(),
         )
     }
@@ -78,23 +72,17 @@ object RestrictionProviders {
             .mapNotNull { restriction -> restriction.getEndDate() }
             .minByOrNull { endDate -> endDate }
 
-        if (inheritEndDate == null)
-            return EndDateResult(
-                hasRestriction = false,
-                lastEndPeriod = null,
-            )
-
         val combinedEndDate =
-            if (date != null) minOf(inheritEndDate, date)
-            else inheritEndDate
+            if (date != null && inheritEndDate != null) minOf(inheritEndDate, date)
+            else inheritEndDate ?: date ?: LocalDate.now()
 
         var sorted = listOf(EndPeriod(on = combinedEndDate, since = null))
 
-        for ((index, restriction) in this.sortedByDescending { it.filterOrder }.withIndex())
+        for (restriction in this.sortedBy { it.filterOrder })
             sorted = restriction.filterEndDate(sorted)
 
         return EndDateResult(
-            hasRestriction = true,
+            hasRestriction = inheritEndDate != null,
             lastEndPeriod = sorted.lastOrNull(),
         )
     }
