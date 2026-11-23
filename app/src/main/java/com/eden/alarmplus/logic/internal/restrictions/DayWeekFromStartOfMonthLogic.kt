@@ -21,11 +21,11 @@ class DayWeekFromStartOfMonthLogic(
 
             if (period.until == null) {
 
-                fun nextOrSameDate(date: LocalDate): LocalDate {
+                fun nextOrSameDate(date: LocalDate): LocalDate? {
 
                     val firstDateOfMonth = date.with(ChronoField.DAY_OF_MONTH, 1)
 
-                    val result = flags.nextOrSame(date.dayWeekFromStartOfMonth)
+                    val result = flags.nextOrSame(date.dayWeekFromStartOfMonth) ?: return null
 
                     return if (result.monthOffset == 0 && result.dayWeekFromStartOfMonth == date.dayWeekFromStartOfMonth)
                         date
@@ -35,12 +35,12 @@ class DayWeekFromStartOfMonthLogic(
                             .plusDays(7L * result.dayWeekFromStartOfMonth)
                 }
 
-                listOf(
-                    StartPeriod(
-                        on = nextOrSameDate(period.on),
-                        until = null,
+                val filteredOn = nextOrSameDate(period.on)
+                buildList {
+                    if (filteredOn != null) add(
+                        StartPeriod(on = filteredOn, until = null)
                     )
-                )
+                }
             }
             else {
 
@@ -92,11 +92,11 @@ class DayWeekFromStartOfMonthLogic(
 
             if (period.since == null) {
 
-                fun prevOrSameDate(date: LocalDate): LocalDate {
+                fun prevOrSameDate(date: LocalDate): LocalDate? {
 
                     val firstDateOfMonth = date.with(ChronoField.DAY_OF_MONTH, 1)
 
-                    val result = flags.prevOrSame(date.dayWeekFromStartOfMonth)
+                    val result = flags.prevOrSame(date.dayWeekFromStartOfMonth) ?: return null
 
                     return if (result.monthOffset == 0 && result.dayWeekFromStartOfMonth == date.dayWeekFromStartOfMonth)
                         date
@@ -106,12 +106,12 @@ class DayWeekFromStartOfMonthLogic(
                             .plusDays(7L * (result.dayWeekFromStartOfMonth + 1) - 1L)
                 }
 
-                listOf(
-                    EndPeriod(
-                        on = prevOrSameDate(period.on),
-                        since = null,
+                val filteredOn = prevOrSameDate(period.on)
+                buildList {
+                    if (filteredOn != null) add(
+                        EndPeriod(on = filteredOn, since = null)
                     )
-                )
+                }
             }
             else {
 

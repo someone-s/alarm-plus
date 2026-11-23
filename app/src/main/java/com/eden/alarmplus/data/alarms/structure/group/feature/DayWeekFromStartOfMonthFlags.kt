@@ -38,6 +38,7 @@ data class DayWeekFromStartOfMonthFlags(
         val THIRD   = DayWeekFromStartOfMonthFlags(1 shl 2)
         val FORTH   = DayWeekFromStartOfMonthFlags(1 shl 3)
         val ALL     = merge(FIRST, SECOND, THIRD, FORTH)
+        val NONE    = DayWeekFromStartOfMonthFlags(0)
 
         fun merge(vararg flags: DayWeekFromStartOfMonthFlags): DayWeekFromStartOfMonthFlags {
             var mergedMask = 0
@@ -79,8 +80,8 @@ data class DayWeekFromStartOfMonthFlags(
     /**
      * @param dayWeekFromStartOfMonth 0 indexed
      */
-    fun nextOrSame(dayWeekFromStartOfMonth: Int): MonthAndDayWeekFromStart =
-        startDayWeeksOfMonth.minOf { start ->
+    fun nextOrSame(dayWeekFromStartOfMonth: Int): MonthAndDayWeekFromStart? =
+        startDayWeeksOfMonth.minOfOrNull { start ->
             MonthAndDayWeekFromStart(
                 if (dayWeekFromStartOfMonth > start) 1 else 0,
                 start
@@ -90,8 +91,8 @@ data class DayWeekFromStartOfMonthFlags(
     /**
      * @param dayWeekFromStartOfMonth 0 indexed
      */
-    fun prevOrSame(dayWeekFromStartOfMonth: Int): MonthAndDayWeekFromStart =
-        startDayWeeksOfMonth.maxOf { start ->
+    fun prevOrSame(dayWeekFromStartOfMonth: Int): MonthAndDayWeekFromStart? =
+        startDayWeeksOfMonth.maxOfOrNull { start ->
             MonthAndDayWeekFromStart(
                 if (dayWeekFromStartOfMonth < start) -1 else 0,
                 start
