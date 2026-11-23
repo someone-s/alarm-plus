@@ -108,11 +108,11 @@
     <string name="ui_main_welcome_welcomedialog_title">Welcome!</string>
     <string name="ui_main_about_welcome_welcomedialog_dismiss">Dismiss</string>
     <string name="ui_mian_welcome_welcomedialog_body">Thank you for downloading %1$s, highlighted features are shown in the About section. Made with love, enjoy!</string>
-    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description">On %1$s in month</string>
-    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_all">all occurrence</string>
-    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_combined">the %1$s</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description">%1$s in month</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_all">On all occurrence</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_combined">Only the %1$s</string>
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorstart">%1$s</string>
-    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorend">, and %1$s</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperatorend">, %1$s</string>
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_seperator">, %1$s</string>
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_first">1st</string>
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_second">2nd</string>
@@ -120,4 +120,8 @@
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_forth">4th</string>
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_last">last</string>
     <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_description_penultimate">2nd last</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_dialog_save">Save</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_dialog_fromendlabel">Counting backwards in month</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_dialog_fromstartlabel">From the start of month</string>
+    <string name="ui_main_repeats_edit_group_dayweekofmonthbutton_dialog_title">Filter day of week</string>
 </resources>

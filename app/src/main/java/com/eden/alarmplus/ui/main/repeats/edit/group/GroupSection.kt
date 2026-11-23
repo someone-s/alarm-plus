@@ -207,32 +207,19 @@ fun GroupSection(
                 DayWeekOfMonthButton(
                     modifier = Modifier.fillMaxWidth(),
                     startFlags = startFlags,
-                    onUpdateStartFlags = { flags, enabled ->
-                        val modifiedFlags =
-                            if (enabled) DayWeekFromStartOfMonthFlags.merge(startFlags, flags)
-                            else startFlags.copyClear(flags)
-
-                        state.info = state.info.let {
-                            if (modifiedFlags.all(DayWeekFromStartOfMonthFlags.ALL) &&
-                                endFlags.all(DayWeekFromEndOfMonthFlags.ALL))
-                                it.shallowCopyRemoveFeature<DayWeekOfMonthFeature>()
-                            else
-                                it.shallowCopyReplaceFeature(DayWeekOfMonthFeature(modifiedFlags, endFlags))
-                        }
-                        state.modified = true
-                    },
                     endFlags = endFlags,
-                    onUpdateEndFlags = { flags, enabled ->
-                        val modifiedFlags =
-                            if (enabled) DayWeekFromEndOfMonthFlags.merge(endFlags, flags)
-                            else endFlags.copyClear(flags)
-
+                    onUpdateFlags = { newStartFlags, newEndFlags ->
                         state.info = state.info.let {
-                            if (startFlags.all(DayWeekFromStartOfMonthFlags.ALL) &&
-                                modifiedFlags.all(DayWeekFromEndOfMonthFlags.ALL))
+                            if ((
+                                newStartFlags.all(DayWeekFromStartOfMonthFlags.ALL) &&
+                                newEndFlags.all(DayWeekFromEndOfMonthFlags.ALL)
+                            ) || (
+                                !newStartFlags.any(DayWeekFromStartOfMonthFlags.ALL) &&
+                                !newEndFlags.any(DayWeekFromEndOfMonthFlags.ALL)
+                            ))
                                 it.shallowCopyRemoveFeature<DayWeekOfMonthFeature>()
                             else
-                                it.shallowCopyReplaceFeature(DayWeekOfMonthFeature(startFlags, modifiedFlags))
+                                it.shallowCopyReplaceFeature(DayWeekOfMonthFeature(newStartFlags, newEndFlags))
                         }
                         state.modified = true
                     }
