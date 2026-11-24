@@ -30,6 +30,11 @@ val formatter = Json {
             subclass(ScheduleBeginFeature::class)
             subclass(ScheduleEndFeature::class)
         }
+        polymorphic(RestrictionFeature::class) {
+            subclass(DayOfWeekFeature::class)
+            subclass(ScheduleBeginFeature::class)
+            subclass(ScheduleEndFeature::class)
+        }
         polymorphic(AlarmFeature::class) {
             subclass(AudioFeature::class)
             subclass(VibrateFeature::class)
