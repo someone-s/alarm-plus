@@ -6,17 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.eden.alarmplus.data.alarms.repository.StateRepository
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
-import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
-import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
-import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.RestrictionFeature
 import com.eden.alarmplus.data.alarms.structure.state.StateType
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.getFirstStartFrom
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.isDateAllowed
 import com.eden.alarmplus.ui.main.MainActivity
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.temporal.TemporalAdjusters
 
 class WakeScheduler(
     private val context: Context,
@@ -46,13 +44,7 @@ class WakeScheduler(
     private suspend fun getNextDateTime(fromDateTime: LocalDateTime): NextDateTimeInfo? {
 
         val fromDate = fromDateTime.toLocalDate()
-        val fromDateBefore = fromDate.minusDays(1)
-        val fromDateAfter = fromDate.plusDays(1)
-        val fromDateTwoAfter = fromDate.plusDays(2)
         val fromTime = fromDateTime.toLocalTime()
-        val fromDayInWeek = fromDateTime.dayOfWeek
-        val fromDayBeforeInWeek = fromDayInWeek.minus(1)
-        val fromDayAfterInWeek = fromDayInWeek.plus(1)
 
         return stateRepository.getAllGroups()
             .mapNotNull { group ->
@@ -61,17 +53,15 @@ class WakeScheduler(
                     else -> {}
                 }
 
-                val dayOfWeekFlags = group.info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
+                val info = group.info
 
-                val beginDate = group.info.getFeature<ScheduleBeginFeature>()?.date
-                val endDate = group.info.getFeature<ScheduleEndFeature>()?.date
-                fun LocalDate.allowed() =
-                    (beginDate == null || !this.isBefore(beginDate)) &&
-                            (endDate == null || !this.isAfter(endDate))
+                val restrictions = info
+                    .getFeaturesOf<RestrictionFeature>()
+                    .let { RestrictionProviders.getScopes(it) }
 
-                val allowYesterday = dayOfWeekFlags.any(fromDayBeforeInWeek) && fromDateBefore.allowed()
-                val allowToday = dayOfWeekFlags.any(fromDayInWeek) && fromDate.allowed()
-                val allowTomorrow = dayOfWeekFlags.any(fromDayAfterInWeek) && fromDateAfter.allowed()
+                val allowYesterday = restrictions.isDateAllowed(fromDate.minusDays(1))
+                val allowToday = restrictions.isDateAllowed(fromDate)
+                val allowTomorrow = restrictions.isDateAllowed(fromDate.plusDays(1))
 
                 val nextAlarmDateTime = if (allowYesterday && allowToday) {
                     group.alarms.map { it.info.time }
@@ -91,23 +81,13 @@ class WakeScheduler(
                         ?.let { LocalDateTime.of(fromDate, it) }
                 }
                 else {
-                    val nextStartAnchor =
-                        if (beginDate == null || !fromDateAfter.isBefore(beginDate)) {
-                            if (endDate == null || !fromDateAfter.isAfter(endDate))
-                                fromDateAfter
-                            else null
-                        }
-                        else {
-                            if (beginDate.isAfter(fromDateAfter))
-                                beginDate
-                            else null
-                        }
 
-                    val nextStartDate = if (nextStartAnchor != null)
-                        dayOfWeekFlags.toDayOfWeeks()
-                            .map { nextStartAnchor.with(TemporalAdjusters.nextOrSame(it)) }
-                            .minByOrNull { it }
-                    else null
+                    val nextStartDate = fromDate.plusDays(1).let { adjusted ->
+                        restrictions.getFirstStartFrom(adjusted).let { result ->
+                            if (result.hasRestriction) result.nextStartPeriod?.on
+                            else adjusted
+                        }
+                    }
 
                     if (nextStartDate != null)
                         group.alarms.firstOrNull()
@@ -124,30 +104,18 @@ class WakeScheduler(
 
                 if (nextDismissDateTime == null && allowTomorrow)
                     group.alarms.firstOrNull()
-                        ?.let { LocalDateTime.of(fromDateAfter, it.info.time) }
+                        ?.let { LocalDateTime.of(fromDate.plusDays(1), it.info.time) }
                         ?.minus(dismissWindow)
                         ?.also { if (it.isAfter(fromDateTime)) nextDismissDateTime = it }
 
                 if (nextDismissDateTime == null) {
 
-                    val nextDismissAnchor =
-                        if (beginDate == null || !fromDateTwoAfter.isBefore(beginDate)) {
-                            if (endDate == null || !fromDateTwoAfter.isAfter(endDate))
-                                fromDateTwoAfter
-                            else null
+                    val nextDismissDate = fromDate.plusDays(2).let { adjusted ->
+                        restrictions.getFirstStartFrom(adjusted).let { result ->
+                            if (result.hasRestriction) result.nextStartPeriod?.on
+                            else adjusted
                         }
-                        else {
-                            if (beginDate.isAfter(fromDateTwoAfter))
-                                beginDate
-                            else null
-                        }
-
-                    val nextDismissDate = if (nextDismissAnchor != null)
-                        dayOfWeekFlags.toDayOfWeeks()
-                        .map { nextDismissAnchor.with(TemporalAdjusters.nextOrSame(it)) }
-                        .filter { endDate == null || !it.isAfter(endDate) }
-                        .minByOrNull { it }
-                    else null
+                    }
 
                     if (nextDismissDate != null)
                         group.alarms.firstOrNull()

@@ -8,17 +8,18 @@ import com.eden.alarmplus.alert.AlertLogic
 import com.eden.alarmplus.alert.AlertService
 import com.eden.alarmplus.data.alarms.repository.StateRepository
 import com.eden.alarmplus.data.alarms.structure.alarm.AlarmData
-import com.eden.alarmplus.data.alarms.structure.dayofweek.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
-import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
-import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
-import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.RestrictionFeature
 import com.eden.alarmplus.data.alarms.structure.state.StateType
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.getFirstStartFrom
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.getLastEndOn
+import com.eden.alarmplus.logic.internal.restrictions.RestrictionProviders.isDateAllowed
+import com.eden.alarmplus.logic.internal.restrictions.isOnOrBefore
 import com.eden.alarmplus.util.time.isTimeRightBeforeAndNotAnchor
 import com.eden.alarmplus.util.time.isTimeWithinTimeSpan
 import kotlinx.coroutines.delay
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.milliseconds
@@ -223,27 +224,18 @@ class StateProcessor(
 
         val forewarnGroups = mutableListOf<GroupInfo>()
 
-        val day = dateTime.dayOfWeek
-        val dayBefore = day.minus(1)
-        val dayAfter = day.plus(1)
         val date = dateTime.toLocalDate()
-        val dateBefore = date.minusDays(1)
-        val dateAfter = date.plusDays(1)
         val time = dateTime.toLocalTime()
 
         for ((info, alarms) in stateRepository.getAllGroups()) {
 
-            val dayOfWeekFlags = info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
+            val restrictions = info
+                .getFeaturesOf<RestrictionFeature>()
+                .map { RestrictionProviders.getScope(it) }
 
-            val beginDate = info.getFeature<ScheduleBeginFeature>()?.date
-            val endDate = info.getFeature<ScheduleEndFeature>()?.date
-            fun LocalDate.allowed() =
-                (beginDate == null || !this.isBefore(beginDate)) &&
-                (endDate == null || !this.isAfter(endDate))
-
-            val allowYesterday = dayOfWeekFlags.any(dayBefore) && dateBefore.allowed()
-            val allowToday = dayOfWeekFlags.any(day) && date.allowed()
-            val allowTomorrow = dayOfWeekFlags.any(dayAfter) && dateAfter.allowed()
+            val allowYesterday = restrictions.all { it.isDateAllowed(date.minusDays(1)) }
+            val allowToday = restrictions.all { it.isDateAllowed(date) }
+            val allowTomorrow = restrictions.all { it.isDateAllowed(date.plusDays(1)) }
 
             val inDuration: Boolean = isTimeWithinTimeSpan(
                 alarms.map { it.info.time },
@@ -251,8 +243,15 @@ class StateProcessor(
                 allowToday,
                 allowYesterday,
             )
-            val scheduleUpcoming = beginDate != null && !beginDate.isBefore(date)
-            val scheduleGone = endDate != null && endDate.isBefore(date)
+
+            val scheduleUpcoming = restrictions.getFirstStartFrom().let { result ->
+                result.hasRestriction &&
+                (result.nextStartPeriod == null || result.nextStartPeriod.on.isAfter(date))
+            }
+            val scheduleGone = restrictions.getLastEndOn().let { result ->
+                result.hasRestriction &&
+                (result.lastEndPeriod == null || result.lastEndPeriod.on.isBefore(date))
+            }
             val inDismissableWindow: Boolean = alarms.isNotEmpty() && isTimeRightBeforeAndNotAnchor(
                 alarms.first().info.time,
                 dismissWindow,
@@ -261,7 +260,7 @@ class StateProcessor(
                 allowTomorrow,
             )
 
-            var shouldRemoveScheduleEndFeature = false
+            var removeEndFeatures = false
             val currentState = info.state
             val newState = when (currentState) {
                 StateType.DISABLED ->
@@ -269,7 +268,7 @@ class StateProcessor(
                 StateType.ENABLED_UNDEFINED_MANUAL ->
                     if (inDuration) StateType.ENABLED_ACTIVE
                     else if (scheduleUpcoming) StateType.ENABLED_PENDING
-                    else if (scheduleGone) StateType.ENABLED_IDLE.also { shouldRemoveScheduleEndFeature = true }
+                    else if (scheduleGone) StateType.ENABLED_IDLE.also { removeEndFeatures = true }
                     else StateType.ENABLED_IDLE
                 StateType.ENABLED_UNDEFINED_DEFAULT ->
                     if (inDuration) StateType.ENABLED_ACTIVE
@@ -312,8 +311,14 @@ class StateProcessor(
                 forewarnGroups.add(info)
 
             if (!Lock.isValid(handle)) throw InvalidatedStateException()
-            if (shouldRemoveScheduleEndFeature)
-                stateRepository.setGroupFeatures(info.uuid, info.features.filter { it !is ScheduleEndFeature })
+            if (removeEndFeatures)
+                stateRepository.setGroupFeatures(
+                    info.uuid,
+                    info.features.filter {
+                        it !is RestrictionFeature ||
+                        !RestrictionProviders.featuresHasInheritEnd(it)
+                    }
+                )
             stateRepository.updateState(info.uuid, newState)
         }
 
@@ -341,12 +346,7 @@ class StateProcessor(
     private suspend fun processCurrent(handle: Lock.Handle, dateTime: LocalDateTime) {
         if (!Lock.isValid(handle)) throw InvalidatedStateException()
 
-        val day = dateTime.dayOfWeek
-        val dayBefore = day.minus(1)
-        val dayAfter = day.plus(1)
         val date = dateTime.toLocalDate()
-        val dateBefore = date.minusDays(1)
-        val dateAfter = date.plusDays(1)
         val time = dateTime.toLocalTime()
 
         for ((info, alarms) in stateRepository.getAllGroups()) {
@@ -362,17 +362,13 @@ class StateProcessor(
             }
             var stateUpdated = false
 
-            val dayOfWeekFlags = info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
+            val restrictions = info
+                .getFeaturesOf<RestrictionFeature>()
+                .let { RestrictionProviders.getScopes(it) }
 
-            val beginDate = info.getFeature<ScheduleBeginFeature>()?.date
-            val endDate = info.getFeature<ScheduleEndFeature>()?.date
-            fun LocalDate.allowed() =
-                (beginDate == null || !this.isBefore(beginDate)) &&
-                (endDate == null || !this.isAfter(endDate))
-
-            val allowYesterday = dayOfWeekFlags.any(dayBefore) && dateBefore.allowed()
-            val allowToday = dayOfWeekFlags.any(day) && date.allowed()
-            val allowTomorrow = dayOfWeekFlags.any(dayAfter) && dateAfter.allowed()
+            val allowYesterday = restrictions.isDateAllowed(date.minusDays(1))
+            val allowToday = restrictions.isDateAllowed(date)
+            val allowTomorrow = restrictions.isDateAllowed(date.plusDays(1))
 
             val groupStartTime = alarms.first().info.time
 
@@ -434,7 +430,11 @@ class StateProcessor(
                     allowTomorrow
                 )
                 val isLastInGroup = alarms.last().info.time == time
-                val onOrAfterEndDate = endDate != null && !date.isBefore(endDate)
+                val onOrAfterEndDate = restrictions.getLastEndOn().let { result ->
+                    result.hasRestriction &&
+                    result.lastEndPeriod != null &&
+                    result.lastEndPeriod.on.isOnOrBefore(date)
+                }
 
                 val shouldNotify = when (currentState) {
                     StateType.ENABLED_PENDING -> true

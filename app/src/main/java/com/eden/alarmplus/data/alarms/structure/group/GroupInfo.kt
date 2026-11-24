@@ -45,6 +45,10 @@ data class GroupInfo(
         return features.firstOrNull { it is T } as? T
     }
 
+    inline fun <reified T: GroupFeature> getFeaturesOf(): List<T> {
+        return features.filterIsInstance<T>()
+    }
+
 }
 
 val emptyGroupInfo = GroupInfo(
