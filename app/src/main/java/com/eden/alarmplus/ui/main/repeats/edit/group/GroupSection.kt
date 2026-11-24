@@ -34,6 +34,9 @@ import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 import com.eden.alarmplus.data.alarms.structure.group.GroupData
 import com.eden.alarmplus.data.alarms.structure.group.GroupInfo
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekFromEndOfMonthFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekFromStartOfMonthFlags
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekOfMonthFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
 import java.time.LocalTime
@@ -176,18 +179,51 @@ fun GroupSection(
                     state.info.getFeature<DayOfWeekFeature>()?.flags ?: DayOfWeekFlags.ALL
                 }
                 DayOfWeekGroup(
+                    modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
                     flags = dayOfWeekFlags,
                     onToggle = { flags, checked ->
-                        state.info = state.info.shallowCopyReplaceFeature(DayOfWeekFeature(
+                        val modifiedFlags =
                             if (checked) DayOfWeekFlags.merge(dayOfWeekFlags, flags)
                             else dayOfWeekFlags.copyClear(flags)
-                        ))
+
+                        state.info = state.info.let {
+                            if (modifiedFlags.all(DayOfWeekFlags.ALL))
+                                it.shallowCopyRemoveFeature<DayOfWeekFeature>()
+                            else
+                                it.shallowCopyReplaceFeature(DayOfWeekFeature(modifiedFlags))
+                        }
                         state.modified = true
                     }
                 )
             }
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                val (startFlags, endFlags) = remember(state.info) {
+                    val feature = state.info.getFeature<DayWeekOfMonthFeature>()
+                    Pair(
+                        feature?.startFlags ?: DayWeekFromStartOfMonthFlags.ALL,
+                        feature?.endFlags ?: DayWeekFromEndOfMonthFlags.ALL
+                    )
+                }
+                DayWeekOfMonthButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    startFlags = startFlags,
+                    endFlags = endFlags,
+                    onUpdateFlags = { newStartFlags, newEndFlags ->
+                        state.info = state.info.let {
+                            if ((
+                                newStartFlags.all(DayWeekFromStartOfMonthFlags.ALL) &&
+                                newEndFlags.all(DayWeekFromEndOfMonthFlags.ALL)
+                            ) || (
+                                !newStartFlags.any(DayWeekFromStartOfMonthFlags.ALL) &&
+                                !newEndFlags.any(DayWeekFromEndOfMonthFlags.ALL)
+                            ))
+                                it.shallowCopyRemoveFeature<DayWeekOfMonthFeature>()
+                            else
+                                it.shallowCopyReplaceFeature(DayWeekOfMonthFeature(newStartFlags, newEndFlags))
+                        }
+                        state.modified = true
+                    }
+                )
             }
             item {
                 val scheduleBeginDate = remember(state.info) { state.info.getFeature<ScheduleBeginFeature>()?.date }

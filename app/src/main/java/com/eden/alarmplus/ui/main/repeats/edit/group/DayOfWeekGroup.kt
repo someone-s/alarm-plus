@@ -18,6 +18,7 @@ import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFlags
 
 @Composable
 fun DayOfWeekGroup(
+    modifier: Modifier = Modifier,
     flags: DayOfWeekFlags,
     onToggle: (DayOfWeekFlags, Boolean) -> Unit,
 ) {
@@ -34,7 +35,7 @@ fun DayOfWeekGroup(
     val hapticFeedback = LocalHapticFeedback.current
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 

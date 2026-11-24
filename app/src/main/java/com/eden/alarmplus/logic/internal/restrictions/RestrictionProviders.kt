@@ -1,6 +1,7 @@
 package com.eden.alarmplus.logic.internal.restrictions
 
 import com.eden.alarmplus.data.alarms.structure.group.feature.DayOfWeekFeature
+import com.eden.alarmplus.data.alarms.structure.group.feature.DayWeekOfMonthFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.RestrictionFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleBeginFeature
 import com.eden.alarmplus.data.alarms.structure.group.feature.ScheduleEndFeature
@@ -10,6 +11,7 @@ import kotlin.reflect.KClass
 object RestrictionProviders {
     private val providers = mapOf<KClass<*>, RestrictionProvider>(
         DayOfWeekFeature::class to DayOfWeekProvider,
+        DayWeekOfMonthFeature::class to DayWeekOfMonthProvider,
         ScheduleBeginFeature::class to ScheduleBeginProvider,
         ScheduleEndFeature::class to ScheduleEndProvider,
     )
@@ -28,7 +30,7 @@ object RestrictionProviders {
         this.all { it.isDateAllowed(date) }
 
     data class StartDateResult(
-        val hasRestriction: Boolean,
+        val hasFixedRestriction: Boolean,
         val nextStartPeriod: StartPeriod?,
     )
 
@@ -41,23 +43,17 @@ object RestrictionProviders {
             .mapNotNull { restriction -> restriction.getStartDate() }
             .maxByOrNull { startDate -> startDate }
 
-        if (inheritStartDate == null)
-            return StartDateResult(
-                hasRestriction = false,
-                nextStartPeriod = null,
-            )
-
         val combinedStartDate =
-            if (date != null) maxOf(inheritStartDate, date)
-            else inheritStartDate
+            if (date != null && inheritStartDate != null) maxOf(inheritStartDate, date)
+            else inheritStartDate ?: date ?: LocalDate.now()
 
         var sorted = listOf(StartPeriod(on = combinedStartDate, until = null))
 
-        for (restriction in this.sortedByDescending { it.filterOrder })
+        for (restriction in this.sortedBy { it.filterOrder })
             sorted = restriction.filterStartDate(sorted)
 
         return StartDateResult(
-            hasRestriction = true,
+            hasFixedRestriction = inheritStartDate != null,
             nextStartPeriod = sorted.firstOrNull(),
         )
     }
@@ -76,23 +72,17 @@ object RestrictionProviders {
             .mapNotNull { restriction -> restriction.getEndDate() }
             .minByOrNull { endDate -> endDate }
 
-        if (inheritEndDate == null)
-            return EndDateResult(
-                hasRestriction = false,
-                lastEndPeriod = null,
-            )
-
         val combinedEndDate =
-            if (date != null) minOf(inheritEndDate, date)
-            else inheritEndDate
+            if (date != null && inheritEndDate != null) minOf(inheritEndDate, date)
+            else inheritEndDate ?: date ?: LocalDate.now()
 
         var sorted = listOf(EndPeriod(on = combinedEndDate, since = null))
 
-        for ((index, restriction) in this.sortedByDescending { it.filterOrder }.withIndex())
+        for (restriction in this.sortedBy { it.filterOrder })
             sorted = restriction.filterEndDate(sorted)
 
         return EndDateResult(
-            hasRestriction = true,
+            hasRestriction = inheritEndDate != null,
             lastEndPeriod = sorted.lastOrNull(),
         )
     }
